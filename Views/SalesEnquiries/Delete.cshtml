@@ -1,0 +1,56 @@
+﻿@model KLENZ.Models.SalesEnquiry
+
+@{
+    ViewData["Title"] = "Delete Sales Enquiry";
+}
+
+<div class="card shadow-lg rounded-card">
+    <div class="card-header bg-danger bg-opacity-75 text-white">
+        <h4 class="mb-0">Delete Sales Enquiry</h4>
+    </div>
+    <div class="card-body">
+        <h5 class="text-danger">Are you sure you want to delete this record?</h5>
+        <hr />
+
+        <!-- Bootstrap Grid for Displaying Fields -->
+        <dl class="row">
+            <dt class="col-md-2 fw-bold">Company Name</dt>
+            <dd class="col-md-4">@Html.DisplayFor(model => model.CompanyName)</dd>
+
+            <dt class="col-md-2 fw-bold">Referred By</dt>
+            <dd class="col-md-4">@Html.DisplayFor(model => model.ReferedBy)</dd>
+
+            <dt class="col-md-2 fw-bold">Enquiry Details</dt>
+            <dd class="col-md-4">@Html.DisplayFor(model => model.EnquiryDetails)</dd>
+
+            <dt class="col-md-2 fw-bold">Enquiry Date</dt>
+            <dd class="col-md-4">@Html.DisplayFor(model => model.EnquiryDate)</dd>
+
+            <dt class="col-md-2 fw-bold">Customer Details</dt>
+            <dd class="col-md-4">@Html.DisplayFor(model => model.CustomerDetails)</dd>
+
+            <dt class="col-md-2 fw-bold">Status</dt>
+            <dd class="col-md-4">@Html.DisplayFor(model => model.Status)</dd>
+
+            <dt class="col-md-2 fw-bold">Remarks</dt>
+            <dd class="col-md-4">@Html.DisplayFor(model => model.Remarks)</dd>
+
+            <dt class="col-md-2 fw-bold">Reminder Date</dt>
+            <dd class="col-md-4">@Html.DisplayFor(model => model.RemainderDate)</dd>
+
+            <dt class="col-md-2 fw-bold">Reminder Place</dt>
+            <dd class="col-md-4">@Html.DisplayFor(model => model.RemainderPlace)</dd>
+        </dl>
+
+        <!-- Buttons with proper spacing -->
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <div class="row">
+                <div class="col-md-12 d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                    <input type="submit" value="Delete" class="btn btn-danger" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

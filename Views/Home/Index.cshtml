@@ -1,0 +1,96 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<style>
+    .card-link {
+        text-decoration: none;
+    }
+</style>
+<div class="text-center">
+    <h1 class="display-5">Welcome</h1>
+</div>
+
+<div class="container mt-5">
+    <div class="row">
+        <!-- Card 1 -->
+        <div class="col-md-4 mb-4">
+            <a href="@Url.Action("Index", "SalesEnquiries")" class="card-link">
+                @* <a href="~/" class="card-link"> *@
+                <div class="card">
+                    <img src="https://via.placeholder.com/150" class="card-img-top" alt="Card Image 1">
+                    <div class="card-body text-center text-center" >
+                        <h5 class="card-title">Sales</h5>
+                        <p class="card-text">This is a short description for the Sales section.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="col-md-4 mb-4">
+            <a href="/page2" class="card-link">
+                <div class="card">
+                    <img src="https://via.placeholder.com/150" class="card-img-top" alt="Card Image 2">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Projects</h5>
+                        <p class="card-text">Learn about our ongoing and completed projects.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="col-md-4 mb-4">
+            <a href="/page3" class="card-link">
+                <div class="card">
+                    <img src="https://via.placeholder.com/150" class="card-img-top" alt="Card Image 3">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Purchase</h5>
+                        <p class="card-text">Information about purchases and procurement.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Card 4 -->
+        <div class="col-md-4 mb-4">
+            <a href="/page4" class="card-link">
+                <div class="card">
+                    <img src="https://via.placeholder.com/150" class="card-img-top" alt="Card Image 4">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Accounts</h5>
+                        <p class="card-text">Account management and financial data.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="col-md-4 mb-4">
+            <a href="/page5" class="card-link">
+                <div class="card">
+                    <img src="https://via.placeholder.com/150" class="card-img-top" alt="Card Image 5">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">General</h5>
+                        <p class="card-text">General information and resources.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="col-md-4 mb-4">
+            <a href="/page6" class="card-link">
+                <div class="card">
+                    <img src="https://via.placeholder.com/150" class="card-img-top" alt="Card Image 6">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Admin</h5>
+                        <p class="card-text">Administration and user settings.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,104 @@
+﻿@model KLENZ.Models.SalesEnquiry
+
+@{
+    ViewData["Title"] = "Edit Sales Enquiry";
+}
+
+<div class="card shadow-lg rounded-card">
+    <div class="card-header bg-primary bg-opacity-75 text-white">
+        <h4 class="mb-0">Edit Sales Enquiry</h4>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <!-- Bootstrap Grid for Label on Left & Input on Right -->
+            <div class="row mb-3">
+                <label asp-for="CompanyName" class="col-md-2 fw-bold"></label>
+                <div class="col-md-4">
+                    <input asp-for="CompanyName" class="form-control" />
+                    <span asp-validation-for="CompanyName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label asp-for="ReferedBy" class="col-md-2 fw-bold"></label>
+                <div class="col-md-4">
+                    <input asp-for="ReferedBy" class="form-control" />
+                    <span asp-validation-for="ReferedBy" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label asp-for="EnquiryDetails" class="col-md-2 fw-bold"></label>
+                <div class="col-md-4">
+                    <input asp-for="EnquiryDetails" class="form-control" />
+                    <span asp-validation-for="EnquiryDetails" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label asp-for="EnquiryDate" class="col-md-2 fw-bold"></label>
+                <div class="col-md-4">
+                    <input asp-for="EnquiryDate" type="date" class="form-control" />
+                    <span asp-validation-for="EnquiryDate" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label asp-for="CustomerDetails" class="col-md-2 fw-bold"></label>
+                <div class="col-md-4">
+                    <input asp-for="CustomerDetails" class="form-control" />
+                    <span asp-validation-for="CustomerDetails" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label asp-for="Status" class="col-md-2 fw-bold"></label>
+                <div class="col-md-4">
+                    <input asp-for="Status" class="form-control" />
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label asp-for="Remarks" class="col-md-2 fw-bold"></label>
+                <div class="col-md-4">
+                    <input asp-for="Remarks" class="form-control" />
+                    <span asp-validation-for="Remarks" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label asp-for="RemainderDate" class="col-md-2 fw-bold"></label>
+                <div class="col-md-4">
+                    <input asp-for="RemainderDate" type="date" class="form-control" />
+                    <span asp-validation-for="RemainderDate" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label asp-for="RemainderPlace" class="col-md-2 fw-bold"></label>
+                <div class="col-md-4">
+                    <input asp-for="RemainderPlace" class="form-control" />
+                    <span asp-validation-for="RemainderPlace" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- Buttons with proper spacing -->
+            <div class="row">
+                <div class="col-md-6 d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                    <input type="submit" value="Save Changes" class="btn btn-primary" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
