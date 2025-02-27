@@ -10,7 +10,8 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/KLENZ.styles.css" asp-append-version="true" />
     <link rel="icon" type="image/png" href="@Url.Content("~/favicon.ico")" />
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <!-- 🔹 DataTables & Icons -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
@@ -20,7 +21,7 @@
         <!-- Conditionally hide the navbar -->
         @if (!(ViewContext.RouteData.Values["Page"]?.ToString()?.Contains("/Account/Register") ?? false))
         {
-            <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3 rounded-navbar">
                 <div class="container-fluid" style="max-width: 1000px">
                     <!-- Left: Brand & Toggler -->
                     <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">KLENZ</a>

@@ -9,10 +9,23 @@
             <i class="bi bi-bar-chart-fill me-2 fs-4"></i> <!-- Bootstrap icon -->
             <h4 class="mb-0">Sales Enquiries</h4>
         </div>
-        <a asp-action="Create" class="btn btn-light text-primary shadow-sm custom-btn">
-            <i class="bi bi-plus-circle me-1"></i> Create New
-        </a>
+        <div class="d-flex gap-2">
+            <a asp-action="Create" class="btn btn-light text-primary shadow-sm custom-btn">
+                <i class="bi bi-plus-circle me-1"></i> Create New
+            </a>
+
+            <!-- Export to Excel Button -->
+            <button id="exportExcel" class="btn btn-success">
+                <i class="bi bi-file-earmark-excel-fill me-1"></i> Export to Excel
+            </button>
+
+            <!-- Export to PDF Button -->
+            <button id="exportPdf" class="btn btn-danger">
+                <i class="bi bi-file-earmark-pdf-fill me-1"></i> Export to PDF
+            </button>
+        </div>
     </div>
+
     <div class="card-body">
         <div class="table-responsive">
             <table class="table datatable rounded-table">
@@ -25,9 +38,9 @@
                         <th>@Html.DisplayNameFor(model => model.EnquiryDate)</th>
                         <th>@Html.DisplayNameFor(model => model.CustomerDetails)</th>
                         <th>@Html.DisplayNameFor(model => model.Status)</th>
-                        @* <th>@Html.DisplayNameFor(model => model.Remarks)</th> *@
                         <th>@Html.DisplayNameFor(model => model.RemainderDate)</th>
                         <th>@Html.DisplayNameFor(model => model.RemainderPlace)</th>
+                        <th>@Html.DisplayNameFor(model => model.File)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,10 +64,20 @@
                             <td>@Html.DisplayFor(modelItem => item.EnquiryDate)</td>
                             <td>@Html.DisplayFor(modelItem => item.CustomerDetails)</td>
                             <td>@Html.DisplayFor(modelItem => item.Status)</td>
-                            @* <td>@Html.DisplayFor(modelItem => item.Remarks)</td> *@
                             <td>@Html.DisplayFor(modelItem => item.RemainderDate)</td>
                             <td>@Html.DisplayFor(modelItem => item.RemainderPlace)</td>
-                            
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.FilePath))
+                                {
+                                    <a href="@Url.Content(item.FilePath)" target="_blank" class="btn btn-sm btn-outline-primary" title="Click to View">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No File</span>
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -62,3 +85,117 @@
         </div>
     </div>
 </div>
+
+<!-- Include jsPDF & autoTable for PDF Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+<!-- Include SheetJS for Excel Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+    // Function to Export Table to PDF (A4 Landscape)
+    function exportToPDF() {
+        const doc = new window.jspdf.jsPDF({
+            orientation: "landscape",
+            unit: "mm",
+            format: "a4"
+        });
+
+        // Add Title
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
+        doc.text("Sales Enquiries Report", 14, 20);
+
+        // Table headers
+        const headers = [["Company Name", "Referred By", "Enquiry Details", "Enquiry Date", "Customer Details", "Status", "Remainder Date", "Remainder Place"]];
+
+        // Table body data
+        const data = [];
+        document.querySelectorAll(".datatable tbody tr").forEach(row => {
+            const rowData = [];
+            row.querySelectorAll("td:not(:first-child, :last-child)").forEach(cell => {
+                rowData.push(cell.textContent.trim());
+            });
+            data.push(rowData);
+        });
+
+        // Generate table in PDF
+        doc.autoTable({
+            head: headers,
+            body: data,
+            startY: 30,
+            theme: 'grid',
+            styles: { fontSize: 9 },
+            headStyles: { fillColor: [40, 40, 40], textColor: [255, 255, 255] },
+            margin: { top: 30 }
+        });
+
+        doc.save('Sales_Enquiries.pdf');
+    }
+
+     function exportToExcel() {
+         let workbook = new ExcelJS.Workbook();
+        let worksheet = workbook.addWorksheet("Sales Enquiries");
+
+        // Table headers
+        let headers = ["COMPANY NAME", "REFERRED BY", "ENQUIRY DETAILS", "ENQUIRY DATE", "CUSTOMER DETAILS", "STATUS", "REMAINDER DATE", "REMAINDER PLACE"];
+
+        // Add headers to worksheet with styling
+        let headerRow = worksheet.addRow(headers);
+        headerRow.font = { bold: true, size: 14 }; // Bold + Increased font size
+        headerRow.alignment = { horizontal: 'center' }; // Center align headers
+
+        // Apply border to headers
+        headerRow.eachCell(cell => {
+            cell.border = {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' }
+            };
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFFFCC00' } // Yellow background
+            };
+        });
+
+        // Table body data
+        document.querySelectorAll(".datatable tbody tr").forEach(row => {
+            let rowData = [];
+            row.querySelectorAll("td:not(:first-child, :last-child)").forEach(cell => {
+                rowData.push(cell.textContent.trim());
+            });
+            let dataRow = worksheet.addRow(rowData);
+
+            // Apply border to each data cell
+            dataRow.eachCell(cell => {
+                cell.border = {
+                    top: { style: 'thin' },
+                    left: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+            });
+        });
+
+        // Auto-sizing columns
+        worksheet.columns.forEach(column => {
+            column.width = 20; // Adjust column width
+        });
+
+        // Create and download file
+        workbook.xlsx.writeBuffer().then(buffer => {
+            let blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            saveAs(blob, "Sales_Enquiries.xlsx");
+        });
+    }
+
+
+    // Event Listeners for Buttons
+    document.getElementById('exportPdf').addEventListener('click', exportToPDF);
+    document.getElementById('exportExcel').addEventListener('click', exportToExcel);
+</script>
+
+

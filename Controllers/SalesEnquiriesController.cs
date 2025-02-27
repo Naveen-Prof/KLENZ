@@ -14,18 +14,19 @@ namespace KLENZ.Controllers
     public class SalesEnquiriesController : Controller
     {
         private readonly KLENZDbContext _context;
-        private readonly IWebHostEnvironment _hostEnvironment; // ✅ Fixed missing declaration
+        private readonly IWebHostEnvironment _hostEnvironment;
+        private readonly string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".pdf", ".docx" }; // ✅ Allowed file types
 
         public SalesEnquiriesController(KLENZDbContext context, IWebHostEnvironment hostEnvironment)
         {
             _context = context;
-            _hostEnvironment = hostEnvironment; // ✅ Initialize host environment
+            _hostEnvironment = hostEnvironment;
         }
 
         // GET: SalesEnquiries
         public async Task<IActionResult> Index()
         {
-            return View(await _context.SalesEnquiries.ToListAsync()); // ✅ Fixed DbSet name
+            return View(await _context.SalesEnquiries.ToListAsync());
         }
 
         // GET: SalesEnquiries/Create
@@ -34,24 +35,37 @@ namespace KLENZ.Controllers
             return View();
         }
 
+        // GET: SalesEnquiries/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var salesEnquiry = await _context.SalesEnquiries.FirstOrDefaultAsync(m => m.Id == id);
+            if (salesEnquiry == null) return NotFound();
+
+            return View(salesEnquiry);
+        }
+
         // POST: SalesEnquiries/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-            [Bind("Id,CompanyName,ReferedBy,EnquiryDetails,EnquiryDate,CustomerDetails,Status,Remarks,RemainderDate,RemainderPlace")] SalesEnquiry salesEnquiry,
-            IFormFile? File)
+        public async Task<IActionResult> Create(SalesEnquiry salesEnquiry, IFormFile? File)
         {
             if (ModelState.IsValid)
             {
                 if (File != null && File.Length > 0)
                 {
-                    string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "uploads");
-                    if (!Directory.Exists(uploadsFolder))
+                    string fileExtension = Path.GetExtension(File.FileName).ToLower();
+                    if (!allowedExtensions.Contains(fileExtension))
                     {
-                        Directory.CreateDirectory(uploadsFolder);
+                        ModelState.AddModelError("File", "Invalid file type. Only JPG, PNG, PDF, and DOCX are allowed.");
+                        return View(salesEnquiry);
                     }
 
-                    string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(File.FileName);
+                    string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "uploads");
+                    Directory.CreateDirectory(uploadsFolder); // Ensure folder exists
+
+                    string uniqueFileName = Guid.NewGuid().ToString() + fileExtension;
                     string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
@@ -59,7 +73,7 @@ namespace KLENZ.Controllers
                         await File.CopyToAsync(fileStream);
                     }
 
-                    salesEnquiry.FilePath = "/uploads/" + uniqueFileName; // Store relative path
+                    salesEnquiry.FilePath = "/uploads/" + uniqueFileName;
                 }
 
                 _context.Add(salesEnquiry);
@@ -83,9 +97,7 @@ namespace KLENZ.Controllers
         // POST: SalesEnquiries/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id,
-            [Bind("Id,CompanyName,ReferedBy,EnquiryDetails,EnquiryDate,CustomerDetails,Status,Remarks,RemainderDate,RemainderPlace,FilePath")]
-            SalesEnquiry salesEnquiry)
+        public async Task<IActionResult> Edit(int id, SalesEnquiry salesEnquiry, IFormFile? File)
         {
             if (id != salesEnquiry.Id) return NotFound();
 
@@ -93,7 +105,48 @@ namespace KLENZ.Controllers
             {
                 try
                 {
-                    _context.Update(salesEnquiry);
+                    var existingEnquiry = await _context.SalesEnquiries.FindAsync(id);
+                    if (existingEnquiry == null) return NotFound();
+
+                    // Handle File Upload
+                    if (File != null && File.Length > 0)
+                    {
+                        string fileExtension = Path.GetExtension(File.FileName).ToLower();
+                        if (!allowedExtensions.Contains(fileExtension))
+                        {
+                            ModelState.AddModelError("File", "Invalid file type. Only JPG, PNG, PDF, and DOCX are allowed.");
+                            return View(salesEnquiry);
+                        }
+
+                        string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "uploads");
+                        Directory.CreateDirectory(uploadsFolder);
+
+                        string uniqueFileName = Guid.NewGuid().ToString() + fileExtension;
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await File.CopyToAsync(fileStream);
+                        }
+
+                        // Delete old file
+                        if (!string.IsNullOrEmpty(existingEnquiry.FilePath))
+                        {
+                            string oldFilePath = Path.Combine(_hostEnvironment.WebRootPath, existingEnquiry.FilePath.TrimStart('/'));
+                            if (System.IO.File.Exists(oldFilePath))
+                            {
+                                System.IO.File.Delete(oldFilePath);
+                            }
+                        }
+
+                        salesEnquiry.FilePath = "/uploads/" + uniqueFileName;
+                    }
+                    else
+                    {
+                        salesEnquiry.FilePath = existingEnquiry.FilePath;
+                    }
+
+                    _context.Entry(existingEnquiry).CurrentValues.SetValues(salesEnquiry);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -123,9 +176,21 @@ namespace KLENZ.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var salesEnquiry = await _context.SalesEnquiries.FindAsync(id);
-            if (salesEnquiry != null) _context.SalesEnquiries.Remove(salesEnquiry);
+            if (salesEnquiry != null)
+            {
+                // Delete the associated file
+                if (!string.IsNullOrEmpty(salesEnquiry.FilePath))
+                {
+                    string fileToDelete = Path.Combine(_hostEnvironment.WebRootPath, salesEnquiry.FilePath.TrimStart('/'));
+                    if (System.IO.File.Exists(fileToDelete))
+                    {
+                        System.IO.File.Delete(fileToDelete);
+                    }
+                }
 
-            await _context.SaveChangesAsync();
+                _context.SalesEnquiries.Remove(salesEnquiry);
+                await _context.SaveChangesAsync();
+            }
             return RedirectToAction(nameof(Index));
         }
 
