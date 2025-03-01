@@ -20,7 +20,7 @@
             <dd class="col-md-4">@Html.DisplayFor(model => model.EnquiryDetails)</dd>
 
             <dt class="col-md-2 fw-bold">Enquiry Date</dt>
-            <dd class="col-md-4">@Html.DisplayFor(model => model.EnquiryDate)</dd>
+            <dd class="col-md-4">@Model.EnquiryDate?.ToString("dd/MM/yyyy")</dd>
 
             <dt class="col-md-2 fw-bold">Customer Details</dt>
             <dd class="col-md-4">@Html.DisplayFor(model => model.CustomerDetails)</dd>
@@ -32,7 +32,7 @@
             <dd class="col-md-4">@Html.DisplayFor(model => model.Remarks)</dd>
 
             <dt class="col-md-2 fw-bold">Reminder Date</dt>
-            <dd class="col-md-4">@Html.DisplayFor(model => model.RemainderDate)</dd>
+            <dd class="col-md-4">@Model.RemainderDate?.ToShortDateString()</dd>
 
             <dt class="col-md-2 fw-bold">Reminder Place</dt>
             <dd class="col-md-4">@Html.DisplayFor(model => model.RemainderPlace)</dd>

@@ -6,6 +6,7 @@ using KLENZ.Data;
 using KLENZ.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,12 +16,14 @@ namespace KLENZ.Controllers
     {
         private readonly KLENZDbContext _context;
         private readonly IWebHostEnvironment _hostEnvironment;
-        private readonly string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".pdf", ".docx" }; // ✅ Allowed file types
+        private readonly string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".pdf", ".docx" };
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public SalesEnquiriesController(KLENZDbContext context, IWebHostEnvironment hostEnvironment)
+        public SalesEnquiriesController(KLENZDbContext context, IWebHostEnvironment hostEnvironment, UserManager<IdentityUser> userManager)
         {
             _context = context;
             _hostEnvironment = hostEnvironment;
+            _userManager = userManager;
         }
 
         // GET: SalesEnquiries
@@ -49,10 +52,20 @@ namespace KLENZ.Controllers
         // POST: SalesEnquiries/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(SalesEnquiry salesEnquiry, IFormFile? File)
+        public async Task<IActionResult> Create([Bind("CompanyName, ReferedBy, EnquiryDetails, EnquiryDate, " +
+            "CustomerDetails, Status, RemainderDate, RemainderPlace, FilePath")] SalesEnquiry salesEnquiry, IFormFile? File)
         {
             if (ModelState.IsValid)
             {
+                var userId = _userManager.GetUserId(User);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    ModelState.AddModelError(string.Empty, "You must be logged in to create a sales enquiry.");
+                    return View(salesEnquiry);
+                }
+
+                salesEnquiry.CreatedUserId = userId;
+
                 if (File != null && File.Length > 0)
                 {
                     string fileExtension = Path.GetExtension(File.FileName).ToLower();
@@ -63,7 +76,7 @@ namespace KLENZ.Controllers
                     }
 
                     string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "uploads");
-                    Directory.CreateDirectory(uploadsFolder); // Ensure folder exists
+                    Directory.CreateDirectory(uploadsFolder); 
 
                     string uniqueFileName = Guid.NewGuid().ToString() + fileExtension;
                     string filePath = Path.Combine(uploadsFolder, uniqueFileName);
@@ -76,12 +89,16 @@ namespace KLENZ.Controllers
                     salesEnquiry.FilePath = "/uploads/" + uniqueFileName;
                 }
 
+                // ✅ Save Data to Database
                 _context.Add(salesEnquiry);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             return View(salesEnquiry);
         }
+
+
 
         // GET: SalesEnquiries/Edit/5
         public async Task<IActionResult> Edit(int? id)

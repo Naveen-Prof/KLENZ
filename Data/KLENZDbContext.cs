@@ -19,5 +19,6 @@ namespace KLENZ.Data // ✅ Correct namespace
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<SalesEnquiry>().ToTable("SalesEnquiry", "Sales"); // Ensure schema
         }
+        public DbSet<KLENZ.Models.QuotationReport> QuotationReport { get; set; } = default!;
     }
 }

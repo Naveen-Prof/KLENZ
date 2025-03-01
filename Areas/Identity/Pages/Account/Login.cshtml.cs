@@ -3,8 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-
+#nullable disable
 namespace KLENZ.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
@@ -26,12 +27,13 @@ namespace KLENZ.Areas.Identity.Pages.Account
         public class InputModel
         {
             [Required]
-            [EmailAddress]
-            public string Email { get; set; }
+            [Display(Name = "Username")]
+            public required string UserName { get; set; }
 
             [Required]
             [DataType(DataType.Password)]
-            public string Password { get; set; }
+            [Display(Name = "Password")]
+            public required string Password { get; set; }
 
             public bool RememberMe { get; set; }
         }
@@ -43,7 +45,7 @@ namespace KLENZ.Areas.Identity.Pages.Account
                 return Page();
             }
 
-            var user = await _userManager.FindByEmailAsync(Input.Email);
+            var user = await _userManager.FindByNameAsync(Input.UserName);
             if (user == null)
             {
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
@@ -55,7 +57,7 @@ namespace KLENZ.Areas.Identity.Pages.Account
             if (result.Succeeded)
             {
                 _logger.LogInformation("User logged in.");
-                return LocalRedirect(returnUrl ?? "~/");
+                return LocalRedirect(returnUrl ?? "/Home/Index");
             }
             else
             {
@@ -64,24 +66,40 @@ namespace KLENZ.Areas.Identity.Pages.Account
             }
         }
 
-        // 🔹 Reset Password Without Email Verification
         public async Task<IActionResult> OnPostResetPasswordAsync()
         {
-            if (string.IsNullOrEmpty(Input.Email))
+            if (string.IsNullOrEmpty(Input.UserName))
             {
-                ModelState.AddModelError(string.Empty, "Email is required to reset the password.");
+                ModelState.AddModelError(string.Empty, "Username is required to reset the password.");
                 return Page();
             }
 
-            var user = await _userManager.FindByEmailAsync(Input.Email);
-            if (user == null)
-            {
-                ModelState.AddModelError(string.Empty, "No user found with this email.");
-                return Page();
-            }
+     //       var users = await _userManager.Users
+     //.Select(u => new { u.UserName, u.NormalizedUserName })
+     //.ToListAsync();
 
-            string resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var resetResult = await _userManager.ResetPasswordAsync(user, resetToken, "NewPassword@123");
+     //       foreach (var usr in users)
+     //       {
+     //           Console.WriteLine($"UserName: {usr.UserName}, NormalizedUserName: {usr.NormalizedUserName}");
+     //       }
+
+     //       var normalizedInput = Input.UserName.ToUpper();
+
+            //var userByNormalized = await _userManager.Users
+            //    .Where(u => u.NormalizedUserName == normalizedInput)
+            //    .FirstOrDefaultAsync();
+
+            //Console.WriteLine(userByNormalized != null
+            //    ? $"User found: {userByNormalized.UserName}"
+            //    : "User not found using NormalizedUserName");
+
+            var userFixed = await _userManager.Users
+                            .Where(u => u.NormalizedUserName == Input.UserName.Trim().ToUpper())
+                            .FirstOrDefaultAsync();
+
+
+            string resetToken = await _userManager.GeneratePasswordResetTokenAsync(userFixed);
+            var resetResult = await _userManager.ResetPasswordAsync(userFixed, resetToken, "NewPassword@123");
 
             if (resetResult.Succeeded)
             {
@@ -98,8 +116,6 @@ namespace KLENZ.Areas.Identity.Pages.Account
         }
     }
 }
-
-
 
 
 

@@ -1,0 +1,74 @@
+﻿@model KLENZ.Models.QuotationReport
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>QuotationReport</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="QuotationDate" class="control-label"></label>
+                <input asp-for="QuotationDate" class="form-control" />
+                <span asp-validation-for="QuotationDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CompanyName" class="control-label"></label>
+                <input asp-for="CompanyName" class="form-control" />
+                <span asp-validation-for="CompanyName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProductDetails" class="control-label"></label>
+                <input asp-for="ProductDetails" class="form-control" />
+                <span asp-validation-for="ProductDetails" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CustomerDetails" class="control-label"></label>
+                <input asp-for="CustomerDetails" class="form-control" />
+                <span asp-validation-for="CustomerDetails" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="QuotationValue" class="control-label"></label>
+                <input asp-for="QuotationValue" class="form-control" />
+                <span asp-validation-for="QuotationValue" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Remarks" class="control-label"></label>
+                <input asp-for="Remarks" class="form-control" />
+                <span asp-validation-for="Remarks" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsPositive" class="control-label"></label>
+                <input asp-for="IsPositive" class="form-control" />
+                <span asp-validation-for="IsPositive" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedDateTime" class="control-label"></label>
+                <input asp-for="CreatedDateTime" class="form-control" />
+                <span asp-validation-for="CreatedDateTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedUserId" class="control-label"></label>
+                <input asp-for="CreatedUserId" class="form-control" />
+                <span asp-validation-for="CreatedUserId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Security.Policy;
 
 namespace KLENZ.Models
 {
@@ -16,24 +17,24 @@ namespace KLENZ.Models
         [Display(Name = "Company Name")]
         public required string CompanyName { get; set; }
 
-        [Required]
+
         [Display(Name = "Refered by")]
-        public required string ReferedBy { get; set; }
+        public string? ReferedBy { get; set; }
 
-        [Required]
+
         [Display(Name = "Enquiry details")]
-        public required string EnquiryDetails { get; set; }
+        public string? EnquiryDetails { get; set; }
 
-        [Required]
+
         [Display(Name = "Enquiry Date")]
-        public required DateTime? EnquiryDate { get; set; } 
+        public DateTime? EnquiryDate { get; set; }
 
-        [Required]
+
         [Display(Name = "Customer details")]
-        public required string CustomerDetails { get; set; }
+        public string? CustomerDetails { get; set; }
 
-        [Required]
-        public required string Status { get; set; }
+
+        public string? Status { get; set; }
 
         public string? Remarks { get; set; }
 
@@ -49,5 +50,9 @@ namespace KLENZ.Models
         [NotMapped] // This prevents EF from mapping this property to the DB
         [Display(Name = "Upload File")]
         public IFormFile? File { get; set; }
+
+        public DateTime CreatedDateTime { get; set; } = DateTime.Now;
+
+        public string? CreatedUserId { get; set; }
     }
 }

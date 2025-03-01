@@ -15,27 +15,26 @@
             </a>
 
             <!-- Export to Excel Button -->
-            <button id="exportExcel" class="btn btn-success">
-                <i class="bi bi-file-earmark-excel-fill me-1"></i> Export to Excel
-            </button>
+            @* <button  class="btn btn-success"> *@
+            <i id="exportExcel" class="bi bi-file-earmark-excel-fill text-success fs-4 export-icon"></i>
+            @* </button> *@
 
             <!-- Export to PDF Button -->
-            <button id="exportPdf" class="btn btn-danger">
-                <i class="bi bi-file-earmark-pdf-fill me-1"></i> Export to PDF
-            </button>
+            <i id="exportPdf" class="bi bi-file-earmark-pdf-fill text-danger fs-4 export-icon"></i>
+
         </div>
     </div>
 
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table datatable rounded-table">
+            <table class="table datatable rounded-table" style="table-layout: fixed">
                 <thead class="table-dark">
                     <tr>
                         <th>Actions</th>
+                        <th>@Html.DisplayNameFor(model => model.EnquiryDate)</th>
                         <th>@Html.DisplayNameFor(model => model.CompanyName)</th>
                         <th>@Html.DisplayNameFor(model => model.ReferedBy)</th>
                         <th>@Html.DisplayNameFor(model => model.EnquiryDetails)</th>
-                        <th>@Html.DisplayNameFor(model => model.EnquiryDate)</th>
                         <th>@Html.DisplayNameFor(model => model.CustomerDetails)</th>
                         <th>@Html.DisplayNameFor(model => model.Status)</th>
                         <th>@Html.DisplayNameFor(model => model.RemainderDate)</th>
@@ -58,13 +57,13 @@
                                     <i class="bi bi-trash text-danger"></i>
                                 </a>
                             </td>
+                            <td>@item.EnquiryDate?.ToShortDateString()</td>
                             <td>@Html.DisplayFor(modelItem => item.CompanyName)</td>
                             <td>@Html.DisplayFor(modelItem => item.ReferedBy)</td>
                             <td>@Html.DisplayFor(modelItem => item.EnquiryDetails)</td>
-                            <td>@Html.DisplayFor(modelItem => item.EnquiryDate)</td>
                             <td>@Html.DisplayFor(modelItem => item.CustomerDetails)</td>
                             <td>@Html.DisplayFor(modelItem => item.Status)</td>
-                            <td>@Html.DisplayFor(modelItem => item.RemainderDate)</td>
+                            <td>@item.RemainderDate?.ToShortDateString()</td>
                             <td>@Html.DisplayFor(modelItem => item.RemainderPlace)</td>
                             <td>
                                 @if (!string.IsNullOrEmpty(item.FilePath))
@@ -85,117 +84,4 @@
         </div>
     </div>
 </div>
-
-<!-- Include jsPDF & autoTable for PDF Export -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-
-<!-- Include SheetJS for Excel Export -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-<script>
-    // Function to Export Table to PDF (A4 Landscape)
-    function exportToPDF() {
-        const doc = new window.jspdf.jsPDF({
-            orientation: "landscape",
-            unit: "mm",
-            format: "a4"
-        });
-
-        // Add Title
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(16);
-        doc.text("Sales Enquiries Report", 14, 20);
-
-        // Table headers
-        const headers = [["Company Name", "Referred By", "Enquiry Details", "Enquiry Date", "Customer Details", "Status", "Remainder Date", "Remainder Place"]];
-
-        // Table body data
-        const data = [];
-        document.querySelectorAll(".datatable tbody tr").forEach(row => {
-            const rowData = [];
-            row.querySelectorAll("td:not(:first-child, :last-child)").forEach(cell => {
-                rowData.push(cell.textContent.trim());
-            });
-            data.push(rowData);
-        });
-
-        // Generate table in PDF
-        doc.autoTable({
-            head: headers,
-            body: data,
-            startY: 30,
-            theme: 'grid',
-            styles: { fontSize: 9 },
-            headStyles: { fillColor: [40, 40, 40], textColor: [255, 255, 255] },
-            margin: { top: 30 }
-        });
-
-        doc.save('Sales_Enquiries.pdf');
-    }
-
-     function exportToExcel() {
-         let workbook = new ExcelJS.Workbook();
-        let worksheet = workbook.addWorksheet("Sales Enquiries");
-
-        // Table headers
-        let headers = ["COMPANY NAME", "REFERRED BY", "ENQUIRY DETAILS", "ENQUIRY DATE", "CUSTOMER DETAILS", "STATUS", "REMAINDER DATE", "REMAINDER PLACE"];
-
-        // Add headers to worksheet with styling
-        let headerRow = worksheet.addRow(headers);
-        headerRow.font = { bold: true, size: 14 }; // Bold + Increased font size
-        headerRow.alignment = { horizontal: 'center' }; // Center align headers
-
-        // Apply border to headers
-        headerRow.eachCell(cell => {
-            cell.border = {
-                top: { style: 'thin' },
-                left: { style: 'thin' },
-                bottom: { style: 'thin' },
-                right: { style: 'thin' }
-            };
-            cell.fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: 'FFFFCC00' } // Yellow background
-            };
-        });
-
-        // Table body data
-        document.querySelectorAll(".datatable tbody tr").forEach(row => {
-            let rowData = [];
-            row.querySelectorAll("td:not(:first-child, :last-child)").forEach(cell => {
-                rowData.push(cell.textContent.trim());
-            });
-            let dataRow = worksheet.addRow(rowData);
-
-            // Apply border to each data cell
-            dataRow.eachCell(cell => {
-                cell.border = {
-                    top: { style: 'thin' },
-                    left: { style: 'thin' },
-                    bottom: { style: 'thin' },
-                    right: { style: 'thin' }
-                };
-            });
-        });
-
-        // Auto-sizing columns
-        worksheet.columns.forEach(column => {
-            column.width = 20; // Adjust column width
-        });
-
-        // Create and download file
-        workbook.xlsx.writeBuffer().then(buffer => {
-            let blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-            saveAs(blob, "Sales_Enquiries.xlsx");
-        });
-    }
-
-
-    // Event Listeners for Buttons
-    document.getElementById('exportPdf').addEventListener('click', exportToPDF);
-    document.getElementById('exportExcel').addEventListener('click', exportToExcel);
-</script>
-
-
+<script src="~/js/pdf_excel_export.js"></script>
