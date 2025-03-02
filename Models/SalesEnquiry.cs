@@ -38,7 +38,7 @@ namespace KLENZ.Models
 
         public string? Remarks { get; set; }
 
-        [Display(Name = "Remainder / Meeting Date")]
+        [Display(Name = "Meeting Date")]
         public DateTime? RemainderDate { get; set; }
 
         [Display(Name = "Meeting Place")]

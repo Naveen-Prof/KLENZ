@@ -1,73 +1,76 @@
 ﻿@model KLENZ.Models.QuotationReport
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Quotation Report";
 }
 
-<h1>Create</h1>
-
-<h4>QuotationReport</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
+<div class="card shadow-lg rounded-card">
+    <div class="card-header bg-primary bg-opacity-75 text-white">
+        <h4 class="mb-0">Create Quotation Report</h4>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="QuotationDate" class="control-label"></label>
-                <input asp-for="QuotationDate" class="form-control" />
-                <span asp-validation-for="QuotationDate" class="text-danger"></span>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="QuotationDate" class="fw-bold"></label>
+                        <input asp-for="QuotationDate" type="date" class="form-control" />
+                        <span asp-validation-for="QuotationDate" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="CompanyName" class="fw-bold"></label>
+                        <input asp-for="CompanyName" class="form-control" />
+                        <span asp-validation-for="CompanyName" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ProductDetails" class="fw-bold"></label>
+                        <input asp-for="ProductDetails" class="form-control" />
+                        <span asp-validation-for="ProductDetails" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="CustomerDetails" class="fw-bold"></label>
+                        <input asp-for="CustomerDetails" class="form-control" />
+                        <span asp-validation-for="CustomerDetails" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-md-6">
+                    <div class="mb-5">
+                        <label asp-for="QuotationValue" class="fw-bold"></label>
+                        <input asp-for="QuotationValue" class="form-control" type="number" step="0.01" min="0" max="9999999999999999.99" />
+                        <span asp-validation-for="QuotationValue" class="text-danger"></span>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-check-label fw-bold">
+                            <input type="checkbox" class="form-check-input" id="IsPositive" name="IsPositive" 
+                            value="true" @(Model?.IsPositive == 1 ? "checked" : "") />
+                            @* @Html.DisplayNameFor(model => model.IsPositive) *@ Is Positive Response
+                        </label>
+                        <span asp-validation-for="IsPositive" class="text-danger"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Remarks" class="fw-bold"></label>
+                        <textarea asp-for="Remarks" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Remarks" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="CompanyName" class="control-label"></label>
-                <input asp-for="CompanyName" class="form-control" />
-                <span asp-validation-for="CompanyName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ProductDetails" class="control-label"></label>
-                <input asp-for="ProductDetails" class="form-control" />
-                <span asp-validation-for="ProductDetails" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CustomerDetails" class="control-label"></label>
-                <input asp-for="CustomerDetails" class="form-control" />
-                <span asp-validation-for="CustomerDetails" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="QuotationValue" class="control-label"></label>
-                <input asp-for="QuotationValue" class="form-control" />
-                <span asp-validation-for="QuotationValue" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Remarks" class="control-label"></label>
-                <input asp-for="Remarks" class="form-control" />
-                <span asp-validation-for="Remarks" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IsPositive" class="control-label"></label>
-                <input asp-for="IsPositive" class="form-control" />
-                <span asp-validation-for="IsPositive" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedDateTime" class="control-label"></label>
-                <input asp-for="CreatedDateTime" class="form-control" />
-                <span asp-validation-for="CreatedDateTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedUserId" class="control-label"></label>
-                <input asp-for="CreatedUserId" class="form-control" />
-                <span asp-validation-for="CreatedUserId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+
+            <div class="row mt-3">
+                <div class="col-md-12 d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

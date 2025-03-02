@@ -3,6 +3,59 @@
 @{
     ViewData["Title"] = "Sales Enquiry";
 }
+
+<script src="~/js/custom_datatables.js"></script>
+<style>
+
+    /* Ensure table layout is fixed */
+    .table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+        /* Set specific column widths */
+        .table th:nth-child(1), .table td:nth-child(1) {
+            width: 60px;
+        }
+        /* Actions */
+        .table th:nth-child(2), .table td:nth-child(2) {
+            width: 83px;
+        }
+        /* Enquiry Date */
+        .table th:nth-child(3), .table td:nth-child(3) {
+            width: 150px;
+        }
+        /* Company Name */
+        .table th:nth-child(4), .table td:nth-child(4) {
+            width: 120px;
+        }
+        /* Referred By */
+        .table th:nth-child(5), .table td:nth-child(5) {
+            width: 200px;
+        }
+        /* Enquiry Details */
+        .table th:nth-child(6), .table td:nth-child(6) {
+            width: 200px;
+        }
+        /* Customer Details */
+        .table th:nth-child(7), .table td:nth-child(7) {
+            width: 100px;
+        }
+        /* Status */
+        .table th:nth-child(8), .table td:nth-child(8) {
+            width: 83px;
+        }
+        /* Remainder Date */
+        .table th:nth-child(9), .table td:nth-child(9) {
+            width: 120px;
+        }
+        /* Remainder Place */
+        .table th:nth-child(10), .table td:nth-child(10) {
+            width: 100px;
+        }
+    /* File */
+
+</style>
 <div class="card rounded-card shadow-lg mt-3">
     <div class="card-header d-flex justify-content-between align-items-center bg-primary bg-opacity-75 text-white rounded-top">
         <div class="d-flex align-items-center">
@@ -27,7 +80,7 @@
 
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table datatable rounded-table" style="table-layout: fixed">
+            <table class="table datatable rounded-table">
                 <thead class="table-dark">
                     <tr>
                         <th>Actions</th>
