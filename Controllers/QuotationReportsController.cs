@@ -31,20 +31,34 @@ namespace KLENZ.Controllers
         // GET: QuotationReports/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var quotationReport = await _context.QuotationReport
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (quotationReport == null)
-            {
-                return NotFound();
-            }
+                .Where(m => m.Id == id)
+                .Select(qr => new QuotationReport
+                {
+                    Id = qr.Id,
+                    QuotationDate = qr.QuotationDate,
+                    CompanyName = qr.CompanyName,
+                    ProductDetails = qr.ProductDetails,
+                    CustomerDetails = qr.CustomerDetails,
+                    QuotationValue = qr.QuotationValue,
+                    Remarks = qr.Remarks,
+                    IsPositive = qr.IsPositive,
+                    CreatedDateTime = qr.CreatedDateTime,
+                    CreatedUserId = qr.CreatedUserId,
+                    CreatedUserName = _context.Users
+                        .Where(u => u.Id == qr.CreatedUserId)
+                        .Select(u => u.UserName)
+                        .FirstOrDefault()
+                })
+                .FirstOrDefaultAsync();
+
+            if (quotationReport == null) return NotFound();
 
             return View(quotationReport);
         }
+
 
         // GET: QuotationReports/Create
         public IActionResult Create()

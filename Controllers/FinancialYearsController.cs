@@ -26,8 +26,34 @@ namespace KLENZ.Controllers
         // GET: FinancialYears
         public async Task<IActionResult> Index()
         {
-            return View(await _context.FinancialYear.ToListAsync());
+            var financialYears = await _context.FinancialYear
+                .Select(fy => new
+                {
+                    fy.Id,
+                    fy.FyYear,
+                    fy.IsActive,
+                    fy.CreatedDateTime,
+                    fy.CreatedUserId,
+                    CreatedUserName = _context.Users
+                        .Where(u => u.Id == fy.CreatedUserId)
+                        .Select(u => u.UserName)
+                        .FirstOrDefault()
+                })
+                .ToListAsync();
+
+            var model = financialYears.Select(fy => new FinancialYear
+            {
+                Id = fy.Id,
+                FyYear = fy.FyYear,
+                IsActive = fy.IsActive,
+                CreatedDateTime = fy.CreatedDateTime,
+                CreatedUserId = fy.CreatedUserId,
+                CreatedUserName = fy.CreatedUserName // Add this property to your model
+            });
+
+            return View(model);
         }
+
 
         // GET: FinancialYears/Details/5
         public async Task<IActionResult> Details(int? id)

@@ -22,9 +22,14 @@ namespace KLENZ.Models
         [NotMapped]
         public bool IsActiveBool { get => IsActive == 1; set => IsActive = value ? (byte)1 : (byte)0; }
 
+        [Display(Name = "Created Date Time")]
         public DateTime? CreatedDateTime { get; set; }
 
         [ForeignKey("AspNetUsers")]
+        [Display(Name = "Created User")]
         public string? CreatedUserId { get; set; }
+
+        [NotMapped]
+        public string? CreatedUserName { get; set; }
     }
 }

@@ -43,17 +43,42 @@ namespace KLENZ.Controllers
         {
             if (id == null) return NotFound();
 
-            var salesEnquiry = await _context.SalesEnquiries.FirstOrDefaultAsync(m => m.Id == id);
+            var salesEnquiry = await _context.SalesEnquiries
+                .Where(m => m.Id == id)
+                .Select(se => new SalesEnquiry
+                {
+                    Id = se.Id,
+                    CompanyName = se.CompanyName,
+                    ReferedBy = se.ReferedBy,
+                    EnquiryDetails = se.EnquiryDetails,
+                    EnquiryDate = se.EnquiryDate,
+                    CustomerDetails = se.CustomerDetails,
+                    Status = se.Status,
+                    Remarks = se.Remarks,
+                    ReminderDate = se.ReminderDate,
+                    ReminderPlace = se.ReminderPlace,
+                    FilePath = se.FilePath,
+                    CreatedDateTime = se.CreatedDateTime,
+                    CreatedUserId = se.CreatedUserId,
+                    CreatedUserName = _context.Users
+                        .Where(u => u.Id == se.CreatedUserId)
+                        .Select(u => u.UserName)
+                        .FirstOrDefault()
+                })
+                .FirstOrDefaultAsync();
+
             if (salesEnquiry == null) return NotFound();
 
             return View(salesEnquiry);
         }
 
+
+
         // POST: SalesEnquiries/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CompanyName, ReferedBy, EnquiryDetails, EnquiryDate, " +
-            "CustomerDetails, Status, RemainderDate, RemainderPlace, FilePath")] SalesEnquiry salesEnquiry, IFormFile? File)
+            "CustomerDetails, Status, Remarks, ReminderDate, ReminderPlace, FilePath")] SalesEnquiry salesEnquiry, IFormFile? File)
         {
             if (ModelState.IsValid)
             {
@@ -65,6 +90,7 @@ namespace KLENZ.Controllers
                 }
 
                 salesEnquiry.CreatedUserId = userId;
+                salesEnquiry.CreatedDateTime = DateTime.Now;
 
                 if (File != null && File.Length > 0)
                 {

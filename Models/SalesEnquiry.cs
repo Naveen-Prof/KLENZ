@@ -54,5 +54,8 @@ namespace KLENZ.Models
         public DateTime CreatedDateTime { get; set; } = DateTime.Now;
 
         public string? CreatedUserId { get; set; }
+
+        [NotMapped]
+        public string? CreatedUserName { get; set; }
     }
 }

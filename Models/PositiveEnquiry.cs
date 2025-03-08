@@ -34,5 +34,9 @@ namespace KLENZ.Models
 
         [ForeignKey("AspNetUsers")]
         public string? CreatedUserId { get; set; }
+
+        [NotMapped]
+        [Display(Name = "Created User")]
+        public string? CreatedUserName { get; set; }
     }
 }

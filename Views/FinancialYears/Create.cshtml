@@ -4,7 +4,7 @@
     ViewData["Title"] = "Create Financial Year";
 }
 
-<div class="card shadow-lg rounded-3 border-0">
+<div class="card shadow-lg rounded-card border-0">
     <div class="card-header bg-primary text-white text-center py-2">
         <h5 class="mb-0">Create Financial Year</h5>
     </div>
@@ -15,7 +15,7 @@
 
             <div class="row align-items-center mb-3">
                 <label asp-for="FyYear" class="col-md-4 col-form-label fw-bold text-md-end"></label>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <input asp-for="FyYear" class="form-control border-primary shadow-sm" placeholder="Enter Financial Year" required />
                     <span asp-validation-for="FyYear" class="text-danger"></span>
                 </div>

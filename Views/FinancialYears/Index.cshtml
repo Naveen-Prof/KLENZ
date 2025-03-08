@@ -44,12 +44,6 @@
             <a asp-action="Create" class="btn btn-light text-primary shadow-sm custom-btn">
                 <i class="bi bi-plus-circle me-1"></i> Create New
             </a>
-
-            <!-- Export to Excel Button -->
-            <i id="exportExcel_FinancialYear" class="bi bi-file-earmark-excel-fill text-success fs-4 export-icon"></i>
-
-            <!-- Export to PDF Button -->
-            <i id="exportPdf_FinancialYear" class="bi bi-file-earmark-pdf-fill text-danger fs-4 export-icon"></i>
         </div>
     </div>
 
@@ -73,17 +67,11 @@
                                 <a asp-action="Edit" asp-route-id="@item.Id" title="Edit" class="text-decoration-none">
                                     <i class="bi bi-pencil-square text-success"></i>
                                 </a>
-                                <a asp-action="Details" asp-route-id="@item.Id" title="Details" class="text-decoration-none">
-                                    <i class="bi bi-eye text-primary"></i>
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" title="Delete" class="text-decoration-none">
-                                    <i class="bi bi-trash text-danger"></i>
-                                </a>
                             </td>
                             <td>@Html.DisplayFor(modelItem => item.FyYear)</td>
                             <td>@(item.IsActive == 1 ? "Yes" : "No")</td>
                             <td>@item.CreatedDateTime?.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td>@Html.DisplayFor(modelItem => item.CreatedUserId)</td>
+                            <td>@Html.DisplayFor(modelItem => item.CreatedUserName)</td>
                         </tr>
                     }
                 </tbody>

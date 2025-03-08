@@ -28,20 +28,33 @@ namespace KLENZ.Controllers
         // GET: PositiveEnquiries/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var positiveEnquiry = await _context.PositiveEnquiry
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (positiveEnquiry == null)
-            {
-                return NotFound();
-            }
+                .Where(m => m.Id == id)
+                .Select(pe => new PositiveEnquiry
+                {
+                    Id = pe.Id,
+                    QuotationDate = pe.QuotationDate,
+                    CompanyName = pe.CompanyName,
+                    ProductDetails = pe.ProductDetails,
+                    CustomerDetails = pe.CustomerDetails,
+                    QuotationValue = pe.QuotationValue,
+                    CurrentStatus = pe.CurrentStatus,
+                    CreatedDateTime = pe.CreatedDateTime,
+                    CreatedUserId = pe.CreatedUserId,
+                    CreatedUserName = _context.Users
+                        .Where(u => u.Id == pe.CreatedUserId)
+                        .Select(u => u.UserName)
+                        .FirstOrDefault()
+                })
+                .FirstOrDefaultAsync();
+
+            if (positiveEnquiry == null) return NotFound();
 
             return View(positiveEnquiry);
         }
+
 
         // GET: PositiveEnquiries/Create
         public IActionResult Create()

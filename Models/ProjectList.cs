@@ -35,11 +35,16 @@ namespace KLENZ.Models
         [Display(Name = "Remarks")]
         public string? Remarks { get; set; }
 
+        [Display(Name = "Created Date")]
         public DateTime? CreatedDateTime { get; set; }
 
         [StringLength(450)]
         [ForeignKey("AspNetUsers")]
         public string? CreatedUserId { get; set; }
+
+        [NotMapped]
+        [Display(Name = "Created User")]
+        public string? CreatedUserName { get; set; }
 
         // Navigation properties
         public virtual FinancialYear? FinancialYear { get; set; }

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Edit Financial Year";
 }
 
-<div class="card shadow-lg rounded-3 border-0">
+<div class="card shadow-lg rounded-card border-0">
     <div class="card-header bg-warning text-white text-center py-2">
         <h5 class="mb-0">Edit Financial Year</h5>
     </div>
@@ -16,7 +16,7 @@
 
             <div class="row align-items-center mb-3">
                 <label asp-for="FyYear" class="col-md-4 col-form-label fw-bold text-md-end"></label>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <input asp-for="FyYear" class="form-control border-warning shadow-sm" placeholder="Enter Financial Year" required />
                     <span asp-validation-for="FyYear" class="text-danger"></span>
                 </div>
@@ -30,22 +30,6 @@
                         <label class="form-check-label fw-bold ms-2" for="IsActiveBool">Active</label>
                     </div>
                     <span asp-validation-for="IsActiveBool" class="text-danger"></span>
-                </div>
-            </div>
-
-            <div class="row align-items-center mb-3">
-                <label asp-for="CreatedDateTime" class="col-md-4 col-form-label fw-bold text-md-end"></label>
-                <div class="col-md-6">
-                    <input asp-for="CreatedDateTime" class="form-control border-secondary shadow-sm" readonly />
-                    <span asp-validation-for="CreatedDateTime" class="text-danger"></span>
-                </div>
-            </div>
-
-            <div class="row align-items-center mb-3">
-                <label asp-for="CreatedUserId" class="col-md-4 col-form-label fw-bold text-md-end"></label>
-                <div class="col-md-6">
-                    <input asp-for="CreatedUserId" class="form-control border-secondary shadow-sm" readonly />
-                    <span asp-validation-for="CreatedUserId" class="text-danger"></span>
                 </div>
             </div>
 

@@ -36,6 +36,12 @@
 
             <dt class="col-md-2 fw-bold">Reminder Place</dt>
             <dd class="col-md-4">@Html.DisplayFor(model => model.ReminderPlace)</dd>
+
+            <dt class="col-sm-2">Created Date & Time</dt>
+            <dd class="col-sm-4">@Model.CreatedDateTime.ToString("dd/MM/yyyy HH:mm")</dd>
+
+            <dt class="col-sm-2">Created By</dt>
+            <dd class="col-sm-4">@Model.CreatedUserName</dd>
         </dl>
 
         <!-- Buttons with proper spacing -->

@@ -41,21 +41,36 @@ namespace KLENZ.Controllers
         // GET: ProjectLists/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var projectList = await _context.ProjectList
                 .Include(p => p.FinancialYear)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (projectList == null)
-            {
-                return NotFound();
-            }
+                .Where(p => p.Id == id)
+                .Select(p => new ProjectList
+                {
+                    Id = p.Id,
+                    FyYear = p.FyYear,
+                    WorkOrderDate = p.WorkOrderDate,
+                    CompanyName = p.CompanyName,
+                    CustomerDetails = p.CustomerDetails,
+                    WorkDetails = p.WorkDetails,
+                    WorkOrderValue = p.WorkOrderValue,
+                    Remarks = p.Remarks,
+                    CreatedDateTime = p.CreatedDateTime,
+                    CreatedUserId = p.CreatedUserId,
+                    CreatedUserName = _context.Users
+                        .Where(u => u.Id == p.CreatedUserId)
+                        .Select(u => u.UserName)
+                        .FirstOrDefault(),
+                    FinancialYear = p.FinancialYear
+                })
+                .FirstOrDefaultAsync();
+
+            if (projectList == null) return NotFound();
 
             return View(projectList);
         }
+
 
         // GET: ProjectLists/Create
         public IActionResult Create()
