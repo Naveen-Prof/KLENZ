@@ -1,66 +1,70 @@
-﻿function exportToPDF() {
+﻿function exportToPDF(headers, data, columnWidths, fileName) {
+    //alert(data);
     const doc = new window.jspdf.jsPDF({
         orientation: "landscape",
         unit: "mm",
         format: "a4"
     });
 
-    // Move title closer to the top
+    // Title
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("Sales Enquiry Report", 120, 10); // Reduced Y value for less top margin
+    doc.text(fileName.replace(".pdf", ""), 120, 10);
 
-    // Table headers with Serial Number (S.No)
-    const headers = [["S.No", "Enquiry Date", "Company Name", "Referred By","Enquiry Details", "Customer Details", "Status", "Remainder Date", "Remainder Place"]];
-
-    // Table body data with Serial Number
-    const data = [];
-    document.querySelectorAll(".datatable tbody tr").forEach((row, index) => {
-        const rowData = [index + 1]; // Add Serial Number (starting from 1)
-        row.querySelectorAll("td:not(:first-child, :last-child)").forEach(cell => {
-            rowData.push(cell.textContent.trim());
-        });
-        data.push(rowData);
+    // Column styles based on dynamic widths
+    let columnStyles = {};
+    columnWidths.forEach((width, index) => {
+        columnStyles[index] = { cellWidth: width };
     });
 
-    // Generate table in PDF with fixed column widths and reduced margins
+    // Generate table in PDF
     doc.autoTable({
-        head: headers,
+        head: [headers],
         body: data,
-        startY: 15, // Reduced from 30 to 20 to move the table up
+        startY: 15,
         theme: 'grid',
-        margin: { left: 10, right: 10 }, // Reduce left and right padding
+        margin: { left: 10, right: 10 },
         styles: { fontSize: 9, cellPadding: 2 },
         headStyles: { fillColor: [40, 40, 40], textColor: [255, 255, 255] },
-        columnStyles: {
-            0: { cellWidth: 12 }, // Serial Number (S.No)
-            1: { cellWidth: 20 }, // Enquiry Date
-            2: { cellWidth: 30 }, // Referred By
-            3: { cellWidth: 50 }, // Enquiry Details
-            4: { cellWidth: 40 }, // Company Name
-            5: { cellWidth: 50 }, // Customer Details
-            6: { cellWidth: 25 }, // Status
-            7: { cellWidth: 20 }, // Remainder Date
-            8: { cellWidth: 30 }  // Remainder Place
-        }
+        columnStyles: columnStyles // Apply dynamic column widths
     });
 
-    doc.save('Sales_Enquiries.pdf');
+    doc.save(fileName);
 }
+function extractTableData(excludeFirstLast = false) {
+    let table = $('.datatable').DataTable(); // Get DataTable instance
 
-function exportToExcel() {
+    // Temporarily disable pagination to fetch all rows
+    table.page.len(-1).draw();
+
+    let tableData = [];
+    document.querySelectorAll(".datatable tbody tr").forEach((row, index) => {
+        let rowData = [index + 1]; // Serial Number
+        row.querySelectorAll("td").forEach((cell, cellIndex) => {
+            if (!excludeFirstLast || cellIndex !== 0) {
+                rowData.push(cell.textContent.trim() || "-");
+            }
+
+            //if (!excludeFirstLast || (cellIndex !== 0 && cellIndex !== cells.length - 1)) {
+            //    rowData.push(cell.textContent.trim() || "-"); // Replace empty cells with "-"
+            //}
+        });
+        tableData.push(rowData);
+    });
+
+    // Restore pagination settings
+    table.page.len(5).draw(); // Set back to 5 or your preferred number
+
+    return tableData;
+}
+function exportToExcel(headers, fileName) {
     let workbook = new ExcelJS.Workbook();
-    let worksheet = workbook.addWorksheet("Sales Enquiries");
-    debugger;
-    // Table headers with Serial Number
-    let headers = ["S.No", "Enquiry Date", "Company Name", "Referred By", "Enquiry Details", "Customer Details", "Status", "Remainder Date", "Remainder Place"];
+    let worksheet = workbook.addWorksheet(fileName.replace('.xlsx', ''));
 
-    // Add headers to worksheet with styling
     let headerRow = worksheet.addRow(headers);
-    headerRow.font = { bold: true, size: 14 }; // Bold + Increased font size
-    headerRow.alignment = { horizontal: 'center' }; // Center align headers
+    headerRow.font = { bold: true, size: 14 };
+    headerRow.alignment = { horizontal: 'center' };
 
-    // Apply border and background color to headers
     headerRow.eachCell(cell => {
         cell.border = {
             top: { style: 'thin' },
@@ -68,26 +72,24 @@ function exportToExcel() {
             bottom: { style: 'thin' },
             right: { style: 'thin' }
         };
-        cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FFFFCC00' } // Yellow background
-        };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFCC00' } };
     });
 
-    // Table body data with Serial Number
-    let rowIndex = 1; // Start serial number from 1
-    document.querySelectorAll(".datatable tbody tr").forEach(row => {
-        let rowData = [rowIndex]; // Add Serial Number (S.No)
+    let table = $('.datatable').DataTable();
+    table.page.len(-1).draw(); // Fetch all rows
 
-        row.querySelectorAll("td:not(:first-child, :last-child)").forEach(cell => {
-            rowData.push(cell.textContent.trim());
-        });
+    let rowIndex = 1;
+    document.querySelectorAll(".datatable tbody tr").forEach(row => {
+        let rowData = [rowIndex]; // Serial Number
+
+        row.querySelectorAll("td:not(:first-child)").forEach(cell => {
+            rowData.push(cell.textContent.trim() === "" ? "-" : cell.textContent.trim()); 
+        }); 
 
         let dataRow = worksheet.addRow(rowData);
 
-        // Apply border to each data cell
-        dataRow.eachCell(cell => {
+        // Apply border to all cells, including last column (Remarks)
+        dataRow.eachCell((cell) => {
             cell.border = {
                 top: { style: 'thin' },
                 left: { style: 'thin' },
@@ -96,27 +98,98 @@ function exportToExcel() {
             };
         });
 
-        rowIndex++; // Increment serial number
+        rowIndex++;
     });
 
-    // Auto-sizing columns
+    table.page.len(5).draw(); // Restore pagination
+
     worksheet.columns.forEach((column, index) => {
-        if (index === 0) {
-            column.width = 8; // Set a smaller width for S.No
-            column.alignment = { horizontal: "center" };
-        } else {
-            column.width = 20; // Adjust column width for other columns
-        }
+        column.width = index === 0 ? 8 : 20;
+        if (index === 0) column.alignment = { horizontal: "center" };
     });
 
-    // Create and download file
     workbook.xlsx.writeBuffer().then(buffer => {
         let blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-        saveAs(blob, "Sales_Enquiries.xlsx");
+        saveAs(blob, fileName);
     });
 }
 
 
-// Event Listeners for Buttons
-document.getElementById('exportPdf').addEventListener('click', exportToPDF);
-document.getElementById('exportExcel').addEventListener('click', exportToExcel);
+
+
+document.addEventListener("DOMContentLoaded", function () {
+   
+    const pdfButton_PositiveEnq = document.getElementById('exportPdf_PositiveEnquiry');
+    if (pdfButton_PositiveEnq) {
+        pdfButton_PositiveEnq.addEventListener('click', function () {
+            const headers = ["S.No", "Quotation Date", "Company Name", "Product Details", "Customer Details", "Values", "Current Status"];
+            const columnWidths = [12, 20, 50, 60, 45, 30, 30];
+            const data = extractTableData(true);
+            //alert(data);
+            exportToPDF(headers, data, columnWidths, "Positive Enquiry Report.pdf");
+        });
+    }
+
+    const excelButton_PositiveEnq = document.getElementById('exportExcel_PositiveEnquiry');
+    if (excelButton_PositiveEnq) {
+        excelButton_PositiveEnq.addEventListener('click', function () {
+            const headers = ["S.No", "Quotation Date", "Company Name", "Product Details", "Customer Details", "Value", "Current Status"];
+            exportToExcel(headers, "Positive Enquiry Report.xlsx");
+        });
+    }
+    
+    const pdfButton = document.getElementById('exportPdf_QuotationReport');
+    if (pdfButton) {
+        pdfButton.addEventListener('click', function () {
+            const headers = ["S.No", "Quotation Date", "Company Name", "Product Details", "Customer Details", "Value", "Remarks"];
+            const columnWidths = [12, 20, 50, 60, 45, 30, 30];
+            const data = extractTableData(true);
+            exportToPDF(headers, data, columnWidths, "Quotation Report.pdf");
+        });
+    }
+
+    const excelButton = document.getElementById('exportExcel_QuotationReport');
+    if (excelButton) {
+        excelButton.addEventListener('click', function () {
+            const headers = ["S.No", "Quotation Date", "Company Name", "Product Details", "Customer Details", "Value", "Remarks"];
+            exportToExcel(headers, "Quotation Report.xlsx");
+        });
+    }
+
+    const pdfButton_salesEnq = document.getElementById('exportPdf');
+    if (pdfButton_salesEnq) {
+        pdfButton_salesEnq.addEventListener('click', function () {
+            const headers = ["S.No", "Enquiry Date", "Company Name", "Referred By", "Enquiry Details", "Customer Details", "Status", "Reminder Date", "Reminder Place"];
+            const columnWidths = [12, 20, 40, 30, 50, 50, 25, 20, 30];
+            const data = extractTableData(true);
+            exportToPDF(headers, data, columnWidths, "Sales Enquiry.pdf");
+        });
+    }
+
+    const excelButton_salesEnq = document.getElementById('exportExcel');
+    if (excelButton_salesEnq) {
+        excelButton_salesEnq.addEventListener('click', function () {
+            const headers = ["S.No", "Enquiry Date", "Company Name", "Referred By", "Enquiry Details", "Customer Details", "Status", "Reminder Date", "Reminder Place"];
+            exportToExcel(headers, "Sales Enquiry.xlsx");
+        });
+    }
+
+
+    const pdfButton_projList = document.getElementById('exportPdf_ProjectList');
+    if (pdfButton_projList) {
+        pdfButton_projList.addEventListener('click', function () {
+            const headers = ["S.No", "F.Y", "Work Order date", "Company Name", "Customer Details", "Work Details", "Work order value", "Remarks"];
+            const columnWidths = [12, 30, 20, 50, 50, 50, 25, 30];
+            const data = extractTableData(true);
+            exportToPDF(headers, data, columnWidths, "Project List.pdf");
+        });
+    }
+
+    const excelButton_projList = document.getElementById('exportExcel_ProjectList');
+    if (excelButton_projList) {
+        excelButton_projList.addEventListener('click', function () {
+            const headers = ["S.No", "F.Y", "Work Order date", "Company Name", "Customer Details", "Work Details", "Work order value", "Remarks"];
+            exportToExcel(headers, "Project List.xlsx");
+        });
+    }
+});

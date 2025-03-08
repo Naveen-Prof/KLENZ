@@ -1,0 +1,88 @@
+﻿@model KLENZ.Models.ProjectList
+
+@{
+    ViewData["Title"] = "Project Details";
+}
+
+<div class="card rounded-card shadow-lg mt-3">
+    <div class="card-header bg-info bg-opacity-75 text-dark rounded-top d-flex align-items-center">
+        <i class="bi bi-card-list me-2 fs-4"></i>
+        <h4 class="mb-0">Project Details</h4>
+    </div>
+
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3 fw-bold">
+                <i class="bi bi-calendar"></i> @Html.DisplayNameFor(model => model.WorkOrderDate)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.WorkOrderDate)
+            </dd>
+
+            <dt class="col-sm-3 fw-bold">
+                <i class="bi bi-buildings"></i> @Html.DisplayNameFor(model => model.CompanyName)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.CompanyName)
+            </dd>
+
+            <dt class="col-sm-3 fw-bold">
+                <i class="bi bi-person"></i> @Html.DisplayNameFor(model => model.CustomerDetails)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.CustomerDetails)
+            </dd>
+
+            <dt class="col-sm-3 fw-bold">
+                <i class="bi bi-list-task"></i> @Html.DisplayNameFor(model => model.WorkDetails)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.WorkDetails)
+            </dd>
+
+            <dt class="col-sm-3 fw-bold">
+                <i class="bi bi-cash-stack"></i> @Html.DisplayNameFor(model => model.WorkOrderValue)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.WorkOrderValue)
+            </dd>
+
+            <dt class="col-sm-3 fw-bold">
+                <i class="bi bi-chat-left-text"></i> @Html.DisplayNameFor(model => model.Remarks)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.Remarks)
+            </dd>
+
+            <dt class="col-sm-3 fw-bold">
+                <i class="bi bi-clock-history"></i> @Html.DisplayNameFor(model => model.CreatedDateTime)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.CreatedDateTime)
+            </dd>
+
+            <dt class="col-sm-3 fw-bold">
+                <i class="bi bi-person-badge"></i> @Html.DisplayNameFor(model => model.CreatedUserId)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.CreatedUserId)
+            </dd>
+
+            <dt class="col-sm-3 fw-bold">
+                <i class="bi bi-calendar-event"></i> @Html.DisplayNameFor(model => model.FinancialYear)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.FinancialYear.FyYear)
+            </dd>
+        </dl>
+    </div>
+
+    <div class="card-footer d-flex justify-content-between">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left-circle"></i> Back to List
+        </a>
+        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-info text-white">
+            <i class="bi bi-pencil-square"></i> Edit Project
+        </a>
+    </div>
+</div>

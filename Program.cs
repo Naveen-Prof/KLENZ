@@ -32,9 +32,11 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 // Configure Authentication Cookie
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Identity/Account/Login"; // Redirect to login
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied"; // Redirect if unauthorized
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.ReturnUrlParameter = "returnUrl"; // Ensure it redirects after login
 });
+
 
 var app = builder.Build();
 
@@ -69,10 +71,14 @@ app.Use(async (context, next) =>
 // Map Identity Pages (Login, Register, Reset Password, etc.)
 app.MapRazorPages();
 
-// Default Route
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
 
 // Run the Application
 app.Run();

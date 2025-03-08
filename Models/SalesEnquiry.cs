@@ -39,10 +39,10 @@ namespace KLENZ.Models
         public string? Remarks { get; set; }
 
         [Display(Name = "Meeting Date")]
-        public DateTime? RemainderDate { get; set; }
+        public DateTime? ReminderDate { get; set; }
 
         [Display(Name = "Meeting Place")]
-        public string? RemainderPlace { get; set; }
+        public string? ReminderPlace { get; set; }
 
         [Display(Name = "Attachment")]
         public string? FilePath { get; set; } // Stores file path in DB

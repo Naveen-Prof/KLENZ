@@ -45,8 +45,7 @@
                     </div>
                     <div class="mb-4">
                         <label class="form-check-label fw-bold">
-                            <input type="checkbox" class="form-check-input" id="IsPositive" name="IsPositive" 
-                            value="true" @(Model?.IsPositive == 1 ? "checked" : "") />
+                            <input type="checkbox" class="form-check-input" id="IsPositive" name="IsPositive" value="1" @(Model?.IsPositive == 1 ? "checked" : "") />
                             @* @Html.DisplayNameFor(model => model.IsPositive) *@ Is Positive Response
                         </label>
                         <span asp-validation-for="IsPositive" class="text-danger"></span>

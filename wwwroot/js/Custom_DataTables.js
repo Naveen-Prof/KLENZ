@@ -6,7 +6,7 @@
 
     // Initialize DataTable
     let table = $('.datatable').DataTable({
-        "paging": false,
+        "paging": true,
         "searching": true,
         "ordering": false,
         "info": false,

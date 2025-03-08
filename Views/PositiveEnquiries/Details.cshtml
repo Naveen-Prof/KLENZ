@@ -1,12 +1,12 @@
-﻿@model KLENZ.Models.QuotationReport
+﻿@model KLENZ.Models.PositiveEnquiry
 
 @{
-    ViewData["Title"] = "Quotation Report Details";
+    ViewData["Title"] = "Positive Enquiry Details";
 }
 
 <div class="card shadow-lg rounded-card">
     <div class="card-header bg-info bg-opacity-75 text-white">
-        <h4 class="mb-0">Quotation Report Details</h4>
+        <h4 class="mb-0">Positive Enquiry Details</h4>
     </div>
 
     <div class="card-body">
@@ -26,16 +26,11 @@
             <dt class="col-md-2 fw-bold">Quotation Value</dt>
             <dd class="col-md-4">@Html.DisplayFor(model => model.QuotationValue)</dd>
 
-            <dt class="col-md-2 fw-bold">Remarks</dt>
-            <dd class="col-md-4">@Html.DisplayFor(model => model.Remarks)</dd>
-
-            <dt class="col-md-2 fw-bold">Is Positive</dt>
-            <dd class="col-md-4">@(Model.IsPositiveBool ? "Yes" : "No")</dd>
+            <dt class="col-md-2 fw-bold">Current Status</dt>
+            <dd class="col-md-4">@Html.DisplayFor(model => model.CurrentStatus)</dd>
 
             <dt class="col-md-2 fw-bold">Created Date</dt>
-            <dd class="col-md-4">
-                @Model.CreatedDateTime?.ToString("dd/MM/yyyy HH:mm")
-            </dd>
+            <dd class="col-md-4">@Model.CreatedDateTime?.ToShortDateString()</dd>
 
             <dt class="col-md-2 fw-bold">Created User</dt>
             <dd class="col-md-4">@Html.DisplayFor(model => model.CreatedUserId)</dd>

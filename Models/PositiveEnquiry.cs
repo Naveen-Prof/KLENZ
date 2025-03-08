@@ -1,11 +1,10 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KLENZ.Models
 {
-    [Table("QuotationReport", Schema = "Sales")]
-    public class QuotationReport
+    [Table("PositiveEnquiry", Schema = "Sales")]
+    public class PositiveEnquiry
     {
         [Key]
         public int Id { get; set; }
@@ -27,15 +26,10 @@ namespace KLENZ.Models
         [Range(0, 9999999999999999.99, ErrorMessage = "Invalid value. Maximum allowed: 18 digits, 2 decimal places.")]
         public decimal? QuotationValue { get; set; }
 
-        [Display(Name = "Remarks")]
-        public string? Remarks { get; set; }
+        [Display(Name = "Current Status")]
+        public string? CurrentStatus { get; set; }
 
-        [Display(Name = "Is Positive?")]
-        public byte? IsPositive { get; set; }
-
-        [NotMapped]
-        public bool IsPositiveBool { get => IsPositive ==1; set => IsPositive = value ? (byte)1 : (byte)0; }
-
+        [Display(Name = "Created date time")]
         public DateTime? CreatedDateTime { get; set; }
 
         [ForeignKey("AspNetUsers")]

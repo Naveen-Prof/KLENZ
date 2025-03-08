@@ -1,27 +1,27 @@
-﻿@model KLENZ.Models.QuotationReport
+﻿@model KLENZ.Models.ProjectList
 
 @{
-    ViewData["Title"] = "Delete Quotation Report";
+    ViewData["Title"] = "Delete Project";
 }
 
 <div class="card shadow-lg mt-3">
     <div class="card-header bg-danger bg-opacity-75 text-white d-flex align-items-center">
         <i class="bi bi-trash3-fill me-2 fs-4"></i>
-        <h4 class="mb-0">Delete Quotation Report</h4>
+        <h4 class="mb-0">Delete Project</h4>
     </div>
 
     <div class="card-body">
         <div class="alert alert-danger">
             <i class="bi bi-exclamation-triangle-fill"></i>
-            <strong>Warning:</strong> Are you sure you want to delete this quotation report? This action cannot be undone.
+            <strong>Warning:</strong> Are you sure you want to delete this project? This action cannot be undone.
         </div>
 
         <dl class="row">
             <dt class="col-sm-3 fw-bold">
-                <i class="bi bi-calendar"></i> @Html.DisplayNameFor(model => model.QuotationDate)
+                <i class="bi bi-calendar"></i> @Html.DisplayNameFor(model => model.WorkOrderDate)
             </dt>
             <dd class="col-sm-9">
-                @Html.DisplayFor(model => model.QuotationDate)
+                @Html.DisplayFor(model => model.WorkOrderDate)
             </dd>
 
             <dt class="col-sm-3 fw-bold">
@@ -32,13 +32,6 @@
             </dd>
 
             <dt class="col-sm-3 fw-bold">
-                <i class="bi bi-card-list"></i> @Html.DisplayNameFor(model => model.ProductDetails)
-            </dt>
-            <dd class="col-sm-9">
-                @Html.DisplayFor(model => model.ProductDetails)
-            </dd>
-
-            <dt class="col-sm-3 fw-bold">
                 <i class="bi bi-person"></i> @Html.DisplayNameFor(model => model.CustomerDetails)
             </dt>
             <dd class="col-sm-9">
@@ -46,10 +39,17 @@
             </dd>
 
             <dt class="col-sm-3 fw-bold">
-                <i class="bi bi-cash-stack"></i> @Html.DisplayNameFor(model => model.QuotationValue)
+                <i class="bi bi-list-task"></i> @Html.DisplayNameFor(model => model.WorkDetails)
             </dt>
             <dd class="col-sm-9">
-                @Html.DisplayFor(model => model.QuotationValue)
+                @Html.DisplayFor(model => model.WorkDetails)
+            </dd>
+
+            <dt class="col-sm-3 fw-bold">
+                <i class="bi bi-cash-stack"></i> @Html.DisplayNameFor(model => model.WorkOrderValue)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.WorkOrderValue)
             </dd>
 
             <dt class="col-sm-3 fw-bold">
@@ -57,13 +57,6 @@
             </dt>
             <dd class="col-sm-9">
                 @Html.DisplayFor(model => model.Remarks)
-            </dd>
-
-            <dt class="col-sm-3 fw-bold">
-                <i class="bi bi-check-circle"></i> @Html.DisplayNameFor(model => model.IsPositive)
-            </dt>
-            <dd class="col-sm-9">
-                @(Model.IsPositiveBool ? "Yes" : "No")
             </dd>
 
             <dt class="col-sm-3 fw-bold">
@@ -78,6 +71,13 @@
             </dt>
             <dd class="col-sm-9">
                 @Html.DisplayFor(model => model.CreatedUserId)
+            </dd>
+
+            <dt class="col-sm-3 fw-bold">
+                <i class="bi bi-calendar-event"></i> @Html.DisplayNameFor(model => model.FinancialYear)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.FinancialYear.FyYear)
             </dd>
         </dl>
     </div>

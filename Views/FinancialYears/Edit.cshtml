@@ -1,0 +1,64 @@
+﻿@model KLENZ.Models.FinancialYear
+
+@{
+    ViewData["Title"] = "Edit Financial Year";
+}
+
+<div class="card shadow-lg rounded-3 border-0">
+    <div class="card-header bg-warning text-white text-center py-2">
+        <h5 class="mb-0">Edit Financial Year</h5>
+    </div>
+
+    <div class="card-body p-3">
+        <form asp-action="Edit" class="needs-validation" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row align-items-center mb-3">
+                <label asp-for="FyYear" class="col-md-4 col-form-label fw-bold text-md-end"></label>
+                <div class="col-md-6">
+                    <input asp-for="FyYear" class="form-control border-warning shadow-sm" placeholder="Enter Financial Year" required />
+                    <span asp-validation-for="FyYear" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-3">
+                <div class="col-md-6 offset-md-4">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="IsActiveBool" name="IsActiveBool"
+                               value="true" @(Model?.IsActiveBool == true ? "checked" : "") />
+                        <label class="form-check-label fw-bold ms-2" for="IsActiveBool">Active</label>
+                    </div>
+                    <span asp-validation-for="IsActiveBool" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-3">
+                <label asp-for="CreatedDateTime" class="col-md-4 col-form-label fw-bold text-md-end"></label>
+                <div class="col-md-6">
+                    <input asp-for="CreatedDateTime" class="form-control border-secondary shadow-sm" readonly />
+                    <span asp-validation-for="CreatedDateTime" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-3">
+                <label asp-for="CreatedUserId" class="col-md-4 col-form-label fw-bold text-md-end"></label>
+                <div class="col-md-6">
+                    <input asp-for="CreatedUserId" class="form-control border-secondary shadow-sm" readonly />
+                    <span asp-validation-for="CreatedUserId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3">
+                <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                <button type="submit" class="btn btn-warning px-4">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -7,16 +7,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KLENZ.Data;
 using KLENZ.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace KLENZ.Controllers
 {
     public class QuotationReportsController : Controller
     {
         private readonly KLENZDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public QuotationReportsController(KLENZDbContext context)
+        public QuotationReportsController(KLENZDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: QuotationReports
@@ -58,12 +61,47 @@ namespace KLENZ.Controllers
         {
             if (ModelState.IsValid)
             {
+                var userId = _userManager.GetUserId(User);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    ModelState.AddModelError(string.Empty, "You must be logged in to create a sales enquiry.");
+                    return View(quotationReport);
+                }
+                quotationReport.IsPositive = quotationReport.IsPositiveBool ? (byte)1 : (byte)0;
+
+                // Set the CreatedUserId and CreatedDateTime
+                quotationReport.CreatedUserId = userId;
+                quotationReport.CreatedDateTime = DateTime.Now;
+
+                // Insert into QuotationReport
                 _context.Add(quotationReport);
                 await _context.SaveChangesAsync();
+
+                // If IsPositive == 1, also insert into PositiveEnquiry
+                if (quotationReport.IsPositive == 1)
+                {
+                    var positiveEnquiry = new PositiveEnquiry
+                    {
+                        QuotationDate = quotationReport.QuotationDate,
+                        CompanyName = quotationReport.CompanyName,
+                        ProductDetails = quotationReport.ProductDetails,
+                        CustomerDetails = quotationReport.CustomerDetails,
+                        QuotationValue = quotationReport.QuotationValue,
+                        CreatedDateTime = DateTime.Now,
+                        CreatedUserId = userId
+                    };
+
+                    _context.Add(positiveEnquiry);
+                    await _context.SaveChangesAsync();
+                }
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(quotationReport);
         }
+
+
 
         // GET: QuotationReports/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -97,8 +135,62 @@ namespace KLENZ.Controllers
             {
                 try
                 {
-                    _context.Update(quotationReport);
+                    quotationReport.IsPositive = quotationReport.IsPositiveBool ? (byte)1 : (byte)0;
+                    // Get the existing record before updating
+                    var existingQuotation = await _context.QuotationReport.FindAsync(id);
+                    if (existingQuotation == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Preserve CreatedUserId and CreatedDateTime (if needed)
+                    quotationReport.CreatedUserId = existingQuotation.CreatedUserId;
+                    quotationReport.CreatedDateTime = existingQuotation.CreatedDateTime;
+
+                    // Update QuotationReport
+                    _context.Entry(existingQuotation).CurrentValues.SetValues(quotationReport);
                     await _context.SaveChangesAsync();
+
+                    // Check if IsPositive == 1 (Update or Insert into PositiveEnquiry)
+                    var existingPositiveEnquiry = await _context.PositiveEnquiry.FirstOrDefaultAsync(pe => pe.Id == quotationReport.Id);
+                    if (quotationReport.IsPositive == 1)
+                    {
+                        if (existingPositiveEnquiry == null)
+                        {
+                            // Insert new PositiveEnquiry
+                            var positiveEnquiry = new PositiveEnquiry
+                            {
+                                QuotationDate = quotationReport.QuotationDate,
+                                CompanyName = quotationReport.CompanyName,
+                                ProductDetails = quotationReport.ProductDetails,
+                                CustomerDetails = quotationReport.CustomerDetails,
+                                QuotationValue = quotationReport.QuotationValue,
+                                CreatedDateTime = DateTime.Now,
+                                CreatedUserId = quotationReport.CreatedUserId
+                            };
+                            _context.Add(positiveEnquiry);
+                        }
+                        else
+                        {
+                            // Update existing PositiveEnquiry
+                            existingPositiveEnquiry.QuotationDate = quotationReport.QuotationDate;
+                            existingPositiveEnquiry.CompanyName = quotationReport.CompanyName;
+                            existingPositiveEnquiry.ProductDetails = quotationReport.ProductDetails;
+                            existingPositiveEnquiry.CustomerDetails = quotationReport.CustomerDetails;
+                            existingPositiveEnquiry.QuotationValue = quotationReport.QuotationValue;
+                            _context.Update(existingPositiveEnquiry);
+                        }
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        // If IsPositive is 0 or null, remove from PositiveEnquiry if exists
+                        if (existingPositiveEnquiry != null)
+                        {
+                            _context.PositiveEnquiry.Remove(existingPositiveEnquiry);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {

@@ -20,5 +20,8 @@ namespace KLENZ.Data // ✅ Correct namespace
             modelBuilder.Entity<SalesEnquiry>().ToTable("SalesEnquiry", "Sales"); // Ensure schema
         }
         public DbSet<KLENZ.Models.QuotationReport> QuotationReport { get; set; } = default!;
+        public DbSet<KLENZ.Models.PositiveEnquiry> PositiveEnquiry { get; set; } = default!;
+        public DbSet<KLENZ.Models.FinancialYear> FinancialYear { get; set; } = default!;
+        public DbSet<KLENZ.Models.ProjectList> ProjectList { get; set; } = default!;
     }
 }

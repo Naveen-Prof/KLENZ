@@ -90,8 +90,8 @@
                         <th>@Html.DisplayNameFor(model => model.EnquiryDetails)</th>
                         <th>@Html.DisplayNameFor(model => model.CustomerDetails)</th>
                         <th>@Html.DisplayNameFor(model => model.Status)</th>
-                        <th>@Html.DisplayNameFor(model => model.RemainderDate)</th>
-                        <th>@Html.DisplayNameFor(model => model.RemainderPlace)</th>
+                        <th>@Html.DisplayNameFor(model => model.ReminderDate)</th>
+                        <th>@Html.DisplayNameFor(model => model.ReminderPlace)</th>
                         <th>@Html.DisplayNameFor(model => model.File)</th>
                     </tr>
                 </thead>
@@ -116,8 +116,8 @@
                             <td>@Html.DisplayFor(modelItem => item.EnquiryDetails)</td>
                             <td>@Html.DisplayFor(modelItem => item.CustomerDetails)</td>
                             <td>@Html.DisplayFor(modelItem => item.Status)</td>
-                            <td>@item.RemainderDate?.ToShortDateString()</td>
-                            <td>@Html.DisplayFor(modelItem => item.RemainderPlace)</td>
+                            <td>@item.ReminderDate?.ToShortDateString()</td>
+                            <td>@Html.DisplayFor(modelItem => item.ReminderPlace)</td>
                             <td>
                                 @if (!string.IsNullOrEmpty(item.FilePath))
                                 {

@@ -1,18 +1,20 @@
-﻿@model IEnumerable<KLENZ.Models.QuotationReport>
+﻿@model IEnumerable<KLENZ.Models.FinancialYear>
 
 @{
-    ViewData["Title"] = "Quotation Reports";
+    ViewData["Title"] = "Financial Years";
 }
 
 <script src="~/js/custom_datatables.js"></script>
+<script src="~/js/pdf_excel_export.js"></script>
+
 <style>
     .table {
         table-layout: fixed;
-        width: 100%;
+        width: 99%;
     }
 
         .table th:nth-child(1), .table td:nth-child(1) {
-            width: 60px;
+            width: 40px;
         }
 
         .table th:nth-child(2), .table td:nth-child(2) {
@@ -20,42 +22,34 @@
         }
 
         .table th:nth-child(3), .table td:nth-child(3) {
-            width: 120px;
+            width: 100px;
         }
 
         .table th:nth-child(4), .table td:nth-child(4) {
-            width: 200px;
+            width: 180px;
         }
 
         .table th:nth-child(5), .table td:nth-child(5) {
-            width: 200px;
-        }
-
-        .table th:nth-child(6), .table td:nth-child(6) {
-            width: 100px;
-        }
-
-        .table th:nth-child(7), .table td:nth-child(7) {
-            width: 200px;
-        }
-
-        .table th:nth-child(8), .table td:nth-child(8) {
-            width: 100px;
+            width: 120px;
         }
 </style>
 
 <div class="card rounded-card shadow-lg mt-3">
     <div class="card-header d-flex justify-content-between align-items-center bg-primary bg-opacity-75 text-white rounded-top">
         <div class="d-flex align-items-center">
-            <i class="bi bi-clipboard-data me-2 fs-4"></i>
-            <h4 class="mb-0">Quotation Reports</h4>
+            <i class="bi bi-calendar2-check me-2 fs-4"></i>
+            <h4 class="mb-0">Financial Years</h4>
         </div>
         <div class="d-flex gap-2">
             <a asp-action="Create" class="btn btn-light text-primary shadow-sm custom-btn">
                 <i class="bi bi-plus-circle me-1"></i> Create New
             </a>
-            <i id="exportExcel" class="bi bi-file-earmark-excel-fill text-success fs-4 export-icon"></i>
-            <i id="exportPdf" class="bi bi-file-earmark-pdf-fill text-danger fs-4 export-icon"></i>
+
+            <!-- Export to Excel Button -->
+            <i id="exportExcel_FinancialYear" class="bi bi-file-earmark-excel-fill text-success fs-4 export-icon"></i>
+
+            <!-- Export to PDF Button -->
+            <i id="exportPdf_FinancialYear" class="bi bi-file-earmark-pdf-fill text-danger fs-4 export-icon"></i>
         </div>
     </div>
 
@@ -65,13 +59,10 @@
                 <thead class="table-dark">
                     <tr>
                         <th>Actions</th>
-                        <th>@Html.DisplayNameFor(model => model.QuotationDate)</th>
-                        <th>@Html.DisplayNameFor(model => model.CompanyName)</th>
-                        <th>@Html.DisplayNameFor(model => model.ProductDetails)</th>
-                        <th>@Html.DisplayNameFor(model => model.CustomerDetails)</th>
-                        <th>@Html.DisplayNameFor(model => model.QuotationValue)</th>
-                        <th>@Html.DisplayNameFor(model => model.Remarks)</th>
-                        <th>@Html.DisplayNameFor(model => model.IsPositive)</th>
+                        <th>@Html.DisplayNameFor(model => model.FyYear)</th>
+                        <th>@Html.DisplayNameFor(model => model.IsActive)</th>
+                        <th>@Html.DisplayNameFor(model => model.CreatedDateTime)</th>
+                        <th>@Html.DisplayNameFor(model => model.CreatedUserId)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -89,13 +80,10 @@
                                     <i class="bi bi-trash text-danger"></i>
                                 </a>
                             </td>
-                            <td>@item.QuotationDate?.ToShortDateString()</td>
-                            <td>@Html.DisplayFor(modelItem => item.CompanyName)</td>
-                            <td>@Html.DisplayFor(modelItem => item.ProductDetails)</td>
-                            <td>@Html.DisplayFor(modelItem => item.CustomerDetails)</td>
-                            <td>@Html.DisplayFor(modelItem => item.QuotationValue)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Remarks)</td>
-                            <td>@(item.IsPositive == 1 ? "Yes" : "No")</td>
+                            <td>@Html.DisplayFor(modelItem => item.FyYear)</td>
+                            <td>@(item.IsActive == 1 ? "Yes" : "No")</td>
+                            <td>@item.CreatedDateTime?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@Html.DisplayFor(modelItem => item.CreatedUserId)</td>
                         </tr>
                     }
                 </tbody>
@@ -103,5 +91,3 @@
         </div>
     </div>
 </div>
-
-<script src="~/js/pdf_excel_export.js"></script>

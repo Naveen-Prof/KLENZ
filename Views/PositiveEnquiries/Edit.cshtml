@@ -1,0 +1,77 @@
+﻿@model KLENZ.Models.PositiveEnquiry
+
+@{
+    ViewData["Title"] = "Edit Positive Enquiry";
+}
+
+<div class="card shadow-lg rounded-card">
+    <div class="card-header bg-primary bg-opacity-75 text-white">
+        <h4 class="mb-0">Edit Positive Enquiry</h4>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CreatedDateTime" />
+            <input type="hidden" asp-for="CreatedUserId" />
+
+            <div class="row">
+                <!-- Left Column -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="QuotationDate" class="fw-bold"></label>
+                        <input asp-for="QuotationDate" type="date" class="form-control" />
+                        <span asp-validation-for="QuotationDate" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="CompanyName" class="fw-bold"></label>
+                        <input asp-for="CompanyName" class="form-control" placeholder="Enter company name" />
+                        <span asp-validation-for="CompanyName" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ProductDetails" class="fw-bold"></label>
+                        <textarea asp-for="ProductDetails" class="form-control" rows="3" placeholder="Enter product details"></textarea>
+                        <span asp-validation-for="ProductDetails" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="QuotationValue" class="fw-bold"></label>
+                        <input asp-for="QuotationValue" class="form-control" type="number" step="0.01" min="0" max="9999999999999999.99" placeholder="Enter quotation value" />
+                        <span asp-validation-for="QuotationValue" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="CurrentStatus" class="fw-bold"></label>
+                        <select asp-for="CurrentStatus" class="form-control">
+                            <option value="">Select Status</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                        <span asp-validation-for="CurrentStatus" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="CustomerDetails" class="fw-bold"></label>
+                        <textarea asp-for="CustomerDetails" class="form-control" rows="3" placeholder="Enter customer details"></textarea>
+                        <span asp-validation-for="CustomerDetails" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-12 d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to List</a>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Save Changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
