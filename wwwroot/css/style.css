@@ -1,0 +1,137 @@
+﻿body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    /*background: linear-gradient(135deg, #667eea, #764ba2);*/
+    padding: 10px;
+}
+
+.form-box {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s ease-in-out;
+}
+
+    .form-box.register {
+        position: revert-layer;
+        top: 30px;
+        left: 100%;
+        right:100%;
+        /*width: %;*/
+    }
+
+    .form-box.login {
+        position: revert-layer;
+        /*top: 50px;*/
+        left: 50px;
+        width: 100%
+    }
+
+.container-box {
+    width: 500px;
+    min-height: 300px; /* Default height */
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+    transition: width 0.5s ease-in-out, min-height 0.5s ease-in-out;
+}
+
+    .container-box.active {
+        width: 470px; /* Expand for register */
+        min-height: 500px; /* Increase height */
+    }
+
+    .container-box.active .login {
+        transform: translateX(-110%);
+    }
+
+    .container-box.active .register {
+        transform: translateX(-95%);
+    }
+
+.toggle-btn {
+    cursor: pointer;
+    text-align: center;
+    display: block;
+    margin-top: 15px;
+    color: #007bff;
+}
+
+.login-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+    .login-header h2 {
+        margin: 0;
+    }
+
+.toggle-btn {
+    font-size: 14px;
+    color: #007bff;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap; /* Prevents text wrapping */
+}
+
+/* Reduce input width in register form */
+.form-box.register input[type="text"],
+.form-box.register input[type="email"],
+.form-box.register input[type="password"],
+.form-box.register button {
+    width: 90%; /* Adjust width as needed */
+    /*margin: 5px auto;*/
+    display: block;
+}
+
+/* Center and adjust toggle text */
+.form-box.register .toggle-btn {
+    text-align: center;
+    display: block;
+    margin: 1px auto;
+    margin-right:20px;
+    width: fit-content; /* Keeps text width minimal */
+}
+
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-input {
+    width: 100%;
+    padding-right: 40px; /* Space for eye icon */
+}
+
+.eye-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    /*transform: translateX(-30%);*/
+    cursor: pointer;
+    font-size: 18px;
+    color: #666;
+}
+
+    .eye-icon:hover {
+        color: #007bff;
+    }
+
+
+.eye-icon-register {
+    position: absolute;
+    right: 55px;
+    top: 30%;
+    transform: translateY(-20%);
+    /*transform: translateX(-30%);*/
+    cursor: pointer;
+    font-size: 18px;
+    color: #666;
+}
