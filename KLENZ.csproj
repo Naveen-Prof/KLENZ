@@ -11,6 +11,11 @@
   <ItemGroup>
     <Folder Include="Views\Admin\" />
     <Folder Include="Views\Projects\" />
+    <Folder Include="Views\Home" />
+    <Folder Include="Views\FinancialYears" />
+    <Folder Include="Views\ProjectLists" />
+    <Folder Include="Views\PositiveEnquiries" />
+    <Folder Include="Views\SalesEnquiries" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,11 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 #nullable disable
+
 namespace KLENZ.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
@@ -24,22 +26,51 @@ namespace KLENZ.Areas.Identity.Pages.Account
         [BindProperty]
         public InputModel Input { get; set; }
 
+        public IList<AuthenticationScheme> ExternalLogins { get; set; }
+
+        [TempData]
+        public string ErrorMessage { get; set; }
+
+        public string ReturnUrl { get; set; }
+
         public class InputModel
         {
             [Required]
             [Display(Name = "Username")]
-            public required string UserName { get; set; }
+            public string UserName { get; set; }
 
             [Required]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
-            public required string Password { get; set; }
+            public string Password { get; set; }
 
             public bool RememberMe { get; set; }
         }
 
+        public async Task OnGetAsync(string returnUrl = null)
+        {
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ModelState.AddModelError(string.Empty, ErrorMessage);
+            }
+
+            // ✅ Fix returnUrl handling to prevent infinite redirects
+            ReturnUrl = string.IsNullOrEmpty(returnUrl) || returnUrl.Contains("Error")
+                        ? Url.Content("~/")
+                        : returnUrl;
+
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+        }
+
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
+            returnUrl = string.IsNullOrEmpty(returnUrl) || returnUrl.Contains("Error")
+                        ? Url.Content("~/Home/Index")
+                        : returnUrl;
+
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
             if (!ModelState.IsValid)
             {
                 return Page();
@@ -57,7 +88,7 @@ namespace KLENZ.Areas.Identity.Pages.Account
             if (result.Succeeded)
             {
                 _logger.LogInformation("User logged in.");
-                return LocalRedirect(returnUrl ?? "/Home/Index");
+                return LocalRedirect(returnUrl); // ✅ Ensures a valid redirect
             }
             else
             {
@@ -74,29 +105,15 @@ namespace KLENZ.Areas.Identity.Pages.Account
                 return Page();
             }
 
-     //       var users = await _userManager.Users
-     //.Select(u => new { u.UserName, u.NormalizedUserName })
-     //.ToListAsync();
-
-     //       foreach (var usr in users)
-     //       {
-     //           Console.WriteLine($"UserName: {usr.UserName}, NormalizedUserName: {usr.NormalizedUserName}");
-     //       }
-
-     //       var normalizedInput = Input.UserName.ToUpper();
-
-            //var userByNormalized = await _userManager.Users
-            //    .Where(u => u.NormalizedUserName == normalizedInput)
-            //    .FirstOrDefaultAsync();
-
-            //Console.WriteLine(userByNormalized != null
-            //    ? $"User found: {userByNormalized.UserName}"
-            //    : "User not found using NormalizedUserName");
-
             var userFixed = await _userManager.Users
                             .Where(u => u.NormalizedUserName == Input.UserName.Trim().ToUpper())
                             .FirstOrDefaultAsync();
 
+            if (userFixed == null)
+            {
+                ModelState.AddModelError(string.Empty, "User not found.");
+                return Page();
+            }
 
             string resetToken = await _userManager.GeneratePasswordResetTokenAsync(userFixed);
             var resetResult = await _userManager.ResetPasswordAsync(userFixed, resetToken, "NewPassword@123");
@@ -116,7 +133,6 @@ namespace KLENZ.Areas.Identity.Pages.Account
         }
     }
 }
-
 
 
 //// Licensed to the .NET Foundation under one or more agreements.

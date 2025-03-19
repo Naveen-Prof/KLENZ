@@ -18,6 +18,17 @@ namespace KLENZ.Data // ✅ Correct namespace
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<SalesEnquiry>().ToTable("SalesEnquiry", "Sales"); // Ensure schema
+            modelBuilder.Entity<PositiveEnquiry>()
+            .Property(p => p.QuotationValue)
+            .HasColumnType("decimal(18,4)");
+
+            modelBuilder.Entity<ProjectList>()
+                  .Property(p => p.WorkOrderValue)
+                  .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<QuotationReport>()
+                .Property(q => q.QuotationValue)
+                .HasColumnType("decimal(18,2)");
         }
         public DbSet<KLENZ.Models.QuotationReport> QuotationReport { get; set; } = default!;
         public DbSet<KLENZ.Models.PositiveEnquiry> PositiveEnquiry { get; set; } = default!;

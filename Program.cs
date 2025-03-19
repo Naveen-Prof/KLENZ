@@ -1,17 +1,22 @@
 ﻿using KLENZ.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.DataProtection;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ✅ Configure Database Context (Fixes duplicate registration)
+builder.Services.AddDbContext<KLENZDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("KLENZDbContext"),
+    sqlServerOptionsAction: sqlOptions => {
+        sqlOptions.EnableRetryOnFailure();
+    })
+);
+
 // ✅ Add Services
 builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages(); // ✅ Ensure Razor Pages for Identity UI
-
-// ✅ Configure Database Context
-builder.Services.AddDbContext<KLENZDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("KLENZDbContext")));
+builder.Services.AddRazorPages(); // 🔥 Enables UI Hot-Reload
 
 // ✅ Identity Configuration
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
@@ -22,27 +27,32 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
     options.Password.RequiredLength = 8;
 })
 .AddEntityFrameworkStores<KLENZDbContext>()
-.AddDefaultUI() // ✅ Ensure Identity UI is enabled
+.AddDefaultUI()
 .AddDefaultTokenProviders();
 
 // ✅ Configure Authentication & Authorization
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Identity/Account/Login"; // ✅ Fix incorrect login redirect
+    options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.ReturnUrlParameter = "returnUrl";
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
     options.SlidingExpiration = true;
 });
 
-// ✅ CORS (If needed for APIs)
+// ✅ Configure Data Protection (Fixes hardcoded path)
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "KLENZKeys")))
+    .SetApplicationName("KLENZ");
+
+// ✅ CORS Configuration
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
 
@@ -56,7 +66,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseForwardedHeaders();
-//app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseCors("AllowAll");
