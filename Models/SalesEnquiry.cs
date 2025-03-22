@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Security.Policy;
+using KLENZ.Models;
+using Microsoft.AspNetCore.Http;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace KLENZ.Models
 {
@@ -15,24 +16,22 @@ namespace KLENZ.Models
 
         [Required]
         [Display(Name = "Company Name")]
-        public required string CompanyName { get; set; }
+        public int CompanyNameId { get; set; }
 
+        [ForeignKey("CompanyNameId")]
+        public virtual CompanyName? Company { get; set; }
 
-        [Display(Name = "Refered by")]
+        [Display(Name = "Referred by")]
         public string? ReferedBy { get; set; }
-
 
         [Display(Name = "Enquiry details")]
         public string? EnquiryDetails { get; set; }
 
-
         [Display(Name = "Enquiry Date")]
         public DateTime? EnquiryDate { get; set; }
 
-
         [Display(Name = "Customer details")]
         public string? CustomerDetails { get; set; }
-
 
         public string? Status { get; set; }
 
@@ -51,11 +50,16 @@ namespace KLENZ.Models
         [Display(Name = "Upload File")]
         public IFormFile? File { get; set; }
 
-        public DateTime CreatedDateTime { get; set; } = DateTime.Now;
+        public DateTime? CreatedDateTime { get; set; }
 
         public string? CreatedUserId { get; set; }
 
         [NotMapped]
         public string? CreatedUserName { get; set; }
+
+        [NotMapped]
+        [DisplayName("Company Name")]
+        public string? CompanyNameStr { get; set; }
     }
+
 }

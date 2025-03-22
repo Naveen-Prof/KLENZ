@@ -51,11 +51,26 @@
                                     @* <li><a class="dropdown-item" asp-area="" asp-controller="General" asp-action="Index">General</a></li> *@
                                 </ul>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Projects" asp-action="Index">Projects</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" id="nav-project-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Projects
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="nav-project-dropdown">
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="ProjectConsultancy" asp-action="Index">Consultancy</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="ProjectTenderList" asp-action="Index">Tender List</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="ProjectToBeTenderList" asp-action="Index">To Be Tender List</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="ProjectKlenzChemicals" asp-action="Index">Klenz Chemicals</a></li>
+                                </ul>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="FinancialYears" asp-action="Index">Financial Years</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" id="nav-services-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Services
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="nav-services-dropdown">
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="FinancialYears" asp-action="Index">Financial Years</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="GSTTypes" asp-action="Index">GST Types</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="CompanyNames" asp-action="Index">Company Names</a></li>
+                                </ul>
                             </li>
                         </ul>
                     </div>

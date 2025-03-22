@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using KLENZ.Data;
 using KLENZ.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace KLENZ.Controllers
 {
@@ -25,7 +26,16 @@ namespace KLENZ.Controllers
         // GET: QuotationReports
         public async Task<IActionResult> Index()
         {
-            return View(await _context.QuotationReport.ToListAsync());
+
+            var companyNameList = await _context.QuotationReport.Include(c => c.Company).ToListAsync();
+
+            if (companyNameList == null)
+            {
+                return View(new List<QuotationReport>());
+            }
+            return View(companyNameList);
+
+            //return View(await _context.QuotationReport.ToListAsync());
         }
 
         // GET: QuotationReports/Details/5
@@ -35,34 +45,54 @@ namespace KLENZ.Controllers
 
             var quotationReport = await _context.QuotationReport
                 .Where(m => m.Id == id)
-                .Select(qr => new QuotationReport
+                .Select(qr => new 
                 {
-                    Id = qr.Id,
-                    QuotationDate = qr.QuotationDate,
-                    CompanyName = qr.CompanyName,
-                    ProductDetails = qr.ProductDetails,
-                    CustomerDetails = qr.CustomerDetails,
-                    QuotationValue = qr.QuotationValue,
-                    Remarks = qr.Remarks,
-                    IsPositive = qr.IsPositive,
-                    CreatedDateTime = qr.CreatedDateTime,
-                    CreatedUserId = qr.CreatedUserId,
+                    qr.Id,
+                    qr.QuotationDate,
+                    qr.ProductDetails,
+                    qr.CustomerDetails,
+                    qr.QuotationValue,
+                    qr.Remarks,
+                    qr.IsPositive,
+                    qr.CreatedDateTime,
+                    qr.CreatedUserId,
                     CreatedUserName = _context.Users
                         .Where(u => u.Id == qr.CreatedUserId)
                         .Select(u => u.UserName)
+                        .FirstOrDefault(),
+                    CompanyName = _context.CompanyName
+                        .Where(c => c.Id == qr.CompanyNameId) // Assuming CompanyNameId is the foreign key
+                        .Select(c => c.ShortName)
                         .FirstOrDefault()
                 })
                 .FirstOrDefaultAsync();
 
             if (quotationReport == null) return NotFound();
 
-            return View(quotationReport);
+            var viewModel = new QuotationReport
+            {
+                Id = quotationReport.Id,
+                QuotationDate = quotationReport.QuotationDate,
+                ProductDetails = quotationReport.ProductDetails,
+                CustomerDetails = quotationReport.CustomerDetails,
+                QuotationValue = quotationReport.QuotationValue,
+                Remarks = quotationReport.Remarks,
+                IsPositive = quotationReport.IsPositive,
+                CreatedDateTime = quotationReport.CreatedDateTime,
+                CreatedUserId = quotationReport.CreatedUserId,
+                CreatedUserName = quotationReport.CreatedUserName,
+                CompanyNameStr = quotationReport.CompanyName
+            };
+
+            return View(viewModel);
         }
 
 
         // GET: QuotationReports/Create
         public IActionResult Create()
         {
+
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
             return View();
         }
 
@@ -71,7 +101,7 @@ namespace KLENZ.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,QuotationDate,CompanyName,ProductDetails,CustomerDetails,QuotationValue,Remarks,IsPositive,CreatedDateTime,CreatedUserId")] QuotationReport quotationReport)
+        public async Task<IActionResult> Create([Bind("Id,QuotationDate,CompanyNameId,ProductDetails,CustomerDetails,QuotationValue,Remarks,IsPositive,CreatedDateTime,CreatedUserId")] QuotationReport quotationReport)
         {
             if (ModelState.IsValid)
             {
@@ -97,7 +127,7 @@ namespace KLENZ.Controllers
                     var positiveEnquiry = new PositiveEnquiry
                     {
                         QuotationDate = quotationReport.QuotationDate,
-                        CompanyName = quotationReport.CompanyName,
+                        CompanyNameId = quotationReport.CompanyNameId,
                         ProductDetails = quotationReport.ProductDetails,
                         CustomerDetails = quotationReport.CustomerDetails,
                         QuotationValue = quotationReport.QuotationValue,
@@ -111,6 +141,7 @@ namespace KLENZ.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
 
             return View(quotationReport);
         }
@@ -124,12 +155,14 @@ namespace KLENZ.Controllers
             {
                 return NotFound();
             }
-
             var quotationReport = await _context.QuotationReport.FindAsync(id);
             if (quotationReport == null)
             {
                 return NotFound();
             }
+            ViewBag.Companies = _context.CompanyName
+            .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.ShortName })
+            .ToList();
             return View(quotationReport);
         }
 
@@ -138,7 +171,7 @@ namespace KLENZ.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,QuotationDate,CompanyName,ProductDetails,CustomerDetails,QuotationValue,Remarks,IsPositive,CreatedDateTime,CreatedUserId")] QuotationReport quotationReport)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,QuotationDate,CompanyNameId,ProductDetails,CustomerDetails,QuotationValue,Remarks,IsPositive,CreatedDateTime,CreatedUserId")] QuotationReport quotationReport)
         {
             if (id != quotationReport.Id)
             {
@@ -175,7 +208,7 @@ namespace KLENZ.Controllers
                             var positiveEnquiry = new PositiveEnquiry
                             {
                                 QuotationDate = quotationReport.QuotationDate,
-                                CompanyName = quotationReport.CompanyName,
+                                CompanyNameId = quotationReport.CompanyNameId,
                                 ProductDetails = quotationReport.ProductDetails,
                                 CustomerDetails = quotationReport.CustomerDetails,
                                 QuotationValue = quotationReport.QuotationValue,
@@ -188,7 +221,7 @@ namespace KLENZ.Controllers
                         {
                             // Update existing PositiveEnquiry
                             existingPositiveEnquiry.QuotationDate = quotationReport.QuotationDate;
-                            existingPositiveEnquiry.CompanyName = quotationReport.CompanyName;
+                            existingPositiveEnquiry.CompanyNameId = quotationReport.CompanyNameId;
                             existingPositiveEnquiry.ProductDetails = quotationReport.ProductDetails;
                             existingPositiveEnquiry.CustomerDetails = quotationReport.CustomerDetails;
                             existingPositiveEnquiry.QuotationValue = quotationReport.QuotationValue;
@@ -219,6 +252,11 @@ namespace KLENZ.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewBag.Companies = _context.CompanyName
+              .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.ShortName })
+              .ToList();
+
             return View(quotationReport);
         }
 

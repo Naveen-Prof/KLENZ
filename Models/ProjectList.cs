@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,16 +12,19 @@ namespace KLENZ.Models
         public int Id { get; set; }
 
         [Required]
-        [Display(Name = "Financial Year")]
         [ForeignKey("FinancialYear")]
-        public required int FyYear { get; set; }
+        public int FyYear { get; set; }  // Foreign key
+
+        public virtual FinancialYear? FinancialYear { get; set; }
 
         [Display(Name = "Work Order date")]
         public DateTime? WorkOrderDate { get; set; }
 
-        [StringLength(600)]
-        [Display(Name = "Company Name")]
-        public string? CompanyName { get; set; }
+        [Required]
+        [ForeignKey("Company")]
+        public int CompanyNameId { get; set; }  // Foreign key
+
+        public virtual CompanyName? Company { get; set; }
 
         [Display(Name = "Customber Details")]
         public string? CustomerDetails { get; set; }
@@ -47,6 +51,13 @@ namespace KLENZ.Models
         public string? CreatedUserName { get; set; }
 
         // Navigation properties
-        public virtual FinancialYear? FinancialYear { get; set; }
+        [NotMapped]
+        [DisplayName("Financial Year")]
+        public string? FinancialYearStr { get; set; } // Directly get FyYear
+
+        [NotMapped]
+        [DisplayName("Company Name")]
+        public string? CompanyNameStr { get; set; }  // Added set accessor
+
     }
 }

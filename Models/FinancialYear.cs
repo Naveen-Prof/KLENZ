@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KLENZ.Models
 {
-    [Table("FinancialYear", Schema = "Klenz")]
+    [Table("FinancialYear", Schema = "Services")]
     public class FinancialYear
     {
         [Key]

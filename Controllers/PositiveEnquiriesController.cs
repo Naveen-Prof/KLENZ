@@ -7,22 +7,32 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KLENZ.Data;
 using KLENZ.Models;
+using Microsoft.CodeAnalysis;
+using Microsoft.AspNetCore.Identity;
 
 namespace KLENZ.Controllers
 {
     public class PositiveEnquiriesController : Controller
     {
         private readonly KLENZDbContext _context;
-
-        public PositiveEnquiriesController(KLENZDbContext context)
+        private readonly UserManager<IdentityUser> _userManager;
+        public PositiveEnquiriesController(KLENZDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: PositiveEnquiries
         public async Task<IActionResult> Index()
         {
-            return View(await _context.PositiveEnquiry.ToListAsync());
+            var companyNameList = await _context.PositiveEnquiry.Include(c => c.Company).ToListAsync();
+
+            if (companyNameList == null)
+            {
+                return View(new List<PositiveEnquiry>());
+            }
+
+            return View(companyNameList);
         }
 
         // GET: PositiveEnquiries/Details/5
@@ -32,33 +42,52 @@ namespace KLENZ.Controllers
 
             var positiveEnquiry = await _context.PositiveEnquiry
                 .Where(m => m.Id == id)
-                .Select(pe => new PositiveEnquiry
+                .Select(pe => new
                 {
-                    Id = pe.Id,
-                    QuotationDate = pe.QuotationDate,
-                    CompanyName = pe.CompanyName,
-                    ProductDetails = pe.ProductDetails,
-                    CustomerDetails = pe.CustomerDetails,
-                    QuotationValue = pe.QuotationValue,
-                    CurrentStatus = pe.CurrentStatus,
-                    CreatedDateTime = pe.CreatedDateTime,
-                    CreatedUserId = pe.CreatedUserId,
+                    pe.Id,
+                    pe.QuotationDate,
+                    pe.ProductDetails,
+                    pe.CustomerDetails,
+                    pe.QuotationValue,
+                    pe.CurrentStatus,
+                    pe.CreatedDateTime,
+                    pe.CreatedUserId,
                     CreatedUserName = _context.Users
                         .Where(u => u.Id == pe.CreatedUserId)
                         .Select(u => u.UserName)
+                        .FirstOrDefault(),
+                    CompanyName = _context.CompanyName
+                        .Where(c => c.Id == pe.CompanyNameId) // Assuming CompanyNameId is the foreign key
+                        .Select(c => c.ShortName)
                         .FirstOrDefault()
                 })
                 .FirstOrDefaultAsync();
 
             if (positiveEnquiry == null) return NotFound();
 
-            return View(positiveEnquiry);
+            var viewModel = new PositiveEnquiry
+            {
+                Id = positiveEnquiry.Id,
+                QuotationDate = positiveEnquiry.QuotationDate,
+                ProductDetails = positiveEnquiry.ProductDetails,
+                CustomerDetails = positiveEnquiry.CustomerDetails,
+                QuotationValue = positiveEnquiry.QuotationValue,
+                CurrentStatus = positiveEnquiry.CurrentStatus,
+                CreatedDateTime = positiveEnquiry.CreatedDateTime,
+                CreatedUserId = positiveEnquiry.CreatedUserId,
+                CreatedUserName = positiveEnquiry.CreatedUserName,
+                CompanyNameStr = positiveEnquiry.CompanyName
+            };
+
+
+            return View(viewModel);
         }
 
 
         // GET: PositiveEnquiries/Create
         public IActionResult Create()
         {
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
             return View();
         }
 
@@ -67,14 +96,25 @@ namespace KLENZ.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,QuotationDate,CompanyName,ProductDetails,CustomerDetails,QuotationValue,CurrentStatus,CreatedDateTime,CreatedUserId")] PositiveEnquiry positiveEnquiry)
+        public async Task<IActionResult> Create([Bind("Id,QuotationDate,CompanyNameId,ProductDetails,CustomerDetails,QuotationValue," +
+            "CurrentStatus,CreatedDateTime,CreatedUserId")] PositiveEnquiry positiveEnquiry)
         {
             if (ModelState.IsValid)
             {
+                var userId = _userManager.GetUserId(User);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    ModelState.AddModelError(string.Empty, "You must be logged in to create a sales enquiry.");
+                    return View(positiveEnquiry);
+                }
+                positiveEnquiry.CreatedUserId = userId;
+                positiveEnquiry.CreatedDateTime = DateTime.Now;
+
                 _context.Add(positiveEnquiry);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
             return View(positiveEnquiry);
         }
 
@@ -91,6 +131,10 @@ namespace KLENZ.Controllers
             {
                 return NotFound();
             }
+
+            ViewBag.Companies = _context.CompanyName
+              .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.ShortName })
+              .ToList();
             return View(positiveEnquiry);
         }
 
@@ -99,7 +143,8 @@ namespace KLENZ.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,QuotationDate,CompanyName,ProductDetails,CustomerDetails,QuotationValue,CurrentStatus,CreatedDateTime,CreatedUserId")] PositiveEnquiry positiveEnquiry)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,QuotationDate,CompanyNameId,ProductDetails,CustomerDetails" +
+            ",QuotationValue,CurrentStatus,CreatedDateTime,CreatedUserId")] PositiveEnquiry positiveEnquiry)
         {
             if (id != positiveEnquiry.Id)
             {
@@ -110,7 +155,14 @@ namespace KLENZ.Controllers
             {
                 try
                 {
-                    _context.Update(positiveEnquiry);
+                    var existingPosEnquiry = await _context.SalesEnquiries.FindAsync(id);
+                    if (existingPosEnquiry == null) return NotFound();
+
+                    positiveEnquiry.CreatedUserId = existingPosEnquiry.CreatedUserId;
+                    positiveEnquiry.CreatedDateTime = existingPosEnquiry.CreatedDateTime;
+
+                    _context.Entry(existingPosEnquiry).CurrentValues.SetValues(positiveEnquiry);
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -126,6 +178,11 @@ namespace KLENZ.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewBag.Companies = _context.CompanyName
+               .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.ShortName })
+               .ToList();
+
             return View(positiveEnquiry);
         }
 

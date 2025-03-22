@@ -27,6 +27,7 @@ namespace KLENZ.Controllers
         {
             var projectLists = await _context.ProjectList
                 .Include(p => p.FinancialYear) // Ensure FinancialYear is loaded
+                .Include(c => c.Company)
                 .ToListAsync();
 
             if (projectLists == null)
@@ -38,44 +39,64 @@ namespace KLENZ.Controllers
         }
 
 
-        // GET: ProjectLists/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
             var projectList = await _context.ProjectList
-                .Include(p => p.FinancialYear)
+                .Include(p => p.FinancialYear)  // Ensure FinancialYear is loaded
+                .Include(p => p.Company)        // Ensure Company entity is loaded
                 .Where(p => p.Id == id)
-                .Select(p => new ProjectList
+                .Select(p => new
                 {
-                    Id = p.Id,
-                    FyYear = p.FyYear,
-                    WorkOrderDate = p.WorkOrderDate,
-                    CompanyName = p.CompanyName,
-                    CustomerDetails = p.CustomerDetails,
-                    WorkDetails = p.WorkDetails,
-                    WorkOrderValue = p.WorkOrderValue,
-                    Remarks = p.Remarks,
-                    CreatedDateTime = p.CreatedDateTime,
-                    CreatedUserId = p.CreatedUserId,
+                    p.Id,
+                    p.WorkOrderDate,
+                    p.CustomerDetails,
+                    p.WorkDetails,
+                    p.WorkOrderValue,
+                    p.Remarks,
+                    p.CreatedDateTime,
+                    p.CreatedUserId,
                     CreatedUserName = _context.Users
                         .Where(u => u.Id == p.CreatedUserId)
                         .Select(u => u.UserName)
                         .FirstOrDefault(),
-                    FinancialYear = p.FinancialYear
+                    CompanyShortName = p.Company != null ? p.Company.ShortName : "N/A", // Fetch Company Name
+                    FinancialYear = _context.FinancialYear
+                        .Where(f=> f.Id == p.FyYear)
+                        .Select(f => f.FyYear)
+                        .FirstOrDefault()
                 })
                 .FirstOrDefaultAsync();
 
             if (projectList == null) return NotFound();
 
-            return View(projectList);
+            var viewModel = new ProjectList
+            {
+                Id = projectList.Id,
+                FinancialYearStr = projectList.FinancialYear, // Convert if needed
+                WorkOrderDate = projectList.WorkOrderDate,
+                CustomerDetails = projectList.CustomerDetails,
+                WorkDetails = projectList.WorkDetails,
+                WorkOrderValue = projectList.WorkOrderValue,
+                Remarks = projectList.Remarks,
+                CreatedDateTime = projectList.CreatedDateTime,
+                CreatedUserId = projectList.CreatedUserId,
+                CreatedUserName = projectList.CreatedUserName,
+                CompanyNameStr = projectList.CompanyShortName 
+            };
+
+            return View(viewModel);
         }
+
 
 
         // GET: ProjectLists/Create
         public IActionResult Create()
         {
             ViewData["FyYear"] = new SelectList(_context.FinancialYear.Where(fy => fy.IsActive == 1),"Id", "FyYear");
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(c => c.IsActive == 1), "Id", "ShortName");
+
             return View();
         }
 
@@ -84,7 +105,8 @@ namespace KLENZ.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FyYear,WorkOrderDate,CompanyName,CustomerDetails,WorkDetails,WorkOrderValue,Remarks,CreatedDateTime,CreatedUserId")] ProjectList projectList)
+        public async Task<IActionResult> Create([Bind("Id,FyYear,WorkOrderDate,CompanyNameId,CustomerDetails,WorkDetails,WorkOrderValue" +
+            ",Remarks,CreatedDateTime,CreatedUserId")] ProjectList projectList)
         {
             if (ModelState.IsValid)
             {
@@ -104,6 +126,7 @@ namespace KLENZ.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["FyYear"] = new SelectList(_context.FinancialYear, "Id", "FyYear", projectList.FyYear);
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
             return View(projectList);
         }
 
@@ -121,6 +144,7 @@ namespace KLENZ.Controllers
                 return NotFound();
             }
             ViewData["FyYear"] = new SelectList(_context.FinancialYear, "Id", "FyYear", projectList.FyYear);
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
             return View(projectList);
         }
 
@@ -129,7 +153,7 @@ namespace KLENZ.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,FyYear,WorkOrderDate,CompanyName,CustomerDetails,WorkDetails,WorkOrderValue,Remarks")] ProjectList projectList)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,FyYear,WorkOrderDate,CompanyNameId,CustomerDetails,WorkDetails,WorkOrderValue,Remarks")] ProjectList projectList)
         {
             if (id != projectList.Id)
             {
@@ -170,6 +194,7 @@ namespace KLENZ.Controllers
             }
 
             ViewData["FyYear"] = new SelectList(_context.FinancialYear, "Id", "FyYear", projectList.FyYear);
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
             return View(projectList);
         }
 
@@ -184,6 +209,7 @@ namespace KLENZ.Controllers
 
             var projectList = await _context.ProjectList
                 .Include(p => p.FinancialYear)
+                .Include(p => p.Company)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (projectList == null)
             {

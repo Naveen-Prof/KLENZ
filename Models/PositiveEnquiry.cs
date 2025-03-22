@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KLENZ.Models
@@ -14,7 +15,10 @@ namespace KLENZ.Models
 
         [Required]
         [Display(Name = "Company Name")]
-        public string? CompanyName { get; set; }
+        public int CompanyNameId { get; set; }
+
+        [ForeignKey("CompanyNameId")]
+        public virtual CompanyName? Company { get; set; }
 
         [Display(Name = "Product Details")]
         public string? ProductDetails { get; set; }
@@ -38,5 +42,9 @@ namespace KLENZ.Models
         [NotMapped]
         [Display(Name = "Created User")]
         public string? CreatedUserName { get; set; }
+
+        [NotMapped]
+        [DisplayName("Company Name")]
+        public string? CompanyNameStr { get; set; }
     }
 }

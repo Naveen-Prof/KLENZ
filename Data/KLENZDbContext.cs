@@ -34,5 +34,11 @@ namespace KLENZ.Data // ✅ Correct namespace
         public DbSet<KLENZ.Models.PositiveEnquiry> PositiveEnquiry { get; set; } = default!;
         public DbSet<KLENZ.Models.FinancialYear> FinancialYear { get; set; } = default!;
         public DbSet<KLENZ.Models.ProjectList> ProjectList { get; set; } = default!;
+        public DbSet<KLENZ.Models.CompanyName> CompanyName { get; set; } = default!;
+        public DbSet<KLENZ.Models.GSTTypes> GSTTypes { get; set; } = default!;
+        public DbSet<KLENZ.Models.Project_Consultancy> Project_Consultancy { get; set; } = default!;
+        public DbSet<KLENZ.Models.Project_TenderList> Project_TenderList { get; set; } = default!;
+        public DbSet<KLENZ.Models.Project_ToBeTenderList> Project_ToBeTenderList { get; set; } = default!;
+        public DbSet<KLENZ.Models.Project_KlenzChemicals> Project_KlenzChemicals { get; set; } = default!;
     }
 }

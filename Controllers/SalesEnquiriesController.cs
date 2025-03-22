@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Versioning;
 
 namespace KLENZ.Controllers
 {
@@ -29,12 +31,22 @@ namespace KLENZ.Controllers
         // GET: SalesEnquiries
         public async Task<IActionResult> Index()
         {
-            return View(await _context.SalesEnquiries.ToListAsync());
+            var companyNameList = await _context.SalesEnquiries.Include(c => c.Company).ToListAsync();
+
+            if(companyNameList == null)
+            {
+                return View(new List<SalesEnquiry>());
+            }
+            return View(companyNameList);
         }
 
         // GET: SalesEnquiries/Create
         public IActionResult Create()
         {
+            //ViewBag.Companies = _context.CompanyName
+            //    .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.FullName })
+            //    .ToList();
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
             return View();
         }
 
@@ -45,39 +57,59 @@ namespace KLENZ.Controllers
 
             var salesEnquiry = await _context.SalesEnquiries
                 .Where(m => m.Id == id)
-                .Select(se => new SalesEnquiry
+                .Select(se => new
                 {
-                    Id = se.Id,
-                    CompanyName = se.CompanyName,
-                    ReferedBy = se.ReferedBy,
-                    EnquiryDetails = se.EnquiryDetails,
-                    EnquiryDate = se.EnquiryDate,
-                    CustomerDetails = se.CustomerDetails,
-                    Status = se.Status,
-                    Remarks = se.Remarks,
-                    ReminderDate = se.ReminderDate,
-                    ReminderPlace = se.ReminderPlace,
-                    FilePath = se.FilePath,
-                    CreatedDateTime = se.CreatedDateTime,
-                    CreatedUserId = se.CreatedUserId,
+                    se.Id,
+                    se.ReferedBy,
+                    se.EnquiryDetails,
+                    se.EnquiryDate,
+                    se.CustomerDetails,
+                    se.Status,
+                    se.Remarks,
+                    se.ReminderDate,
+                    se.ReminderPlace,
+                    se.FilePath,
+                    se.CreatedDateTime,
+                    se.CreatedUserId,
                     CreatedUserName = _context.Users
                         .Where(u => u.Id == se.CreatedUserId)
                         .Select(u => u.UserName)
+                        .FirstOrDefault(),
+                    CompanyName = _context.CompanyName
+                        .Where(c => c.Id == se.CompanyNameId) // Assuming CompanyNameId is the foreign key
+                        .Select(c => c.ShortName)
                         .FirstOrDefault()
                 })
                 .FirstOrDefaultAsync();
 
             if (salesEnquiry == null) return NotFound();
 
-            return View(salesEnquiry);
-        }
+            var viewModel = new SalesEnquiry
+            {
+                Id = salesEnquiry.Id,
+                ReferedBy = salesEnquiry.ReferedBy,
+                EnquiryDetails = salesEnquiry.EnquiryDetails,
+                EnquiryDate = salesEnquiry.EnquiryDate,
+                CustomerDetails = salesEnquiry.CustomerDetails,
+                Status = salesEnquiry.Status,
+                Remarks = salesEnquiry.Remarks,
+                ReminderDate = salesEnquiry.ReminderDate,
+                ReminderPlace = salesEnquiry.ReminderPlace,
+                FilePath = salesEnquiry.FilePath,
+                CreatedDateTime = salesEnquiry.CreatedDateTime,
+                CreatedUserId = salesEnquiry.CreatedUserId,
+                CreatedUserName = salesEnquiry.CreatedUserName,
+                CompanyNameStr = salesEnquiry.CompanyName    // Now assigning ShortName to CompanyName
+            };
 
+            return View(viewModel);
+        }
 
 
         // POST: SalesEnquiries/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CompanyName, ReferedBy, EnquiryDetails, EnquiryDate, " +
+        public async Task<IActionResult> Create([Bind("CompanyNameId, ReferedBy, EnquiryDetails, EnquiryDate, " +
             "CustomerDetails, Status, Remarks, ReminderDate, ReminderPlace, FilePath")] SalesEnquiry salesEnquiry, IFormFile? File)
         {
             if (ModelState.IsValid)
@@ -121,6 +153,8 @@ namespace KLENZ.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
+
             return View(salesEnquiry);
         }
 
@@ -133,6 +167,10 @@ namespace KLENZ.Controllers
 
             var salesEnquiry = await _context.SalesEnquiries.FindAsync(id);
             if (salesEnquiry == null) return NotFound();
+
+            ViewBag.Companies = _context.CompanyName
+               .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.ShortName })
+               .ToList();
 
             return View(salesEnquiry);
         }
@@ -188,7 +226,8 @@ namespace KLENZ.Controllers
                     {
                         salesEnquiry.FilePath = existingEnquiry.FilePath;
                     }
-
+                    salesEnquiry.CreatedUserId = existingEnquiry.CreatedUserId;
+                    salesEnquiry.CreatedDateTime = existingEnquiry.CreatedDateTime;
                     _context.Entry(existingEnquiry).CurrentValues.SetValues(salesEnquiry);
                     await _context.SaveChangesAsync();
                 }
@@ -199,6 +238,11 @@ namespace KLENZ.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewBag.Companies = _context.CompanyName
+               .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.ShortName })
+               .ToList();
+
             return View(salesEnquiry);
         }
 

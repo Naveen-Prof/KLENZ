@@ -75,9 +75,9 @@
                 <thead class="table-dark">
                     <tr>
                         <th>Actions</th>
-                        <th>@Html.DisplayNameFor(model => model.FinancialYear.FyYear)</th>
+                        <th>@Html.DisplayNameFor(model => model.FinancialYear)</th>
                         <th>@Html.DisplayNameFor(model => model.WorkOrderDate)</th>
-                        <th>@Html.DisplayNameFor(model => model.CompanyName)</th>
+                        <th>@Html.DisplayNameFor(model => model.CompanyNameStr)</th>
                         <th>@Html.DisplayNameFor(model => model.CustomerDetails)</th>
                         <th>@Html.DisplayNameFor(model => model.WorkDetails)</th>
                         <th>@Html.DisplayNameFor(model => model.WorkOrderValue)</th>
@@ -101,7 +101,7 @@
                             </td>
                             <td>@(item.FinancialYear != null ? item.FinancialYear.FyYear : "N/A")</td>
                             <td>@item.WorkOrderDate?.ToShortDateString()</td>
-                            <td>@Html.DisplayFor(modelItem => item.CompanyName)</td>
+                            <td>@(item.Company?.ShortName ?? "N/A")</td>
                             <td>@Html.DisplayFor(modelItem => item.CustomerDetails)</td>
                             <td>@Html.DisplayFor(modelItem => item.WorkDetails)</td>
                             <td>@Html.DisplayFor(modelItem => item.WorkOrderValue)</td>

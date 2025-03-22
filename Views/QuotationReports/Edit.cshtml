@@ -21,9 +21,11 @@
                         <span asp-validation-for="QuotationDate" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <label asp-for="CompanyName" class="fw-bold"></label>
-                        <input asp-for="CompanyName" class="form-control" />
-                        <span asp-validation-for="CompanyName" class="text-danger"></span>
+                        <label asp-for="CompanyNameId" class="fw-bold"></label>
+                        <select asp-for="CompanyNameId" class="form-control" asp-items="ViewBag.Companies">
+                            <option value="">-- Select Company --</option>
+                        </select>
+                        <span asp-validation-for="CompanyNameId" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
                         <label asp-for="ProductDetails" class="fw-bold"></label>

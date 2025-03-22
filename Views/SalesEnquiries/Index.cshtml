@@ -85,7 +85,7 @@
                     <tr>
                         <th>Actions</th>
                         <th>@Html.DisplayNameFor(model => model.EnquiryDate)</th>
-                        <th>@Html.DisplayNameFor(model => model.CompanyName)</th>
+                        <th>@Html.DisplayNameFor(model => model.CompanyNameStr)</th>
                         <th>@Html.DisplayNameFor(model => model.ReferedBy)</th>
                         <th>@Html.DisplayNameFor(model => model.EnquiryDetails)</th>
                         <th>@Html.DisplayNameFor(model => model.CustomerDetails)</th>
@@ -111,7 +111,7 @@
                                 </a>
                             </td>
                             <td>@item.EnquiryDate?.ToShortDateString()</td>
-                            <td>@Html.DisplayFor(modelItem => item.CompanyName)</td>
+                            <td>@(item.Company?.ShortName ?? "N/A")</td>
                             <td>@Html.DisplayFor(modelItem => item.ReferedBy)</td>
                             <td>@Html.DisplayFor(modelItem => item.EnquiryDetails)</td>
                             <td>@Html.DisplayFor(modelItem => item.CustomerDetails)</td>

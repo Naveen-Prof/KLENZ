@@ -11,7 +11,7 @@
     <div class="card-body">
         <dl class="row">
             <dt class="col-md-2 fw-bold">Company Name</dt>
-            <dd class="col-md-4">@Html.DisplayFor(model => model.CompanyName)</dd>
+            <dd class="col-md-4">@Html.DisplayFor(model => model.CompanyNameStr)</dd>
 
             <dt class="col-md-2 fw-bold">Referred By</dt>
             <dd class="col-md-4">@Html.DisplayFor(model => model.ReferedBy)</dd>
@@ -38,7 +38,7 @@
             <dd class="col-md-4">@Html.DisplayFor(model => model.ReminderPlace)</dd>
 
             <dt class="col-sm-2">Created Date & Time</dt>
-            <dd class="col-sm-4">@Model.CreatedDateTime.ToString("dd/MM/yyyy HH:mm")</dd>
+            <dd class="col-sm-4"> @(Model.CreatedDateTime.HasValue ? Model.CreatedDateTime.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</dd>
 
             <dt class="col-sm-2">Created By</dt>
             <dd class="col-sm-4">@Model.CreatedUserName</dd>

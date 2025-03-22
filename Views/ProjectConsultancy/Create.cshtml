@@ -1,0 +1,118 @@
+﻿@model KLENZ.Models.Project_Consultancy
+
+@{
+    ViewData["Title"] = "Create Project Consultancy";
+}
+
+<div class="card shadow-lg rounded-card">
+    <div class="card-header bg-primary bg-opacity-75 text-white">
+        <h4 class="mb-0"><i class="fas fa-plus-circle"></i> Create Project Consultancy</h4>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <!-- Bootstrap Grid: Two Columns for Better Alignment -->
+            <div class="row">
+                <!-- Left Column -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="FyYear" class="fw-bold"></label>
+                        <select asp-for="FyYear" class="form-control" asp-items="ViewBag.FyYear">
+                            <option value="">-- Select Financial Year --</option>
+                        </select>
+                        <span asp-validation-for="FyYear" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="WorkOrderDate" class="fw-bold"></label>
+                        <input asp-for="WorkOrderDate" type="date" class="form-control" />
+                        <span asp-validation-for="WorkOrderDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CompanyNameId" class="fw-bold"></label>
+                        <select asp-for="CompanyNameId" class="form-control" asp-items="ViewBag.CompanyNameId">
+                            <option value="">-- Select Company --</option>
+                        </select>
+                        <span asp-validation-for="CompanyNameId" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CustomerDetails" class="fw-bold"></label>
+                        <input asp-for="CustomerDetails" class="form-control" />
+                        <span asp-validation-for="CustomerDetails" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="WorkDetails" class="fw-bold"></label>
+                        <textarea asp-for="WorkDetails" class="form-control"></textarea>
+                        <span asp-validation-for="WorkDetails" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="ProjectCost" class="fw-bold"></label>
+                        <input asp-for="ProjectCost" class="form-control" id="projectCost" />
+                        <span asp-validation-for="ProjectCost" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="GSTTypeId" class="control-label"></label>
+                        <select asp-for="GSTTypeId" class="form-control" asp-items="ViewBag.GSTTypeId"></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Total" class="fw-bold"></label>
+                        <input asp-for="Total" class="form-control" id="totalCost" readonly />
+                        <span asp-validation-for="Total" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="WorkDuration" class="fw-bold"></label>
+                        <input asp-for="WorkDuration" class="form-control" />
+                        <span asp-validation-for="WorkDuration" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Remarks" class="fw-bold"></label>
+                        <textarea asp-for="Remarks" class="form-control"></textarea>
+                        <span asp-validation-for="Remarks" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons Row -->
+            <div class="row mt-3">
+                <div class="col-md-12 d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            function calculateTotal() {
+                let projectCost = parseFloat($("#projectCost").val()) || 0;
+                let gstPercentage = parseFloat($("#GSTTypeId option:selected").text()) || 0;
+
+                let total = projectCost + (projectCost * gstPercentage / 100);
+                $("#totalCost").val(total.toFixed(2));
+            }
+
+            // Trigger calculation when Project Cost or GST Dropdown changes
+            $("#projectCost, #GSTTypeId").on("input change", calculateTotal);
+        });
+    </script>
+
+}

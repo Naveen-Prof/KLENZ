@@ -35,9 +35,11 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label asp-for="CompanyName" class="form-label fw-bold"></label>
-                    <input asp-for="CompanyName" class="form-control" placeholder="Enter company name" />
-                    <span asp-validation-for="CompanyName" class="text-danger"></span>
+                    <label asp-for="CompanyNameId" class="fw-bold"></label>
+                    <select asp-for="CompanyNameId" class="form-control" asp-items="ViewBag.Companies">
+                        <option value="">-- Select Company --</option>
+                    </select>
+                    <span asp-validation-for="CompanyNameId" class="text-danger"></span>
                 </div>
 
                 <div class="col-md-6">

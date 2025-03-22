@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,7 +16,10 @@ namespace KLENZ.Models
 
         [Required]
         [Display(Name = "Company Name")]
-        public string? CompanyName { get; set; }
+        public int CompanyNameId { get; set; }
+
+        [ForeignKey("CompanyNameId")]
+        public virtual CompanyName? Company { get; set; }
 
         [Display(Name = "Product Details")]
         public string? ProductDetails { get; set; }
@@ -34,7 +38,7 @@ namespace KLENZ.Models
         public byte? IsPositive { get; set; }
 
         [NotMapped]
-        public bool IsPositiveBool { get => IsPositive ==1; set => IsPositive = value ? (byte)1 : (byte)0; }
+        public bool IsPositiveBool { get => IsPositive == 1; set => IsPositive = value ? (byte)1 : (byte)0; }
 
         public DateTime? CreatedDateTime { get; set; }
 
@@ -43,5 +47,9 @@ namespace KLENZ.Models
 
         [NotMapped]
         public string? CreatedUserName { get; set; }
+
+        [NotMapped]
+        [DisplayName("Company Name")]
+        public string? CompanyNameStr { get; set; }
     }
 }
