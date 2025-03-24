@@ -1,96 +1,257 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+
 <style>
-    .card-link {
-        text-decoration: none;
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Poppins', sans-serif;
     }
+
+    .dashboard-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .dashboard-card {
+        display: flex;
+        align-items: center;
+        padding: 18px;
+        border-radius: 15px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        transition: 0.3s ease-in-out;
+        width: calc(20% - 10px);
+        height: 160%;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+    .table-card {
+        width: calc(50% - 10px);
+        height: auto;
+        padding: 20px;
+        border-radius: 15px;
+        background-color: #fff;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        transition: 0.3s ease-in-out;
+    }
+
+        .table-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+    .icon-container {
+        border-radius: 12px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+        height: 45px;
+        margin-right: 15px;
+    }
+
+    .icon-blue {
+        background: linear-gradient(135deg, #007bff, #6fb1fc);
+        color: #fff;
+    }
+
+    .icon-green {
+        background: linear-gradient(135deg, #28a745, #72d472);
+        color: #fff;
+    }
+
+    .icon-red {
+        background: linear-gradient(135deg, #dc3545, #f77b7b);
+        color: #fff;
+    }
+
+    .icon-yellow {
+        background: linear-gradient(135deg, #ffc107, #ffdb72);
+        color: #fff;
+    }
+
+    .icon-purple {
+        background: linear-gradient(135deg, #6f42c1, #b093f9);
+        color: #fff;
+    }
+
+    .card-title {
+        font-size: 15px;
+        color: #6c757d;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+
+    .card-number {
+        font-size: 22px;
+        font-weight: bold;
+        color: #343a40;
+        margin: 0;
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+
+        .custom-table th, .custom-table td {
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .custom-table th {
+            background: #f3f4f6;
+            color: #374151;
+            font-weight: bold;
+        }
+
+        .custom-table tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .custom-table tr:hover {
+            background: #e0f2fe;
+            transition: 0.3s ease-in-out;
+        }
+
 </style>
+
 <div class="text-center">
-    <h1 class="display-5">Welcome</h1>
+    <small class="display-6">Dashboard</small>
+    <hr class="mt-2">
 </div>
 
-<div class="container mt-5">
-    <div class="row">
-        <!-- Card 1 -->
-        <div class="col-md-4 mb-4">
-            <a href="@Url.Action("Index", "SalesEnquiries")" class="card-link">
-                @* <a href="~/" class="card-link"> *@
-                <div class="card">
-                    <img src="https://via.placeholder.com/150" class="card-img-top" alt="Card Image 1">
-                    <div class="card-body text-center text-center" >
-                        <h5 class="card-title">Sales</h5>
-                        <p class="card-text">This is a short description for the Sales section.</p>
-                    </div>
-                </div>
-            </a>
+<div class="container-fluid mt-3">
+    <div class="dashboard-container me-2">
+        <div class="dashboard-card">
+            <div class="icon-container icon-purple">
+                <i class="bi bi-bar-chart"></i>
+            </div>
+            <div class="card-content ms-4">
+                <div class="card-title">Total Enquiries</div>
+                <p class="card-number">1,245</p>
+            </div>
         </div>
 
-        <!-- Card 2 -->
-        <div class="col-md-4 mb-4">
-            <a href="/page2" class="card-link">
-                <div class="card">
-                    <img src="https://via.placeholder.com/150" class="card-img-top" alt="Card Image 2">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Projects</h5>
-                        <p class="card-text">Learn about our ongoing and completed projects.</p>
-                    </div>
-                </div>
-            </a>
+        <div class="dashboard-card">
+            <div class="icon-container icon-blue">
+                <i class="bi bi-graph-up"></i>
+            </div>
+            <div class="card-content ms-4">
+                <div class="card-title">Positive</div>
+                <p class="card-number">890</p>
+            </div>
         </div>
 
-        <!-- Card 3 -->
-        <div class="col-md-4 mb-4">
-            <a href="/page3" class="card-link">
-                <div class="card">
-                    <img src="https://via.placeholder.com/150" class="card-img-top" alt="Card Image 3">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Purchase</h5>
-                        <p class="card-text">Information about purchases and procurement.</p>
-                    </div>
-                </div>
-            </a>
+        <div class="dashboard-card">
+            <div class="icon-container icon-green">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="card-content ms-4">
+                <div class="card-title">Approved</div>
+                <p class="card-number">760</p>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="icon-container icon-yellow">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+            <div class="card-content ms-4">
+                <div class="card-title">Pending</div>
+                <p class="card-number">320</p>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="icon-container icon-red">
+                <i class="bi bi-x-circle"></i>
+            </div>
+            <div class="card-content ms-4">
+                <div class="card-title">Rejected</div>
+                <p class="card-number">115</p>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Card 4 -->
-        <div class="col-md-4 mb-4">
-            <a href="/page4" class="card-link">
-                <div class="card">
-                    <img src="https://via.placeholder.com/150" class="card-img-top" alt="Card Image 4">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Accounts</h5>
-                        <p class="card-text">Account management and financial data.</p>
-                    </div>
-                </div>
-            </a>
+    <div class="dashboard-container me-2 mt-4">
+
+        <div class="table-card">
+            <h5>Approved Enquiries</h5>
+            <table class="table-responsive custom-table datatable">
+                <thead>
+                    <tr>
+                        <th>Quotation Date</th>
+                        <th>Company Name</th>
+                        <th>Product Details</th>
+                        <th>Customer Details</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>01/03/2025</td>
+                        <td>ABC Ltd.</td>
+                        <td>Product X</td>
+                        <td>Customer A</td>
+                        <td>$10,000</td>
+                    </tr>
+                    <tr>
+                        <td>02/03/2025</td>
+                        <td>XYZ Corp.</td>
+                        <td>Product Y</td>
+                        <td>Customer B</td>
+                        <td>$12,500</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
-        <!-- Card 5 -->
-        <div class="col-md-4 mb-4">
-            <a href="/page5" class="card-link">
-                <div class="card">
-                    <img src="https://via.placeholder.com/150" class="card-img-top" alt="Card Image 5">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">General</h5>
-                        <p class="card-text">General information and resources.</p>
-                    </div>
-                </div>
-            </a>
+        <div class="table-card">
+            <h5>Project List</h5>
+            <table class="table-responsive custom-table datatable">
+                <thead>
+                    <tr>
+                        <th>Financial Year</th>
+                        <th>Work Order Date</th>
+                        <th>Company Name</th>
+                        <th>Customer Details</th>
+                        <th>Work Order Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2024-25</td>
+                        <td>05/03/2025</td>
+                        <td>LMN Inc.</td>
+                        <td>Customer C</td>
+                        <td>$15,000</td>
+                    </tr>
+                    <tr>
+                        <td>2024-25</td>
+                        <td>06/03/2025</td>
+                        <td>PQR Solutions</td>
+                        <td>Customer D</td>
+                        <td>$8,500</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
-        <!-- Card 6 -->
-        <div class="col-md-4 mb-4">
-            <a href="/page6" class="card-link">
-                <div class="card">
-                    <img src="https://via.placeholder.com/150" class="card-img-top" alt="Card Image 6">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Admin</h5>
-                        <p class="card-text">Administration and user settings.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
     </div>
 </div>
+
+<script src="~/js/custom_datatables.js"></script>
+
+

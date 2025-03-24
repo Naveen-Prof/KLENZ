@@ -12,7 +12,7 @@
     }
 
         .table th:nth-child(1), .table td:nth-child(1) {
-            width: 60px;
+            width: 70px;
         }
 
         .table th:nth-child(2), .table td:nth-child(2) {
@@ -71,7 +71,7 @@
                         <th>@Html.DisplayNameFor(model => model.CustomerDetails)</th>
                         <th>@Html.DisplayNameFor(model => model.QuotationValue)</th>
                         <th>@Html.DisplayNameFor(model => model.Remarks)</th>
-                        <th>@Html.DisplayNameFor(model => model.IsPositive)</th>
+                        <th class="text-center">@Html.DisplayNameFor(model => model.IsPositive)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -83,10 +83,10 @@
                                     <i class="bi bi-pencil-square text-success"></i>
                                 </a>
                                 <a asp-action="Details" asp-route-id="@item.Id" title="Details" class="text-decoration-none">
-                                    <i class="bi bi-eye text-primary"></i>
+                                    <i class="bi bi-eye ms-1" style="color:blue"></i>
                                 </a>
                                 <a asp-action="Delete" asp-route-id="@item.Id" title="Delete" class="text-decoration-none">
-                                    <i class="bi bi-trash text-danger"></i>
+                                    <i class="bi bi-trash-fill ms-1" style="color:red"></i>
                                 </a>
                             </td>
                             <td>@item.QuotationDate?.ToShortDateString()</td>
@@ -95,7 +95,17 @@
                             <td>@Html.DisplayFor(modelItem => item.CustomerDetails)</td>
                             <td>@Html.DisplayFor(modelItem => item.QuotationValue)</td>
                             <td>@Html.DisplayFor(modelItem => item.Remarks)</td>
-                            <td>@(item.IsPositive == 1 ? "Yes" : "No")</td>
+                            <td class="text-center">
+                                @if (item.IsPositive == 1)
+                                {
+                                    <span class="btn btn-sm btn-success">Yes</span>
+                                }
+                                else
+                                {
+                                    <span class="btn btn-sm btn-danger">No</span>
+                                }
+                            </td>
+
                         </tr>
                     }
                 </tbody>

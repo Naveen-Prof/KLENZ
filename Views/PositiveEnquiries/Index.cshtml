@@ -15,7 +15,7 @@
     }
 
         .table th:nth-child(1), .table td:nth-child(1) {
-            width: 50px;
+            width: 60px;
         }
 
         .table th:nth-child(2), .table td:nth-child(2) {
@@ -74,7 +74,7 @@
                         <th>@Html.DisplayNameFor(model => model.ProductDetails)</th>
                         <th>@Html.DisplayNameFor(model => model.CustomerDetails)</th>
                         <th>@Html.DisplayNameFor(model => model.QuotationValue)</th>
-                        <th>@Html.DisplayNameFor(model => model.CurrentStatus)</th>
+                        <th class="text-center">@Html.DisplayNameFor(model => model.CurrentStatus)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -86,10 +86,10 @@
                                     <i class="bi bi-pencil-square text-success"></i>
                                 </a>
                                 <a asp-action="Details" asp-route-id="@item.Id" title="Details" class="text-decoration-none">
-                                    <i class="bi bi-eye text-primary"></i>
+                                    <i class="bi bi-eye" style="color:blue"></i>
                                 </a>
                                 <a asp-action="Delete" asp-route-id="@item.Id" title="Delete" class="text-decoration-none">
-                                    <i class="bi bi-trash text-danger"></i>
+                                    <i class="bi bi-trash-fill" style="color:red"></i>
                                 </a>
                             </td>
                             <td>@item.QuotationDate?.ToShortDateString()</td>
@@ -97,7 +97,21 @@
                             <td>@Html.DisplayFor(modelItem => item.ProductDetails)</td>
                             <td>@Html.DisplayFor(modelItem => item.CustomerDetails)</td>
                             <td>@Html.DisplayFor(modelItem => item.QuotationValue)</td>
-                            <td>@Html.DisplayFor(modelItem => item.CurrentStatus)</td>
+                            <td class="text-center">
+                                @if (item.CurrentStatus == "Pending")
+                                {
+                                    <span class="btn btn-sm btn-warning">Pending</span>
+                                }
+                                else if (item.CurrentStatus == "Approved")
+                                {
+                                    <span class="btn btn-sm btn-success">Approved</span>
+                                }
+                                else if (item.CurrentStatus == "Rejected")
+                                {
+                                    <span class="btn btn-sm btn-danger">Rejected</span>
+                                }
+                            </td>
+
                         </tr>
                     }
                 </tbody>

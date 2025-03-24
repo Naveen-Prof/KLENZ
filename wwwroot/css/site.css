@@ -165,3 +165,94 @@ body {
     .export-icon:hover {
         color: #ffc107; /* Yellow highlight */
     }
+
+/* for datatable pagination */
+
+.dataTables_paginate .pagination {
+    border-radius: 8px !important;
+    background-color: #f8f9fa !important;
+    padding: 5px 10px;
+}
+
+    .dataTables_paginate .pagination .page-item .page-link {
+        color: #6c757d !important;
+        border-radius: 6px !important;
+        border: 1px solid #dee2e6 !important;
+        margin: 0 3px;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    .dataTables_paginate .pagination .page-item.active .page-link {
+        background-color: #6c757d !important;
+        color: #fff !important;
+        border-color: #6c757d !important;
+    }
+
+    .dataTables_paginate .pagination .page-item .page-link:hover {
+        background-color: #e9ecef !important;
+        color: #495057 !important;
+    }
+
+    .dataTables_paginate .pagination .page-item .page-link:focus,
+    .dataTables_paginate .pagination .page-item .page-link:active {
+        outline: none !important;
+        box-shadow: none !important;
+        border-color: #dee2e6 !important;
+    }
+
+.table thead th {
+    border-bottom: none !important;
+    font-weight: bold;
+}
+
+.th-light {
+    background-color: #f0f0f0 !important;
+    color: #333;
+}
+
+.rounded-search {
+    border-radius: 25px !important;
+    padding: 8px 15px !important;
+    border: 1px solid #ced4da !important;
+}
+
+
+.table-hover tbody tr:hover {
+    background-color: #eef2f7 !important;
+}
+.table thead th {
+    background-color: #cce0ff !important; 
+    color: black !important; 
+    border-bottom: none !important;
+    font-weight: bold;
+    padding: 10px;
+    
+}
+
+/* Add space (gap) between tbody rows */
+.table tbody tr {
+    
+    padding: 10px; 
+    
+  
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .dashboard-card {
+        width: calc(33.33% - 10px); /* 3 cards per row */
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-card {
+        width: calc(50% - 10px); /* 2 cards per row */
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-card {
+        width: 100%; /* Full width for small screens */
+    }
+}
