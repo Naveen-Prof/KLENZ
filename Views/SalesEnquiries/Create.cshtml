@@ -3,96 +3,130 @@
 @{
     ViewData["Title"] = "Sales Enquiry";
 }
+@section Styles {
+    <style>
+        .card {
+            width: 100%;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background: #fff;
+        }
 
-<div class="card shadow-lg rounded-card">
-    <div class="card-header bg-primary bg-opacity-75 text-white">
-        <h4 class="mb-0">Create Sales Enquiry</h4>
+        .form-control {
+            border-radius: 8px;
+        }
+
+        .btn {
+            border-radius: 8px;
+        }
+
+
+        .btn-white {
+            color: var(--bs-primary);
+            background-color: white;
+            border-radius: 10px;
+            font-weight: bold;
+            padding: 6px 12px;
+        }
+
+
+            .btn-white:hover {
+                background-color: white;
+                color: var(--bs-primary);
+            }
+
+    </style>
+}
+
+<div class="card shadow-lg">
+    <div class="card-header bg-primary bg-opacity-75 text-white d-flex">
+        <div class="ms-5">
+            <a asp-action="Index" class="btn btn-white ms-lg-5">
+                <i class="bi bi-arrow-left-circle text-primary"></i> Back to List
+            </a>
+        </div>
+        <div class="flex-grow-1">
+            <h4 class="mb-0 text-white ms-5">Create Sales Enquiry</h4>
+        </div>
     </div>
+
+
+
+
+
     <div class="card-body">
         <form asp-action="Create" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <!-- Bootstrap Grid: Two Columns for Better Alignment -->
-            <div class="row">
-                <!-- Left Column -->
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label asp-for="CompanyNameId" class="fw-bold"></label>
-                        <select asp-for="CompanyNameId" class="form-control" asp-items="ViewBag.Companies">
-                            <option value="">-- Select Company --</option>
-                        </select>
-                        <span asp-validation-for="CompanyNameId" class="text-danger"></span>
+            <div class="row d-flex justify-content-center">
+                    <div class="col-md-4">
+                            <div class="mb-4">
+                                <label asp-for="CompanyNameId" class="fw-bold  mb-1 text-start d-block"></label>
+                                <select asp-for="CompanyNameId" class="form-control" asp-items="ViewBag.Companies">
+                                    <option value="">-- Select Company --</option>
+                                </select>
+                                <span asp-validation-for="CompanyNameId" class="text-danger"></span>
                     </div>
-
-                    <div class="mb-3">
-                        <label asp-for="ReferedBy" class="fw-bold"></label>
-                        <input asp-for="ReferedBy" class="form-control" />
+                    <div class="mb-4">
+                        <label asp-for="ReferedBy" class="fw-bold mb-1 text-start d-block"></label>
+                        <input asp-for="ReferedBy" autocomplete="off" class="form-control" />
                         <span asp-validation-for="ReferedBy" class="text-danger"></span>
                     </div>
-
-                    <div class="mb-3">
-                        <label asp-for="EnquiryDetails" class="fw-bold"></label>
-                        <input asp-for="EnquiryDetails" class="form-control" />
+                    <div class="mb-4">
+                        <label asp-for="EnquiryDetails" class="fw-bold mb-1 text-start d-block"></label>
+                        <input asp-for="EnquiryDetails" autocomplete="off" class="form-control" />
                         <span asp-validation-for="EnquiryDetails" class="text-danger"></span>
                     </div>
-
-                    <div class="mb-3">
-                        <label asp-for="EnquiryDate" class="fw-bold"></label>
-                        <input asp-for="EnquiryDate" type="date" class="form-control" />
+                    <div class="mb-4">
+                        <label asp-for="EnquiryDate" class="fw-bold mb-1 text-start d-block"></label>
+                        <input asp-for="EnquiryDate" autocomplete="off" type="date" class="form-control" />
                         <span asp-validation-for="EnquiryDate" class="text-danger"></span>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="CustomerDetails" class="fw-bold"></label>
-                        <input asp-for="CustomerDetails" class="form-control" />
-                        <span asp-validation-for="CustomerDetails" class="text-danger"></span>
+
+                    <div class="button-group mt-4 d-flex justify-content-start gap-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Create
+                        </button>
+                        <button type="reset" class="btn btn-warning">
+                            <i class="bi bi-arrow-clockwise"></i> Reset
+                        </button>
                     </div>
+
                 </div>
 
                 <!-- Right Column -->
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label asp-for="Status" class="fw-bold"></label>
-                        <input asp-for="Status" class="form-control" />
+                <div class="col-md-4">
+                    <div class="mb-4">
+                        <label asp-for="Status" class="fw-bold mb-1 text-start d-block"></label>
+                        <input asp-for="Status" autocomplete="off" class="form-control" />
                         <span asp-validation-for="Status" class="text-danger"></span>
                     </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Remarks" class="fw-bold"></label>
-                        <input asp-for="Remarks" class="form-control" />
+                    <div class="mb-4">
+                        <label asp-for="Remarks" class="fw-bold mb-1 text-start d-block"></label>
+                        <input asp-for="Remarks" autocomplete="off" class="form-control" />
                         <span asp-validation-for="Remarks" class="text-danger"></span>
                     </div>
-
-                    <div class="mb-3">
-                        <label asp-for="ReminderDate" class="fw-bold"></label>
+                    <div class="mb-4">
+                        <label asp-for="ReminderDate" class="fw-bold mb-1 text-start d-block"></label>
                         <input asp-for="ReminderDate" type="date" class="form-control" />
                         <span asp-validation-for="ReminderDate" class="text-danger"></span>
                     </div>
-
-                    <div class="mb-3">
-                        <label asp-for="ReminderPlace" class="fw-bold"></label>
-                        <input asp-for="ReminderPlace" class="form-control" />
-                        <span asp-validation-for="ReminderPlace" class="text-danger"></span>
-                    </div>
-
-                    <!-- File Upload Field -->
-                    <div class="mb-3">
-                        <label class="fw-bold">Upload File</label>
+                    <div class="mb-4">
+                        <label class="fw-bold mb-1 text-start d-block">Upload File</label>
                         <input type="file" name="File" class="form-control" />
                     </div>
                 </div>
             </div>
 
-            <!-- Buttons Row -->
-            <div class="row mt-3">
-                <div class="col-md-12 d-flex justify-content-between">
-                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-                    <input type="submit" value="Create" class="btn btn-primary" />
-                </div>
-            </div>
+           
+
         </form>
     </div>
 </div>
+
+
 
 @section Scripts {
     @{

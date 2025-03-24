@@ -15,7 +15,7 @@
 
         /* Set specific column widths */
         .table th:nth-child(1), .table td:nth-child(1) {
-            width: 60px;
+            width: 70px;
         }
         /* Actions */
         .table th:nth-child(2), .table td:nth-child(2) {
@@ -53,6 +53,10 @@
         .table th:nth-child(10), .table td:nth-child(10) {
             width: 100px;
         }
+
+     
+
+
     /* File */
 
 </style>
@@ -72,27 +76,27 @@
             <i id="exportExcel" class="bi bi-file-earmark-excel-fill text-success fs-4 export-icon"></i>
             @* </button> *@
 
-            <!-- Export to PDF Button -->
+            
             <i id="exportPdf" class="bi bi-file-earmark-pdf-fill text-danger fs-4 export-icon"></i>
 
         </div>
     </div>
 
     <div class="card-body">
-        <div class="table-responsive">
+        <div class="table-responsive table table-striped">
             <table class="table datatable rounded-table">
-                <thead class="table-dark">
+                <thead class="table-primary">
                     <tr>
                         <th>Actions</th>
                         <th>@Html.DisplayNameFor(model => model.EnquiryDate)</th>
-                        <th>@Html.DisplayNameFor(model => model.CompanyNameStr)</th>
-                        <th>@Html.DisplayNameFor(model => model.ReferedBy)</th>
+                        <th>@Html.DisplayNameFor(model => model.CompanyName)</th>
+                        @* <th>@Html.DisplayNameFor(model => model.ReferedBy)</th> *@
                         <th>@Html.DisplayNameFor(model => model.EnquiryDetails)</th>
                         <th>@Html.DisplayNameFor(model => model.CustomerDetails)</th>
                         <th>@Html.DisplayNameFor(model => model.Status)</th>
                         <th>@Html.DisplayNameFor(model => model.ReminderDate)</th>
                         <th>@Html.DisplayNameFor(model => model.ReminderPlace)</th>
-                        <th>@Html.DisplayNameFor(model => model.File)</th>
+                        <th class="text-center">@Html.DisplayNameFor(model => model.File)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -104,25 +108,25 @@
                                     <i class="bi bi-pencil-square text-success"></i>
                                 </a>
                                 <a asp-action="Details" asp-route-id="@item.Id" title="Details" class="text-decoration-none">
-                                    <i class="bi bi-eye text-primary"></i>
+                                    <i class="bi bi-eye ms-1" style="color:blue"></i>
                                 </a>
                                 <a asp-action="Delete" asp-route-id="@item.Id" title="Delete" class="text-decoration-none">
-                                    <i class="bi bi-trash text-danger"></i>
+                                    <i class="bi bi-trash-fill ms-1" style="color:red"></i>
                                 </a>
                             </td>
                             <td>@item.EnquiryDate?.ToShortDateString()</td>
-                            <td>@(item.Company?.ShortName ?? "N/A")</td>
-                            <td>@Html.DisplayFor(modelItem => item.ReferedBy)</td>
+                            <td>@Html.DisplayFor(modelItem => item.CompanyName)</td>
+                            @* <td>@Html.DisplayFor(modelItem => item.ReferedBy)</td> *@
                             <td>@Html.DisplayFor(modelItem => item.EnquiryDetails)</td>
                             <td>@Html.DisplayFor(modelItem => item.CustomerDetails)</td>
                             <td>@Html.DisplayFor(modelItem => item.Status)</td>
                             <td>@item.ReminderDate?.ToShortDateString()</td>
                             <td>@Html.DisplayFor(modelItem => item.ReminderPlace)</td>
-                            <td>
+                            <td class="text-center">
                                 @if (!string.IsNullOrEmpty(item.FilePath))
                                 {
-                                    <a href="@Url.Content(item.FilePath)" target="_blank" class="btn btn-sm btn-outline-primary" title="Click to View">
-                                        <i class="bi bi-download"></i>
+                                    <a href="@Url.Content(item.FilePath)" target="_blank" class="text-primary fs-4" title="Click to View">
+                                        <i class="bi bi-cloud-arrow-down-fill "></i>
                                     </a>
                                 }
                                 else
