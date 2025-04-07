@@ -22,7 +22,7 @@ namespace KLENZ.Controllers
         // GET: GSTTypes
         public async Task<IActionResult> Index()
         {
-            return View(await _context.GSTTypes.ToListAsync());
+            return View(await _context.GSTTypes.OrderByDescending(g => g.CreatedDateTime).ToListAsync());
         }
 
         // GET: GSTTypes/Details/5

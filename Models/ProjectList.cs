@@ -13,8 +13,10 @@ namespace KLENZ.Models
 
         [Required]
         [ForeignKey("FinancialYear")]
+        [DisplayName("Financial Year")]
         public int FyYear { get; set; }  // Foreign key
 
+        [DisplayName("Financial Year")]
         public virtual FinancialYear? FinancialYear { get; set; }
 
         [Display(Name = "Work Order date")]
@@ -22,6 +24,7 @@ namespace KLENZ.Models
 
         [Required]
         [ForeignKey("Company")]
+        [DisplayName("Company Name")]
         public int CompanyNameId { get; set; }  // Foreign key
 
         public virtual CompanyName? Company { get; set; }

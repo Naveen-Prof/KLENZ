@@ -10,16 +10,16 @@
     /* Ensure table layout is fixed */
     .table {
         table-layout: fixed;
-        width: 100%;
+        width: 99%;
     }
 
         /* Set specific column widths */
         .table th:nth-child(1), .table td:nth-child(1) {
-            width: 70px;
+            width: 48px;
         }
         /* Actions */
         .table th:nth-child(2), .table td:nth-child(2) {
-            width: 83px;
+            width: 65px;
         }
         /* Enquiry Date */
         .table th:nth-child(3), .table td:nth-child(3) {
@@ -35,7 +35,7 @@
         }
         /* Enquiry Details */
         .table th:nth-child(6), .table td:nth-child(6) {
-            width: 200px;
+            width: 100px;
         }
         /* Customer Details */
         .table th:nth-child(7), .table td:nth-child(7) {
@@ -54,16 +54,11 @@
             width: 100px;
         }
 
-     
-
-
-    /* File */
-
 </style>
-<div class="card rounded-card shadow-lg mt-3">
+<div class="card rounded-card shadow-lg">
     <div class="card-header d-flex justify-content-between align-items-center bg-primary bg-opacity-75 text-white rounded-top">
         <div class="d-flex align-items-center">
-            <i class="bi bi-bar-chart-fill me-2 fs-4"></i> <!-- Bootstrap icon -->
+            <i class="bi bi-bar-chart me-2 fs-4"></i> <!-- Bootstrap icon -->
             <h4 class="mb-0">Sales Enquiries</h4>
         </div>
         <div class="d-flex gap-2">
@@ -73,11 +68,10 @@
 
             <!-- Export to Excel Button -->
             @* <button  class="btn btn-success"> *@
-            <i id="exportExcel" class="bi bi-file-earmark-excel-fill text-success fs-4 export-icon"></i>
+            <i id="exportExcel" class="mt-1 bi bi-file-earmark-excel-fill text-success fs-4 export-icon"></i>
             @* </button> *@
 
-            
-            <i id="exportPdf" class="bi bi-file-earmark-pdf-fill text-danger fs-4 export-icon"></i>
+            <i id="exportPdf" class="mt-1 bi bi-file-earmark-pdf-fill text-danger fs-4 export-icon"></i>
 
         </div>
     </div>
@@ -115,7 +109,7 @@
                                 </a>
                             </td>
                             <td>@item.EnquiryDate?.ToShortDateString()</td>
-                            <td>@Html.DisplayFor(modelItem => item.CompanyNameStr)</td>
+                            <td>@(item.Company?.ShortName ?? "N/A")</td>
                             @* <td>@Html.DisplayFor(modelItem => item.ReferedBy)</td> *@
                             <td>@Html.DisplayFor(modelItem => item.EnquiryDetails)</td>
                             <td>@Html.DisplayFor(modelItem => item.CustomerDetails)</td>

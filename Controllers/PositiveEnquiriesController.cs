@@ -25,7 +25,7 @@ namespace KLENZ.Controllers
         // GET: PositiveEnquiries
         public async Task<IActionResult> Index()
         {
-            var companyNameList = await _context.PositiveEnquiry.Include(c => c.Company).ToListAsync();
+            var companyNameList = await _context.PositiveEnquiry.Include(c => c.Company).OrderByDescending(c => c.CreatedDateTime).ToListAsync();
 
             if (companyNameList == null)
             {

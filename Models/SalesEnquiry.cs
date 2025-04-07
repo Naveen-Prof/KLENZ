@@ -37,10 +37,10 @@ namespace KLENZ.Models
 
         public string? Remarks { get; set; }
 
-        [Display(Name = "Meeting Date")]
+        [Display(Name = "Reminder Date")]
         public DateTime? ReminderDate { get; set; }
 
-        [Display(Name = "Meeting Place")]
+        [Display(Name = "Reminder Place")]
         public string? ReminderPlace { get; set; }
 
         [Display(Name = "Attachment")]

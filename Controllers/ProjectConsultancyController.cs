@@ -25,7 +25,8 @@ namespace KLENZ.Controllers
         // GET: ProjectConsultancy
         public async Task<IActionResult> Index()
         {
-            var kLENZDbContext = _context.Project_Consultancy.Include(p => p.Company).Include(p => p.FinancialYear).Include(p => p.GSTType);
+            var kLENZDbContext = _context.Project_Consultancy.Include(p => p.Company)
+                .Include(p => p.FinancialYear).Include(p => p.GSTType).OrderByDescending(p => p.CreatedDateTime);
             return View(await kLENZDbContext.ToListAsync());
         }
 
