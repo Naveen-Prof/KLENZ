@@ -27,7 +27,7 @@ namespace KLENZ.Controllers
         public async Task<IActionResult> Index()
         {
 
-            var companyNameList = await _context.QuotationReport.Include(c => c.Company).ToListAsync();
+            var companyNameList = await _context.QuotationReport.Include(c => c.Company).OrderByDescending(c=>c.CreatedDateTime).ToListAsync();
 
             if (companyNameList == null)
             {

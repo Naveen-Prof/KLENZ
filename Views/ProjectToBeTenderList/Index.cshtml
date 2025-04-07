@@ -1,0 +1,101 @@
+﻿@model IEnumerable<KLENZ.Models.Project_ToBeTenderList>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkOrderDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CustomerDetails)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkDetails)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProjectCost)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Total)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkDuration)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Remarks)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedDateTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedUserId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FinancialYear)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Company)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GSTType)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.WorkOrderDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CustomerDetails)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.WorkDetails)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProjectCost)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Total)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.WorkDuration)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Remarks)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedDateTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedUserId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FinancialYear.FyYear)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Company.FullName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GSTType.Id)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

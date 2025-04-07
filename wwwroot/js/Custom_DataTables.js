@@ -10,7 +10,7 @@
         "ordering": false,
         "info": false,
         "lengthChange": true,  
-        "pageLength": 10,     
+        "pageLength": 5,     
         "lengthMenu": [[10, 25, 50, 100], [10, 25, 50, 100]], 
         "buttons": [],
         "language": {

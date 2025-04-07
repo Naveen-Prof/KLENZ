@@ -28,6 +28,7 @@ namespace KLENZ.Controllers
             var projectLists = await _context.ProjectList
                 .Include(p => p.FinancialYear) // Ensure FinancialYear is loaded
                 .Include(c => c.Company)
+                .OrderByDescending(p => p.CreatedDateTime)
                 .ToListAsync();
 
             if (projectLists == null)

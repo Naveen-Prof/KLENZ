@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using KLENZ.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace KLENZ.Data // ✅ Correct namespace
 {
@@ -18,6 +19,8 @@ namespace KLENZ.Data // ✅ Correct namespace
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<SalesEnquiry>().ToTable("SalesEnquiry", "Sales"); // Ensure schema
+            modelBuilder.Entity<CompanyName>().ToTable("Companies", schema: "Services");
+
             modelBuilder.Entity<PositiveEnquiry>()
             .Property(p => p.QuotationValue)
             .HasColumnType("decimal(18,4)");

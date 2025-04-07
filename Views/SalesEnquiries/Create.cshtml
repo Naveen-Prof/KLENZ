@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Sales Enquiry";
 }
-@section Styles {
+@* @section Styles {
     <style>
         .card {
             width: 100%;
@@ -15,6 +15,16 @@
 
         .form-control {
             border-radius: 8px;
+        }
+
+        .input-group{
+            border-radius: 15px !important; /* Ensures input inside .input-group has rounded borders */
+        }
+
+        .input-group-text {
+            border-top-left-radius: 8px !important;
+            border-top-left-radius: 8px !important;
+            border-bottom-left-radius: 8px !important;
         }
 
         .btn {
@@ -37,90 +47,98 @@
             }
 
     </style>
-}
+} *@
 
 <div class="card shadow-lg">
     <div class="card-header bg-primary bg-opacity-75 text-white d-flex">
-        <div class="ms-5">
+        <div class="ms-3">
             <a asp-action="Index" class="btn btn-white ms-lg-5">
                 <i class="bi bi-arrow-left-circle text-primary"></i> Back to List
             </a>
         </div>
         <div class="flex-grow-1">
-            <h4 class="mb-0 text-white ms-5">Create Sales Enquiry</h4>
+            <h4 class="mt-1 text-white ms-4">Create Sales Enquiry</h4>
         </div>
     </div>
-
-
-
-
 
     <div class="card-body">
         <form asp-action="Create" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="row d-flex justify-content-center">
-                    <div class="col-md-4">
-                            <div class="mb-4">
-                                <label asp-for="CompanyNameId" class="fw-bold  mb-1 text-start d-block"></label>
-                                <select asp-for="CompanyNameId" class="form-control" asp-items="ViewBag.Companies">
-                                    <option value="">-- Select Company --</option>
-                                </select>
-                                <span asp-validation-for="CompanyNameId" class="text-danger"></span>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label asp-for="CompanyNameId" class="form-label fw-bold  mb-1 text-start d-block"></label>
+                        <select asp-for="CompanyNameId" class="form-control form-select" asp-items="ViewBag.Companies">
+                            <option value="">-- Select Company --</option>
+                        </select>
+                        <span asp-validation-for="CompanyNameId" class="text-danger"></span>
                     </div>
-                    <div class="mb-4">
-                        <label asp-for="ReferedBy" class="fw-bold mb-1 text-start d-block"></label>
-                        <input asp-for="ReferedBy" autocomplete="off" class="form-control" />
+                    <div class="mb-3">
+                        <label asp-for="ReferedBy" class="form-label fw-bold mb-1 text-start d-block"></label>
+                        <input asp-for="ReferedBy" autocomplete="off" class="form-control" placeholder="Enter refered by details"/>
                         <span asp-validation-for="ReferedBy" class="text-danger"></span>
                     </div>
-                    <div class="mb-4">
-                        <label asp-for="EnquiryDetails" class="fw-bold mb-1 text-start d-block"></label>
-                        <input asp-for="EnquiryDetails" autocomplete="off" class="form-control" />
+                    <div class="mb-3">
+                        <label asp-for="EnquiryDetails" class="form-label fw-bold mb-1 text-start d-block"></label>
+                        <input asp-for="EnquiryDetails" autocomplete="off" class="form-control" placeholder="Enter enquiry details" />
                         <span asp-validation-for="EnquiryDetails" class="text-danger"></span>
                     </div>
-                    <div class="mb-4">
-                        <label asp-for="EnquiryDate" class="fw-bold mb-1 text-start d-block"></label>
-                        <input asp-for="EnquiryDate" autocomplete="off" type="date" class="form-control" />
+                    <div class="mb-3">
+                        <label asp-for="EnquiryDate" class="form-label fw-bold mb-1 text-start d-block"></label>
+                        <div class="input-group date-picker-group">
+                            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                            <input asp-for="EnquiryDate" autocomplete="off" type="date" class="form-control" />
+                        </div>
                         <span asp-validation-for="EnquiryDate" class="text-danger"></span>
                     </div>
-
-
-                    <div class="button-group mt-4 d-flex justify-content-start gap-3">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i> Create
-                        </button>
-                        <button type="reset" class="btn btn-warning">
-                            <i class="bi bi-arrow-clockwise"></i> Reset
-                        </button>
+                    <div class="mb-3">
+                        <label asp-for="CustomerDetails" class="form-label fw-bold mb-1 text-start d-block"></label>
+                        <textarea asp-for="CustomerDetails" autocomplete="off" class="form-control" placeholder="Enter customer details" rows="1"></textarea>
+                        <span asp-validation-for="CustomerDetails" class="text-danger"></span>
                     </div>
-
                 </div>
 
                 <!-- Right Column -->
                 <div class="col-md-4">
-                    <div class="mb-4">
-                        <label asp-for="Status" class="fw-bold mb-1 text-start d-block"></label>
+                    <div class="mb-3">
+                        <label asp-for="Status" class="form-label fw-bold mb-1 text-start d-block"></label>
                         <input asp-for="Status" autocomplete="off" class="form-control" />
                         <span asp-validation-for="Status" class="text-danger"></span>
                     </div>
-                    <div class="mb-4">
-                        <label asp-for="Remarks" class="fw-bold mb-1 text-start d-block"></label>
-                        <input asp-for="Remarks" autocomplete="off" class="form-control" />
+                    <div class="mb-3">
+                        <label asp-for="Remarks" class="form-label fw-bold mb-1 text-start d-block"></label>
+                        <textarea asp-for="Remarks" autocomplete="off" class="form-control" rows="1"></textarea>
                         <span asp-validation-for="Remarks" class="text-danger"></span>
                     </div>
-                    <div class="mb-4">
-                        <label asp-for="ReminderDate" class="fw-bold mb-1 text-start d-block"></label>
-                        <input asp-for="ReminderDate" type="date" class="form-control" />
+                    <div class="mb-3">
+                        <label asp-for="ReminderDate" class="form-label fw-bold mb-1 text-start d-block"></label>
+                        <div class="input-group date-picker-groups">
+                            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                            <input asp-for="ReminderDate" type="date" class="form-control" />
+                        </div>
                         <span asp-validation-for="ReminderDate" class="text-danger"></span>
                     </div>
-                    <div class="mb-4">
-                        <label class="fw-bold mb-1 text-start d-block">Upload File</label>
+                    <div class="mb-3">
+                        <label asp-for="ReminderPlace" class="form-label fw-bold mb-1 text-start d-block"></label>
+                        <input asp-for="ReminderPlace" class="form-control" />
+                        <span asp-validation-for="ReminderPlace" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold mb-1 text-start d-block">Upload File</label>
                         <input type="file" name="File" class="form-control" />
                     </div>
                 </div>
             </div>
 
-           
+            <div class="button-group mt-2 d-flex justify-content-center gap-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Create
+                </button>
+                <button type="reset" class="btn btn-warning">
+                    <i class="bi bi-arrow-clockwise"></i> Reset
+                </button>
+            </div>
 
         </form>
     </div>
@@ -132,4 +150,18 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+          document.addEventListener("DOMContentLoaded", function () {
+            document.querySelector(".date-picker-group").addEventListener("click", function () {
+                this.querySelector("input").showPicker(); // Trigger native date-picker
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelector(".date-picker-groups").addEventListener("click", function () {
+                this.querySelector("input").showPicker(); // Trigger native date-picker
+            });
+        });
+    </script>
 }

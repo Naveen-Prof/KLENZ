@@ -39,6 +39,7 @@ namespace KLENZ.Controllers
                         .Select(u => u.UserName)
                         .FirstOrDefault()
                 })
+                .OrderByDescending(fy => fy.CreatedDateTime)
                 .ToListAsync();
 
             var model = financialYears.Select(fy => new FinancialYear

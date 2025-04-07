@@ -192,4 +192,24 @@ document.addEventListener("DOMContentLoaded", function () {
             exportToExcel(headers, "Project List.xlsx");
         });
     }
+
+    // Project Consultancy
+
+    const pdfButton_projCons = document.getElementById('exportPdf_ProjectConsultancy');
+    if (pdfButton_projCons) {
+        pdfButton_projCons.addEventListener('click', function () {
+            const headers = ["S.No", "F.Y", "Work Order date", "Company Details	", "Customer", "Work Details","Project Cost","GST","Total", "Work duration", "Remarks"];
+            const columnWidths = [12, 23,       20                  , 50            , 50        , 20                , 25    , 12  ,  20    ,  18            ,    20];
+            const data = extractTableData(true);
+            exportToPDF(headers, data, columnWidths, "Project Consultancy.pdf");
+        });
+    }
+
+    const excelButton_projCons = document.getElementById('exportExcel_ProjectConsultancy');
+    if (excelButton_projCons) {
+        excelButton_projCons.addEventListener('click', function () {
+            const headers = ["S.No", "F.Y", "Work Order date", "Company Details	", "Customer", "Work Details", "Project Cost", "GST", "Total", "Work duration", "Remarks"];
+            exportToExcel(headers, "Project Consultancy.xlsx");
+        });
+    }
 });

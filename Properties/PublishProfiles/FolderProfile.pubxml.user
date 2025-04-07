@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- https://go.microsoft.com/fwlink/?LinkID=208121. -->
+<Project>
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <_PublishTargetUrl>D:\OFFICE DOCS\TEST_Build</_PublishTargetUrl>
+    <History>True|2025-03-25T15:21:40.9298268Z||;False|2025-03-25T20:50:33.7649968+05:30||;True|2025-03-25T20:33:44.6778028+05:30||;False|2025-03-25T20:29:40.6543530+05:30||;True|2025-03-19T22:12:03.4891608+05:30||;True|2025-03-19T22:10:07.8790279+05:30||;True|2025-03-19T21:30:39.7906475+05:30||;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+  <ItemGroup>
+    <DestinationConnectionStrings Include="KLENZDbContext">
+      <Value>Server=DESKTOP-0ULOUT8\SQL2016%3bDatabase=KLENZ1%3bTrusted_Connection=True%3bTrustServerCertificate=True</Value>
+    </DestinationConnectionStrings>
+  </ItemGroup>
+  <ItemGroup>
+    <EFMigrations Include="KLENZ.Data.KLENZDbContext">
+      <Value>Server=DESKTOP-0ULOUT8\SQL2016%3bDatabase=KLENZ1%3bTrusted_Connection=True%3bTrustServerCertificate=True</Value>
+    </EFMigrations>
+  </ItemGroup>
+</Project>
