@@ -1,0 +1,7 @@
+*.bin
+*.dll
+*.vsidx
+*.v2
+/.vs
+/bin
+/obj

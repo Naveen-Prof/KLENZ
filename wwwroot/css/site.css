@@ -230,29 +230,41 @@ body {
     
 }
 
-/* Add space (gap) between tbody rows */
 .table tbody tr {
     
     padding: 10px; 
     
   
 }
-
-/* Responsive */
+/*
 @media (max-width: 1200px) {
     .dashboard-card {
-        width: calc(33.33% - 10px); /* 3 cards per row */
+        width: calc(33.33% - 10px); 
     }
 }
 
 @media (max-width: 768px) {
     .dashboard-card {
-        width: calc(50% - 10px); /* 2 cards per row */
+        width: calc(50% - 10px); 
     }
 }
 
 @media (max-width: 576px) {
     .dashboard-card {
-        width: 100%; /* Full width for small screens */
+        width: 100%; 
+    }
+}*/
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
     }
 }

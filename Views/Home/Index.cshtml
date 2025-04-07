@@ -8,42 +8,22 @@
         font-family: 'Poppins', sans-serif;
     }
 
-    .dashboard-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-    }
-
     .dashboard-card {
         display: flex;
         align-items: center;
         padding: 18px;
         border-radius: 15px;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        background-color: #fff;
-        transition: 0.3s ease-in-out;
-        width: calc(20% - 10px);
-        height: 160%;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+        background: linear-gradient(135deg, #ffffff, #f8f9fa);
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        border: 1px solid #e2e8f0;
+        position: relative;
+       height:100px;
     }
 
         .dashboard-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
-        }
-
-    .table-card {
-        width: calc(50% - 10px);
-        height: auto;
-        padding: 20px;
-        border-radius: 15px;
-        background-color: #fff;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        transition: 0.3s ease-in-out;
-    }
-
-        .table-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
         }
 
     .icon-container {
@@ -52,206 +32,421 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 45px;
-        height: 45px;
+        width: 50px;
+        height: 50px;
         margin-right: 15px;
+        color: #fff;
     }
 
     .icon-blue {
         background: linear-gradient(135deg, #007bff, #6fb1fc);
-        color: #fff;
     }
 
     .icon-green {
         background: linear-gradient(135deg, #28a745, #72d472);
-        color: #fff;
-    }
-
-    .icon-red {
-        background: linear-gradient(135deg, #dc3545, #f77b7b);
-        color: #fff;
     }
 
     .icon-yellow {
         background: linear-gradient(135deg, #ffc107, #ffdb72);
-        color: #fff;
+    }
+
+    .icon-red {
+        background: linear-gradient(135deg, #dc3545, #f77b7b);
     }
 
     .icon-purple {
-        background: linear-gradient(135deg, #6f42c1, #b093f9);
-        color: #fff;
+        background: linear-gradient(135deg, #6f42c1, #a76dca);
+    }
+
+    .icon-orange {
+        background: linear-gradient(135deg, #fd7e14, #ffb74d);
+    }
+
+    .icon-gold {
+        background: linear-gradient(135deg, #ff5733, #ffa07a);
     }
 
     .card-title {
-        font-size: 15px;
+        font-size: 14px;
         color: #6c757d;
         margin-bottom: 6px;
         font-weight: 600;
     }
 
     .card-number {
-        font-size: 22px;
+        font-size: 20px;
         font-weight: bold;
         color: #343a40;
         margin: 0;
     }
 
-    .custom-table {
-        width: 100%;
-        border-collapse: collapse;
+    .table-card {
+        background-color: #fff;
+        border: 1px solid #dee2e6;
         border-radius: 10px;
-        overflow: hidden;
-        margin-top: 10px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
-        .custom-table th, .custom-table td {
-            border: 1px solid #e2e8f0;
-            padding: 8px;
-            text-align: left;
+        .table-card h5 {
+            margin-bottom: 16px;
+            color: #343a40;
         }
 
-        .custom-table th {
-            background: #f3f4f6;
-            color: #374151;
-            font-weight: bold;
+        .table-card .table {
+            margin-bottom: 0;
+        }
+    .dataTables_filter {
+        margin-bottom: 1rem;
+    }
+
+        .dataTables_filter label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #495057;
         }
 
-        .custom-table tr:nth-child(even) {
-            background: #f9fafb;
+        .dataTables_filter input {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            height: 28px;
+            width: 180px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
         }
 
-        .custom-table tr:hover {
-            background: #e0f2fe;
-            transition: 0.3s ease-in-out;
-        }
+    .custom-table tbody tr:hover {
+        background-color: #f1f3f5;
+        cursor: pointer;
+    }
+
+    .custom-table th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-size: 0.85rem;
+    }
+
+    .custom-table td {
+        font-size: 0.85rem;
+        color: #343a40;
+    }
+
 
 </style>
 
 <div class="text-center">
     <small class="display-6">Dashboard</small>
-    <hr class="mt-2">
 </div>
 
 <div class="container-fluid mt-3">
-    <div class="dashboard-container me-2">
-        <div class="dashboard-card">
-            <div class="icon-container icon-purple">
-                <i class="bi bi-bar-chart"></i>
+    <div class="row g-3 mb-3">
+        <div class="col-md-2 col-sm-6">
+            <div class="dashboard-card d-flex p-3">
+                <div class="icon-container icon-blue">
+                    <i class="bi bi-graph-up fs-4"></i>
+                </div>
+                <div class="ms-4">
+                    <div class="card-title">Total Enquiry</div>
+                    <p class="card-number">890</p>
+                </div>
             </div>
-            <div class="card-content ms-4">
-                <div class="card-title">Total Enquiries</div>
-                <p class="card-number">1,245</p>
+        </div>
+        <div class="col-md-2 col-sm-6">
+            <div class="dashboard-card d-flex p-3">
+                <div class="icon-container icon-green">
+                    <i class="bi bi-check-circle fs-4"></i>
+                </div>
+                <div class="ms-4">
+                    <div class="card-title">Approved</div>
+                    <p class="card-number">760</p>
+                </div>
             </div>
         </div>
 
-        <div class="dashboard-card">
-            <div class="icon-container icon-blue">
-                <i class="bi bi-graph-up"></i>
-            </div>
-            <div class="card-content ms-4">
-                <div class="card-title">Positive</div>
-                <p class="card-number">890</p>
-            </div>
-        </div>
-
-        <div class="dashboard-card">
-            <div class="icon-container icon-green">
-                <i class="bi bi-check-circle"></i>
-            </div>
-            <div class="card-content ms-4">
-                <div class="card-title">Approved</div>
-                <p class="card-number">760</p>
+        <div class="col-md-2 col-sm-6">
+            <div class="dashboard-card d-flex p-3">
+                <div class="icon-container icon-gold">
+                    <i class="bi bi-star fs-4"></i>
+                </div>
+                <div class="ms-4">
+                    <div class="card-title">Positive</div>
+                    <p class="card-number">320</p>
+                </div>
             </div>
         </div>
 
-        <div class="dashboard-card">
-            <div class="icon-container icon-yellow">
-                <i class="bi bi-hourglass-split"></i>
-            </div>
-            <div class="card-content ms-4">
-                <div class="card-title">Pending</div>
-                <p class="card-number">320</p>
+        <div class="col-md-2 col-sm-6">
+            <div class="dashboard-card d-flex p-3">
+                <div class="icon-container icon-orange">
+                    <i class="bi bi-hourglass-split fs-4"></i>
+                </div>
+                <div class="ms-4">
+                    <div class="card-title">Pending</div>
+                    <p class="card-number">320</p>
+                </div>
             </div>
         </div>
 
-        <div class="dashboard-card">
-            <div class="icon-container icon-red">
-                <i class="bi bi-x-circle"></i>
+        <div class="col-md-2 col-sm-6">
+            <div class="dashboard-card d-flex p-3">
+                <div class="icon-container icon-red">
+                    <i class="bi bi-x-circle fs-4"></i>
+                </div>
+                <div class="ms-4">
+                    <div class="card-title">Rejected</div>
+                    <p class="card-number">115</p>
+                </div>
             </div>
-            <div class="card-content ms-4">
-                <div class="card-title">Rejected</div>
-                <p class="card-number">115</p>
+        </div>
+
+        <div class="col-md-2 col-sm-6">
+            <div class="dashboard-card d-flex p-3">
+                <div class="icon-container icon-purple">
+                    <i class="bi bi-list-check fs-4"></i>
+                </div>
+                <div class="ms-4">
+                    <div class="card-title">Tender List</div>
+                    <p class="card-number">115</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-md-6 mb-2">
+            <div class="table-card h-100 p-3 bg-white shadow-sm rounded">
+                <h5>Approved Enquiries</h5>
+                <div class="table-responsive">
+                    <table class="table custom-table datatable">
+                        <thead>
+                            <tr>
+                                <th>Quotation Date</th>
+                                <th>Company Name</th>
+                                <th>Product Details</th>
+                                <th>Customer Details</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>01/03/2025</td>
+                                <td>ABC Ltd.</td>
+                                <td>Product X</td>
+                                <td>Customer A</td>
+                                <td>$10,000</td>
+                            </tr>
+                            <tr>
+                                <td>02/03/2025</td>
+                                <td>XYZ Corp.</td>
+                                <td>Product Y</td>
+                                <td>Customer B</td>
+                                <td>$12,500</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-2">
+            <div class="table-card h-100 p-3 bg-white shadow-sm rounded">
+                <h5>Project List</h5>
+                <div class="table-responsive">
+                    <table class="table custom-table datatable">
+                        <thead>
+                            <tr>
+                                <th>Financial Year</th>
+                                <th>Work Order Date</th>
+                                <th>Company Name</th>
+                                <th>Customer Details</th>
+                                <th>Work Order Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2024-25</td>
+                                <td>05/03/2025</td>
+                                <td>LMN Inc.</td>
+                                <td>Customer C</td>
+                                <td>$15,000</td>
+                            </tr>
+                            <tr>
+                                <td>2024-25</td>
+                                <td>06/03/2025</td>
+                                <td>PQR Solutions</td>
+                                <td>Customer D</td>
+                                <td>$8,500</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-6 mb-4">
+            <div class="table-card h-100 p-3 bg-white shadow-sm rounded">
+                <h5>Chart A</h5>
+                <div id="chartA"></div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="table-card h-100 p-3 bg-white shadow-sm rounded">
+                <h5>Chart B</h5>
+                <div id="chartB"></div>
             </div>
         </div>
     </div>
 
-    <div class="dashboard-container me-2 mt-4">
 
-        <div class="table-card">
-            <h5>Approved Enquiries</h5>
-            <table class="table-responsive custom-table datatable">
-                <thead>
-                    <tr>
-                        <th>Quotation Date</th>
-                        <th>Company Name</th>
-                        <th>Product Details</th>
-                        <th>Customer Details</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>01/03/2025</td>
-                        <td>ABC Ltd.</td>
-                        <td>Product X</td>
-                        <td>Customer A</td>
-                        <td>$10,000</td>
-                    </tr>
-                    <tr>
-                        <td>02/03/2025</td>
-                        <td>XYZ Corp.</td>
-                        <td>Product Y</td>
-                        <td>Customer B</td>
-                        <td>$12,500</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="table-card">
-            <h5>Project List</h5>
-            <table class="table-responsive custom-table datatable">
-                <thead>
-                    <tr>
-                        <th>Financial Year</th>
-                        <th>Work Order Date</th>
-                        <th>Company Name</th>
-                        <th>Customer Details</th>
-                        <th>Work Order Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>2024-25</td>
-                        <td>05/03/2025</td>
-                        <td>LMN Inc.</td>
-                        <td>Customer C</td>
-                        <td>$15,000</td>
-                    </tr>
-                    <tr>
-                        <td>2024-25</td>
-                        <td>06/03/2025</td>
-                        <td>PQR Solutions</td>
-                        <td>Customer D</td>
-                        <td>$8,500</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-    </div>
 </div>
 
-<script src="~/js/custom_datatables.js"></script>
 
+<script src="~/js/custom_datatables.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/quarterOfYear.js"></script>
+<script>
+        var options = {
+            series: [
+                {
+                    data: [
+                        {
+                            x: '2008',
+                            y: [2800, 4500]
+                        },
+                        {
+                            x: '2009',
+                            y: [3200, 4100]
+                        },
+                        {
+                            x: '2010',
+                            y: [2950, 7800]
+                        },
+                        {
+                            x: '2011',
+                            y: [3000, 4600]
+                        },
+                        {
+                            x: '2012',
+                            y: [3500, 4100]
+                        },
+                        {
+                            x: '2013',
+                            y: [4500, 6500]
+                        },
+                        {
+                            x: '2014',
+                            y: [4100, 5600]
+                        }
+                    ]
+                }
+            ],
+            chart: {
+                height: 350,
+                type: 'rangeBar',
+                zoom: {
+                    enabled: false
+                }
+            },
+            plotOptions: {
+                bar: {
+                    isDumbbell: true,
+                    columnWidth: 3,
+                    dumbbellColors: [['#008FFB', '#00E396']]
+                }
+            },
+            legend: {
+                show: true,
+                showForSingleSeries: true,
+                position: 'top',
+                horizontalAlign: 'left',
+                customLegendItems: ['Product A', 'Product B']
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    type: 'vertical',
+                    gradientToColors: ['#00E396'],
+                    inverseColors: true,
+                    stops: [0, 100]
+                }
+            },
+            grid: {
+                xaxis: {
+                    lines: {
+                        show: true
+                    }
+                },
+                yaxis: {
+                    lines: {
+                        show: false
+                    }
+                }
+            },
+            xaxis: {
+                tickPlacement: 'on'
+            }
+        };
+
+    var chart = new ApexCharts(document.querySelector("#chartA"), options);
+        chart.render();
+
+
+        //chartb
+    dayjs.extend(window.dayjs_plugin_quarterOfYear);
+
+    // Chart B
+    var chartBOptions = {
+        series: [{
+            name: "sales",
+            data: [
+                { x: '2019/01/01', y: 400 },
+                { x: '2019/04/01', y: 430 },
+                { x: '2019/07/01', y: 448 },
+                { x: '2019/10/01', y: 470 },
+                { x: '2020/01/01', y: 540 },
+                { x: '2020/04/01', y: 580 },
+                { x: '2020/07/01', y: 690 },
+                { x: '2020/10/01', y: 690 }
+            ]
+        }],
+        chart: {
+            type: 'bar',
+            height: 380
+        },
+        xaxis: {
+            type: 'category',
+            labels: {
+                formatter: function (val) {
+                    return "Q" + dayjs(val).quarter();
+                }
+            },
+            group: {
+                style: {
+                    fontSize: '10px',
+                    fontWeight: 700
+                },
+                groups: [
+                    { title: '2019', cols: 4 },
+                    { title: '2020', cols: 4 }
+                ]
+            }
+        },
+        title: {
+            text: 'Grouped Labels on the X-axis',
+        },
+        tooltip: {
+            x: {
+                formatter: function (val) {
+                    return "Q" + dayjs(val).quarter() + " " + dayjs(val).format("YYYY");
+                }
+            }
+        },
+    };
+
+    var chartB = new ApexCharts(document.querySelector("#chartB"), chartBOptions);
+    chartB.render();
+
+    </script>
 
