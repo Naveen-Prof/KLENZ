@@ -31,13 +31,12 @@ namespace KLENZ.Controllers
         // GET: SalesEnquiries
         public async Task<IActionResult> Index()
         {
-            var companyNameList = await _context.SalesEnquiries.Include(c => c.Company).ToListAsync();
+            var salesEnquiryList = await _context.SalesEnquiries
+                .Include(se => se.Company) 
+                .OrderByDescending(se => se.CreatedDateTime) 
+                .ToListAsync();
 
-            if(companyNameList == null)
-            {
-                return View(new List<SalesEnquiry>());
-            }
-            return View(companyNameList);
+            return View(salesEnquiryList ?? new List<SalesEnquiry>());
         }
 
         // GET: SalesEnquiries/Create

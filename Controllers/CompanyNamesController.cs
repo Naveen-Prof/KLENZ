@@ -22,7 +22,7 @@ namespace KLENZ.Controllers
         // GET: CompanyNames
         public async Task<IActionResult> Index()
         {
-            return View(await _context.CompanyName.ToListAsync());
+            return View(await _context.CompanyName.OrderByDescending(c => c.CreatedDateTime).ToListAsync());
         }
 
         // GET: CompanyNames/Details/5

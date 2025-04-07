@@ -124,12 +124,6 @@ body {
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Adds shadow */
 }
 
-.rounded-search {
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    padding: 6px 12px;
-}
-
 .custom-btn {
     border-radius: 8px; /* Slightly rounded corners */
     padding: 10px 15px; /* Comfortable padding */
@@ -212,8 +206,8 @@ body {
 }
 
 .rounded-search {
-    border-radius: 25px !important;
-    padding: 8px 15px !important;
+    border-radius: 10px !important;
+    padding: 0px 0px 0px 0px !important;
     border: 1px solid #ced4da !important;
 }
 
@@ -256,3 +250,51 @@ body {
         width: 100%; /* Full width for small screens */
     }
 }
+
+
+
+.card-header{
+    border-radius: 6px !important;
+}
+
+.card {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    background: #fff;
+}
+
+.form-control {
+    border-radius: 8px;
+}
+
+.input-group {
+    border-radius: 15px !important; /* Ensures input inside .input-group has rounded borders */
+}
+
+.input-group-text {
+    border-top-left-radius: 8px !important;
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+}
+
+.btn {
+    border-radius: 7px;
+    font-weight: 620;
+}
+
+
+.btn-white {
+    color: var(--bs-primary);
+    background-color: white;
+    border-radius: 10px;
+    font-weight: bold;
+    padding: 6px 12px;
+}
+
+
+    .btn-white:hover {
+        background-color: white;
+        color: var(--bs-primary);
+    }

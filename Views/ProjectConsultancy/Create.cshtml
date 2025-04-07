@@ -1,4 +1,5 @@
-﻿@model KLENZ.Models.Project_Consultancy
+﻿@using KLENZ.Controllers
+@model KLENZ.Models.Project_Consultancy
 
 @{
     ViewData["Title"] = "Create Project Consultancy";
@@ -10,43 +11,45 @@
     </div>
     <div class="card-body">
         <form asp-action="Create" method="post">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <!-- Bootstrap Grid: Two Columns for Better Alignment -->
             <div class="row">
                 <!-- Left Column -->
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label asp-for="FyYear" class="fw-bold"></label>
-                        <select asp-for="FyYear" class="form-control" asp-items="ViewBag.FyYear">
+                        <label asp-for="FyYear" class="form-label fw-bold"></label>
+                        <select asp-for="FyYear" class="form-control form-select" asp-items="ViewBag.FyYear">
                             <option value="">-- Select Financial Year --</option>
                         </select>
                         <span asp-validation-for="FyYear" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="WorkOrderDate" class="fw-bold"></label>
-                        <input asp-for="WorkOrderDate" type="date" class="form-control" />
+                        <label asp-for="WorkOrderDate" class="form-label fw-bold"></label>
+                        <div class="input-group date-picker-group">
+                            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                            <input asp-for="WorkOrderDate" type="date" class="form-control" />
+                        </div>
                         <span asp-validation-for="WorkOrderDate" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="CompanyNameId" class="fw-bold"></label>
-                        <select asp-for="CompanyNameId" class="form-control" asp-items="ViewBag.CompanyNameId">
+                        <label asp-for="CompanyNameId" class="form-label fw-bold"></label>
+                        <select asp-for="CompanyNameId" class="form-control form-select" asp-items="ViewBag.CompanyNameId">
                             <option value="">-- Select Company --</option>
                         </select>
                         <span asp-validation-for="CompanyNameId" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="CustomerDetails" class="fw-bold"></label>
-                        <input asp-for="CustomerDetails" class="form-control" />
+                        <label asp-for="CustomerDetails" class="form-label fw-bold"></label>
+                        <input asp-for="CustomerDetails" class="form-control" placeholder="Enter customer details" />
                         <span asp-validation-for="CustomerDetails" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="WorkDetails" class="fw-bold"></label>
-                        <textarea asp-for="WorkDetails" class="form-control"></textarea>
+                        <label asp-for="WorkDetails" class="form-label fw-bold"></label>
+                        <input asp-for="WorkDetails" class="form-control" placeholder="Enter work details" />
                         <span asp-validation-for="WorkDetails" class="text-danger"></span>
                     </div>
                 </div>
@@ -54,42 +57,48 @@
                 <!-- Right Column -->
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label asp-for="ProjectCost" class="fw-bold"></label>
-                        <input asp-for="ProjectCost" class="form-control" id="projectCost" />
+                        <label asp-for="ProjectCost" class="form-label fw-bold"></label>
+                        <input asp-for="ProjectCost" class="form-control" id="projectCost" type="number" step="0.01" min="0" placeholder="Enter project cost" />
                         <span asp-validation-for="ProjectCost" class="text-danger"></span>
                     </div>
 
-                    <div class="form-group">
-                        <label asp-for="GSTTypeId" class="control-label"></label>
-                        <select asp-for="GSTTypeId" class="form-control" asp-items="ViewBag.GSTTypeId"></select>
+                    <div class="mb-3">
+                        <label asp-for="GSTTypeId" class="form-label fw-bold"></label>
+                        <select asp-for="GSTTypeId" class="form-control" asp-items="ViewBag.GSTTypeId">
+                            <option value="">-- Select GST Type --</option>
+                        </select>
+                        <span asp-validation-for="GSTTypeId" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Total" class="fw-bold"></label>
-                        <input asp-for="Total" class="form-control" id="totalCost" readonly />
+                        <label asp-for="Total" class="form-label fw-bold"></label>
+                        <div class="input-group">
+                            <span class="input-group-text fw-bold">₹</span>
+                            <input asp-for="Total" class="form-control" id="totalCost" readonly />
+                        </div>                        
                         <span asp-validation-for="Total" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="WorkDuration" class="fw-bold"></label>
-                        <input asp-for="WorkDuration" class="form-control" />
+                        <label asp-for="WorkDuration" class="form-label fw-bold"></label>
+                        <input asp-for="WorkDuration" class="form-control" placeholder="Enter work duration" />
                         <span asp-validation-for="WorkDuration" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Remarks" class="fw-bold"></label>
-                        <textarea asp-for="Remarks" class="form-control"></textarea>
+                        <label asp-for="Remarks" class="form-label fw-bold"></label>
+                        <textarea asp-for="Remarks" class="form-control" placeholder="Enter remarks" rows="1"></textarea>
                         <span asp-validation-for="Remarks" class="text-danger"></span>
                     </div>
                 </div>
             </div>
-
-            <!-- Buttons Row -->
-            <div class="row mt-3">
-                <div class="col-md-12 d-flex justify-content-between">
-                    <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create</button>
-                </div>
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left-circle"></i> Back to List
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Create
+                </button>
             </div>
         </form>
     </div>
@@ -113,6 +122,11 @@
             // Trigger calculation when Project Cost or GST Dropdown changes
             $("#projectCost, #GSTTypeId").on("input change", calculateTotal);
         });
-    </script>
 
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelector(".date-picker-group").addEventListener("click", function () {
+                this.querySelector("input").showPicker(); // Trigger native date-picker
+            });
+        });
+    </script>
 }
