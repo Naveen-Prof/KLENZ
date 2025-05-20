@@ -212,4 +212,24 @@ document.addEventListener("DOMContentLoaded", function () {
             exportToExcel(headers, "Project Consultancy.xlsx");
         });
     }
+
+    // Project Tender List 
+
+    const pdfButton_projTender = document.getElementById('exportPdf_ProjectTenderList');
+    if (pdfButton_projTender) {
+        pdfButton_projTender.addEventListener('click', function () {
+            const headers = ["S.No", "F.Y", "Work Order date", "Company Details	", "Customer", "Work Details", "Project Cost", "GST", "Total", "Work duration", "Remarks"];
+            const columnWidths = [12, 23, 20, 50, 50, 20, 25, 12, 20, 18, 20];
+            const data = extractTableData(true);
+            exportToPDF(headers, data, columnWidths, "Project Tender List.pdf");
+        });
+    }
+
+    const excelButton_projTender = document.getElementById('exportExcel_ProjectTenderList');
+    if (excelButton_projTender) {
+        excelButton_projTender.addEventListener('click', function () {
+            const headers = ["S.No", "F.Y", "Work Order date", "Company Details	", "Customer", "Work Details", "Project Cost", "GST", "Total", "Work duration", "Remarks"];
+            exportToExcel(headers, "Project Tender List.xlsx");
+        });
+    }
 });
