@@ -1,7 +1,8 @@
+using KLENZ.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using System.Diagnostics;
-using KLENZ.Models;
 
 namespace KLENZ.Controllers
 {
@@ -9,10 +10,12 @@ namespace KLENZ.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IConfiguration _configuration;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
         {
             _logger = logger;
+            _configuration = configuration;
         }
 
         public IActionResult Index()
@@ -30,5 +33,27 @@ namespace KLENZ.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        public int GetTotalEnquiries()
+        {
+            int count = 0;
+            string? connectionString = _configuration.GetConnectionString("KLENZDbContext");
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException("The connection string 'KLENZDbContext' is not configured.");
+            }
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                string query = "SELECT COUNT(*) FROM Enquiries";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                count = (int)cmd.ExecuteScalar();
+            }
+
+            return count;
+        }
+
     }
 }

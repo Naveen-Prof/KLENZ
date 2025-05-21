@@ -18,6 +18,11 @@ namespace KLENZ.Models
         [Display(Name = "Company Name")]
         public int CompanyNameId { get; set; }
 
+        [Required]
+        [ForeignKey("FinancialYear")]
+        [DisplayName("Financial Year")]
+        public int FyYear { get; set; }  // Foreign key
+
         [ForeignKey("CompanyNameId")]
         public virtual CompanyName? Company { get; set; }
 
@@ -51,5 +56,10 @@ namespace KLENZ.Models
         [NotMapped]
         [DisplayName("Company Name")]
         public string? CompanyNameStr { get; set; }
+
+        // Navigation properties
+        [NotMapped]
+        [DisplayName("Financial Year")]
+        public string? FinancialYearStr { get; set; } // Directly get FyYear
     }
 }
