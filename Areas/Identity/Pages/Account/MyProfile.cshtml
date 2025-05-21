@@ -1,0 +1,56 @@
+﻿@page
+@model KLENZ.Areas.Identity.Pages.Account.MyProfileModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                    <i class="bi bi-person-circle fs-3 me-2"></i>
+                    <h5 class="mb-0">My Profile</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <img src="@Model.ProfilePicturePath ?? " /images/default-profile.png""
+                             class="rounded-circle shadow"
+                             alt="Profile Picture"
+                             style="width: 150px; height: 150px; object-fit: cover;" />
+                    </div>
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th scope="row">Full Name</th>
+                                <td>@Model.Name</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Email</th>
+                                <td>@Model.Email</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Phone</th>
+                                <td>@Model.PhoneNumber</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Date of Birth</th>
+                                <td>@Model.DateOfBirth?.ToString("dd MMM yyyy")</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Address</th>
+                                <td>@Model.Address</td>
+                            </tr>
+                            <!-- Add more fields as needed -->
+                        </tbody>
+                    </table>
+                    <div class="text-end">
+                        <a asp-page="/Account/EditProfile" class="btn btn-outline-primary">
+                            <i class="bi bi-pencil-square me-1"></i> Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

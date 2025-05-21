@@ -14,9 +14,9 @@ namespace KLENZ.Controllers
     public class ProjectListsController : Controller
     {
         private readonly KLENZDbContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ProjectListsController(KLENZDbContext context, UserManager<IdentityUser> userManager)
+        public ProjectListsController(KLENZDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _userManager = userManager;

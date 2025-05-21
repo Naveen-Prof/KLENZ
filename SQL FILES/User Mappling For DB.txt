@@ -1,0 +1,10 @@
+
+-- Step 1: Create login
+CREATE LOGIN [IIS APPPOOL\test] FROM WINDOWS;
+
+-- Step 2: Grant access to the KLENZ database
+USE KLENZ;
+CREATE USER [IIS APPPOOL\test] FOR LOGIN [IIS APPPOOL\test];
+
+-- Step 3: Give proper permissions (example: db_owner)
+ALTER ROLE db_owner ADD MEMBER [IIS APPPOOL\test];

@@ -6,7 +6,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace KLENZ.Data // ✅ Correct namespace
 {
-    public class KLENZDbContext : IdentityDbContext<IdentityUser>
+    public class KLENZDbContext : IdentityDbContext<ApplicationUser>
     {
         public KLENZDbContext(DbContextOptions<KLENZDbContext> options) : base(options)
         {

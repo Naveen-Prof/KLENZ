@@ -92,7 +92,12 @@
                             <img src="~/profile.png" alt="Profile" class="rounded-circle" width="35" height="35">
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                            <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Profile">My Profile</a></li>
+                            <li><a class="dropdown-item" asp-area="Identity" asp-controller="Account" asp-action="MyProfile">My Profile</a></li>
+                            <li>
+                                <a class="dropdown-item" asp-area="Identity" asp-controller="Account" asp-action="Login">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>

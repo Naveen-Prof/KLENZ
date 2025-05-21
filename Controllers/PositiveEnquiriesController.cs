@@ -15,8 +15,8 @@ namespace KLENZ.Controllers
     public class PositiveEnquiriesController : Controller
     {
         private readonly KLENZDbContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
-        public PositiveEnquiriesController(KLENZDbContext context, UserManager<IdentityUser> userManager)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public PositiveEnquiriesController(KLENZDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _userManager = userManager;

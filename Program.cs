@@ -19,7 +19,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages(); // 🔥 Enables UI Hot-Reload
 
 // ✅ Identity Configuration
-builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
     options.Password.RequireDigit = true;

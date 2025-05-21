@@ -19,9 +19,9 @@ namespace KLENZ.Controllers
         private readonly KLENZDbContext _context;
         private readonly IWebHostEnvironment _hostEnvironment;
         private readonly string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".pdf", ".docx" };
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public SalesEnquiriesController(KLENZDbContext context, IWebHostEnvironment hostEnvironment, UserManager<IdentityUser> userManager)
+        public SalesEnquiriesController(KLENZDbContext context, IWebHostEnvironment hostEnvironment, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _hostEnvironment = hostEnvironment;
