@@ -1,14 +1,15 @@
-﻿using System;
+﻿using KLENZ.Data;
+using KLENZ.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using KLENZ.Data;
-using KLENZ.Models;
-using Microsoft.CodeAnalysis;
-using Microsoft.AspNetCore.Identity;
 
 namespace KLENZ.Controllers
 {
@@ -16,10 +17,61 @@ namespace KLENZ.Controllers
     {
         private readonly KLENZDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        public PositiveEnquiriesController(KLENZDbContext context, UserManager<ApplicationUser> userManager)
+        private readonly IConfiguration _configuration;
+        public PositiveEnquiriesController(KLENZDbContext context, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
             _context = context;
             _userManager = userManager;
+            _configuration = configuration;
+        }
+
+        public string GetActiveFinancialYear()
+        {
+            string financialYear = "";
+            string? connectionString = _configuration.GetConnectionString("KLENZDbContext");
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException("Connection string 'KLENZDbContext' is not configured.");
+            }
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                string query = "SELECT FyYear, Id FROM Services.FinancialYear WHERE IsActive = 1";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        financialYear = $"{reader.GetString(0)}";
+                    }
+                }
+            }
+            return financialYear;
+        }
+        public int GetFyId()
+        {
+            int fyId = 0;
+            string? connectionString = _configuration.GetConnectionString("KLENZDbContext");
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                string query = "SELECT Id FROM Services.FinancialYear WHERE IsActive = 1";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        fyId = reader.GetInt32(0);
+                    }
+                }
+            }
+
+            return fyId;
         }
 
         // GET: PositiveEnquiries
@@ -88,6 +140,7 @@ namespace KLENZ.Controllers
         public IActionResult Create()
         {
             ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
+            ViewBag.ActiveFinancialYear = GetActiveFinancialYear();
             return View();
         }
 
@@ -109,6 +162,7 @@ namespace KLENZ.Controllers
                 }
                 positiveEnquiry.CreatedUserId = userId;
                 positiveEnquiry.CreatedDateTime = DateTime.Now;
+                positiveEnquiry.FyYear = GetFyId();
 
                 _context.Add(positiveEnquiry);
                 await _context.SaveChangesAsync();
@@ -160,6 +214,7 @@ namespace KLENZ.Controllers
 
                     positiveEnquiry.CreatedUserId = existingPosEnquiry.CreatedUserId;
                     positiveEnquiry.CreatedDateTime = existingPosEnquiry.CreatedDateTime;
+                    positiveEnquiry.FyYear = GetFyId();
 
                     _context.Entry(existingPosEnquiry).CurrentValues.SetValues(positiveEnquiry);
 

@@ -1,14 +1,15 @@
-﻿using System;
+﻿using KLENZ.Data;
+using KLENZ.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using KLENZ.Data;
-using KLENZ.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace KLENZ.Controllers
 {
@@ -16,11 +17,62 @@ namespace KLENZ.Controllers
     {
         private readonly KLENZDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IConfiguration _configuration;
 
-        public QuotationReportsController(KLENZDbContext context, UserManager<ApplicationUser> userManager)
+        public QuotationReportsController(KLENZDbContext context, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
             _context = context;
             _userManager = userManager;
+            _configuration = configuration;
+        }
+
+        public string GetActiveFinancialYear()
+        {
+            string financialYear = "";
+            string? connectionString = _configuration.GetConnectionString("KLENZDbContext");
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException("Connection string 'KLENZDbContext' is not configured.");
+            }
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                string query = "SELECT FyYear, Id FROM Services.FinancialYear WHERE IsActive = 1";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        financialYear = $"{reader.GetString(0)}";
+                    }
+                }
+            }
+            return financialYear;
+        }
+        public int GetFyId()
+        {
+            int fyId = 0;
+            string? connectionString = _configuration.GetConnectionString("KLENZDbContext");
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                string query = "SELECT Id FROM Services.FinancialYear WHERE IsActive = 1";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        fyId = reader.GetInt32(0);
+                    }
+                }
+            }
+
+            return fyId;
         }
 
         // GET: QuotationReports
@@ -93,6 +145,7 @@ namespace KLENZ.Controllers
         {
 
             ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
+            ViewBag.ActiveFinancialYear = GetActiveFinancialYear();
             return View();
         }
 
@@ -116,6 +169,7 @@ namespace KLENZ.Controllers
                 // Set the CreatedUserId and CreatedDateTime
                 quotationReport.CreatedUserId = userId;
                 quotationReport.CreatedDateTime = DateTime.Now;
+                quotationReport.FyYear = GetFyId();
 
                 // Insert into QuotationReport
                 _context.Add(quotationReport);
@@ -132,7 +186,8 @@ namespace KLENZ.Controllers
                         CustomerDetails = quotationReport.CustomerDetails,
                         QuotationValue = quotationReport.QuotationValue,
                         CreatedDateTime = DateTime.Now,
-                        CreatedUserId = userId
+                        CreatedUserId = userId,
+                        FyYear = quotationReport.FyYear
                     };
 
                     _context.Add(positiveEnquiry);
@@ -193,6 +248,7 @@ namespace KLENZ.Controllers
                     // Preserve CreatedUserId and CreatedDateTime (if needed)
                     quotationReport.CreatedUserId = existingQuotation.CreatedUserId;
                     quotationReport.CreatedDateTime = existingQuotation.CreatedDateTime;
+                    quotationReport.FyYear = GetFyId();
 
                     // Update QuotationReport
                     _context.Entry(existingQuotation).CurrentValues.SetValues(quotationReport);
@@ -213,7 +269,8 @@ namespace KLENZ.Controllers
                                 CustomerDetails = quotationReport.CustomerDetails,
                                 QuotationValue = quotationReport.QuotationValue,
                                 CreatedDateTime = DateTime.Now,
-                                CreatedUserId = quotationReport.CreatedUserId
+                                CreatedUserId = quotationReport.CreatedUserId,
+                                FyYear = quotationReport.FyYear
                             };
                             _context.Add(positiveEnquiry);
                         }
@@ -225,6 +282,7 @@ namespace KLENZ.Controllers
                             existingPositiveEnquiry.ProductDetails = quotationReport.ProductDetails;
                             existingPositiveEnquiry.CustomerDetails = quotationReport.CustomerDetails;
                             existingPositiveEnquiry.QuotationValue = quotationReport.QuotationValue;
+                            existingPositiveEnquiry.FyYear = quotationReport.FyYear;
                             _context.Update(existingPositiveEnquiry);
                         }
                         await _context.SaveChangesAsync();

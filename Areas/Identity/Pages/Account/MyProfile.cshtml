@@ -4,7 +4,7 @@
     ViewData["Title"] = "My Profile";
 }
 
-<div class="container mt-5">
+<div class="container mt-1">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-lg">
@@ -14,7 +14,9 @@
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-4">
-                        <img src="@Model.ProfilePicturePath ?? " /images/default-profile.png""
+                        <img src="@(Model.ProfilePicture != null
+                                 ? $"data:image/png;base64,{Convert.ToBase64String(Model.ProfilePicture)}"
+                                 : Url.Content("~/images/profile.png"))"
                              class="rounded-circle shadow"
                              alt="Profile Picture"
                              style="width: 150px; height: 150px; object-fit: cover;" />
@@ -45,7 +47,7 @@
                         </tbody>
                     </table>
                     <div class="text-end">
-                        <a asp-page="/Account/EditProfile" class="btn btn-outline-primary">
+                        <a href="EditMyProfile" class="btn btn-outline-primary">
                             <i class="bi bi-pencil-square me-1"></i> Edit Profile
                         </a>
                     </div>

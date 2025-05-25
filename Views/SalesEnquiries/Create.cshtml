@@ -59,6 +59,9 @@
         <div class="flex-grow-1">
             <h4 class="mt-1 text-white ms-4">Create Sales Enquiry</h4>
         </div>
+        <div class="flex-grow-1">
+            <h5 class="mt-1 text-white ms-4">Active Financial year "@ViewBag.ActiveFinancialYear"</h5>
+        </div>
     </div>
 
     <div class="card-body">
@@ -128,6 +131,7 @@
                         <label class="form-label fw-bold mb-1 text-start d-block">Upload File</label>
                         <input type="file" name="File" class="form-control" />
                     </div>
+                    <input type="hidden" name="FyId" value="@ViewBag.FyId" />
                 </div>
             </div>
 

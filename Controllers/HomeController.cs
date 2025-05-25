@@ -20,6 +20,7 @@ namespace KLENZ.Controllers
 
         public IActionResult Index()
         {
+            ViewBag.TotEnquiry = GetTotalEnquiries();
             return View();
         }
 
@@ -46,7 +47,7 @@ namespace KLENZ.Controllers
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT COUNT(*) FROM Enquiries";
+                string query = "SELECT COUNT(*) FROM Sales.SalesEnquiry s\r\nINNER JOIN Services.FinancialYear fy ON fy.Id = s.FyYear \r\nWHERE fy.IsActive = 1\r\n";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
                 count = (int)cmd.ExecuteScalar();
