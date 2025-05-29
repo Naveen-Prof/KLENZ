@@ -64,6 +64,7 @@ BEGIN
     CREATE TABLE Sales.SalesEnquiry (
         Id                INT             IDENTITY(1,1) PRIMARY KEY,
         CompanyNameId     INT			  NOT NULL,
+		FyYear			  INT			  NOT NULL,
         ReferedBy         NVARCHAR(MAX)   NULL,
         EnquiryDetails    NVARCHAR(MAX)   NULL,
         EnquiryDate       DATETIME        NULL,
@@ -77,7 +78,8 @@ BEGIN
         CreatedUserId     NVARCHAR(450)	  NULL, 
 		
         CONSTRAINT FK_SalesEnquiry_CreatedUser FOREIGN KEY (CreatedUserId) REFERENCES dbo.AspNetUsers(Id),
-        CONSTRAINT FK_SalesEnquiry_CompanyName FOREIGN KEY (CompanyNameId) REFERENCES Services.Companies(Id)
+        CONSTRAINT FK_SalesEnquiry_CompanyName FOREIGN KEY (CompanyNameId) REFERENCES Services.Companies(Id),
+		CONSTRAINT FK_SalesEnquiry_FyYear	   FOREIGN KEY (FyYear)		   REFERENCES Services.FinancialYear(Id)
     )
 END
 GO
@@ -88,6 +90,7 @@ BEGIN
 		Id				INT				IDENTITY(1,1) PRIMARY KEY,
 		QuotationDate	DATETIME		NULL,
 		CompanyNameId   INT			    NOT NULL,
+		FyYear			INT				NOT NULL,
 		ProductDetails	NVARCHAR(MAX)   NULL,
 		CustomerDetails	NVARCHAR(MAX)   NULL,
 		QuotationValue	DECIMAL(18,2)	NULL,
@@ -97,7 +100,8 @@ BEGIN
 		CreatedUserId	NVARCHAR(450)	NULL,
 
 		CONSTRAINT FK_SalesQuotationReport_CreatedUser	FOREIGN KEY (CreatedUserId) REFERENCES dbo.AspNetUsers(Id),
-        CONSTRAINT FK_QuotationReport_CompanyName FOREIGN KEY (CompanyNameId) REFERENCES Services.Companies(Id)
+        CONSTRAINT FK_SalesQuotationReport_CompanyName	FOREIGN KEY (CompanyNameId) REFERENCES Services.Companies(Id),
+		CONSTRAINT FK_SalesQuotationReport_FyYear   	FOREIGN KEY (FyYear)		REFERENCES Services.FinancialYear(Id)
 	)
 END
 GO
@@ -108,6 +112,7 @@ BEGIN
 		Id				INT				IDENTITY(1,1) PRIMARY KEY,
 		QuotationDate	DATETIME		NULL,
 		CompanyNameId   INT			    NOT NULL,
+		FyYear			INT				NOT NULL,
 		ProductDetails	NVARCHAR(MAX)   NULL,
 		CustomerDetails	NVARCHAR(MAX)   NULL,
 		QuotationValue	DECIMAL(18,2)	NULL,
@@ -116,7 +121,8 @@ BEGIN
 		CreatedUserId	NVARCHAR(450)	NULL,
 
 		CONSTRAINT FK_SalesPositiveEnquiry_CreatedUser	FOREIGN KEY (CreatedUserId) REFERENCES dbo.AspNetUsers(Id),
-		CONSTRAINT FK_PositiveEnquiry_CompanyName FOREIGN KEY (CompanyNameId) REFERENCES Services.Companies(Id)
+		CONSTRAINT FK_SalesPositiveEnquiry_CompanyName	FOREIGN KEY (CompanyNameId) REFERENCES Services.Companies(Id),
+		CONSTRAINT FK_SalesPositiveEnquiry_FyYear   	FOREIGN KEY (FyYear)		REFERENCES Services.FinancialYear(Id)
 	)
 END
 GO

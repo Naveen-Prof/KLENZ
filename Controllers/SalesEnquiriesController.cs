@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Versioning;
 
@@ -20,12 +21,63 @@ namespace KLENZ.Controllers
         private readonly IWebHostEnvironment _hostEnvironment;
         private readonly string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".pdf", ".docx" };
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IConfiguration _configuration;
 
-        public SalesEnquiriesController(KLENZDbContext context, IWebHostEnvironment hostEnvironment, UserManager<ApplicationUser> userManager)
+        public SalesEnquiriesController(KLENZDbContext context, IWebHostEnvironment hostEnvironment, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
             _context = context;
             _hostEnvironment = hostEnvironment;
             _userManager = userManager;
+            _configuration = configuration;
+        }
+
+        public string GetActiveFinancialYear()
+        {
+            string financialYear = "";
+            string? connectionString = _configuration.GetConnectionString("KLENZDbContext");
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException("Connection string 'KLENZDbContext' is not configured.");
+            }
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                string query = "SELECT FyYear, Id FROM Services.FinancialYear WHERE IsActive = 1";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        financialYear = $"{reader.GetString(0)}";
+                    }
+                }
+            }
+            return financialYear;
+        }
+        public int GetFyId()
+        {
+            int fyId = 0;
+            string? connectionString = _configuration.GetConnectionString("KLENZDbContext");
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                string query = "SELECT Id FROM Services.FinancialYear WHERE IsActive = 1";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        fyId = reader.GetInt32(0);
+                    }
+                }
+            }
+
+            return fyId;
         }
 
         // GET: SalesEnquiries
@@ -46,6 +98,7 @@ namespace KLENZ.Controllers
             //    .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.FullName })
             //    .ToList();
             ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
+            ViewBag.ActiveFinancialYear = GetActiveFinancialYear();
             return View();
         }
 
@@ -145,7 +198,7 @@ namespace KLENZ.Controllers
 
                     salesEnquiry.FilePath = "/uploads/" + uniqueFileName;
                 }
-
+                salesEnquiry.FyYear = GetFyId();
                 // ✅ Save Data to Database
                 _context.Add(salesEnquiry);
                 await _context.SaveChangesAsync();
@@ -227,6 +280,7 @@ namespace KLENZ.Controllers
                     }
                     salesEnquiry.CreatedUserId = existingEnquiry.CreatedUserId;
                     salesEnquiry.CreatedDateTime = existingEnquiry.CreatedDateTime;
+                    salesEnquiry.FyYear = GetFyId();
                     _context.Entry(existingEnquiry).CurrentValues.SetValues(salesEnquiry);
                     await _context.SaveChangesAsync();
                 }

@@ -1,5 +1,7 @@
+using KLENZ.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -14,7 +16,7 @@ namespace KLENZ.Areas.Identity.Pages.Account
             _userManager = userManager;
         }
 
-        public string? ProfilePicturePath { get; set; }
+        public byte[]? ProfilePicture { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
@@ -23,7 +25,7 @@ namespace KLENZ.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = _userManager.GetUserId(User);
             if (userId != null)
             {
                 var user = await _userManager.FindByIdAsync(userId);
@@ -35,7 +37,7 @@ namespace KLENZ.Areas.Identity.Pages.Account
                     PhoneNumber = user.PhoneNumber;
                     DateOfBirth = user.DateOfBirth;
                     Address = user.Address;
-                    ProfilePicturePath = user.ProfilePicturePath ?? "/images/default-profile.png";
+                    ProfilePicture = user.ProfilePicture;
                 }
             }
         }
