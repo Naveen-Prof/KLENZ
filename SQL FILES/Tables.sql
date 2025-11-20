@@ -15,6 +15,18 @@
 
 --CREATE SCHEMA Sales
 
+--select * From Services.FinancialYear
+select * from dbo.AspNetUsers
+--update dbo.AspNetUsers set Email = 'test' 
+--DROP TABLE Services.FinancialYear
+--DROP TABLE Sales.SalesEnquiry
+--DROP TABLE Sales.QuotationReport
+--DROP TABLE Sales.PositiveEnquiry
+--DROP TABLE Sales.ProjectList
+--DROP TABLE Project.Consultancy
+--DROP TABLE Project.TenderList
+--DROP TABLE Project.ToBeTenderList
+--DROP TABLE Project.KlenzChemicals
 
 IF NOT EXISTS (SELECT TOP 1 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'Services' AND TABLE_NAME = 'FinancialYear')
 BEGIN

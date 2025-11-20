@@ -63,6 +63,40 @@ namespace KLENZ.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
+        //public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        //{
+        //    returnUrl = string.IsNullOrEmpty(returnUrl) || returnUrl.Contains("Error")
+        //                ? Url.Content("~/Home/Index")
+        //                : returnUrl;
+
+        //    ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return Page();
+        //    }
+
+        //    var user = await _userManager.FindByNameAsync(Input.UserName);
+        //    if (user == null)
+        //    {
+        //        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+        //        return Page();
+        //    }
+
+        //    var result = await _signInManager.PasswordSignInAsync(user, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+
+        //    if (result.Succeeded)
+        //    {
+        //        _logger.LogInformation("User logged in.");
+        //        return LocalRedirect(returnUrl); // ✅ Ensures a valid redirect
+        //    }
+        //    else
+        //    {
+        //        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+        //        return Page();
+        //    }
+        //}
+
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl = string.IsNullOrEmpty(returnUrl) || returnUrl.Contains("Error")
@@ -73,13 +107,14 @@ namespace KLENZ.Areas.Identity.Pages.Account
 
             if (!ModelState.IsValid)
             {
+                TempData["ErrorMessage"] = "Please fill all required fields.";
                 return Page();
             }
 
             var user = await _userManager.FindByNameAsync(Input.UserName);
             if (user == null)
             {
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                TempData["ErrorMessage"] = "Invalid username or password.";
                 return Page();
             }
 
@@ -87,15 +122,16 @@ namespace KLENZ.Areas.Identity.Pages.Account
 
             if (result.Succeeded)
             {
-                _logger.LogInformation("User logged in.");
-                return LocalRedirect(returnUrl); // ✅ Ensures a valid redirect
+                TempData["SuccessMessage"] = "Login successful!";
+                return LocalRedirect(returnUrl);
             }
             else
             {
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                TempData["ErrorMessage"] = "Wrong password. Please try again.";
                 return Page();
             }
         }
+
 
         public async Task<IActionResult> OnPostResetPasswordAsync()
         {

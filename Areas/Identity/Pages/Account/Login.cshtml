@@ -13,7 +13,26 @@
             <p class="text-muted">Use your account</p>
         </div>
 
-        <form id="account" method="post">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    showToast("@TempData["SuccessMessage"]", "success");
+                });
+            </script>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    showToast("@TempData["ErrorMessage"]", "error");
+                });
+            </script>
+        }
+
+
+        <form id="account" method="post" onsubmit="showLoader(event)">
             <div class="form-floating mb-3">
                 <input asp-for="Input.UserName" class="form-control" autocomplete="username" placeholder="Username" required />
                 <label asp-for="Input.UserName">Username</label>
@@ -31,7 +50,8 @@
                 </span>
             </div>
 
-            <button type="submit" class="w-100 btn btn-primary mt-3">Next</button>
+            @* <button type="submit" class="w-100 btn btn-primary mt-3">Next</button> *@
+            <button id="submitBtn" type="submit" class="w-100 btn btn-primary mt-3">Next</button>
 
             <div class="d-flex gap-2 mt-3">
                 <button type="submit" asp-page-handler="ResetPassword" class="w-50 btn btn-secondary" formnovalidate>
@@ -42,13 +62,27 @@
                 </a>
             </div>
 
-            @if (TempData["SuccessMessage"] != null)
+           @*  @if (TempData["SuccessMessage"] != null)
             {
                 <div class="alert alert-success mt-3">
                     @TempData["SuccessMessage"]
                 </div>
-            }
+            } *@
         </form>
+        <div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
+            <div id="toastMessage" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div id="toastBody" class="toast-body"></div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+        <div id="loader" class="text-center mt-3" style="display:none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Checking credentials...</p>
+        </div>
     </div>
 </div>
 
@@ -69,6 +103,58 @@
                 icon.classList.add("bi-eye");
             }
         }
+
+        function showLoader(e) {
+              var passwordInput = document.getElementById("password");
+              if (!passwordInput.value.trim()) {
+                  // ❌ Prevent form submission and show modal
+                  e.preventDefault();
+                  var emptyModal = new bootstrap.Modal(document.getElementById('emptyPasswordModal'));
+                  emptyModal.show();
+                  return false;
+              }
+
+              // ✅ Show loader only if password is not empty
+              document.getElementById("loader").style.display = "block";
+              document.getElementById("submitBtn").disabled = true;
+          }
+
+          function togglePassword() {
+              var passwordInput = document.getElementById("password");
+              var icon = document.getElementById("togglePasswordIcon");
+
+              if (passwordInput.type === "password") {
+                  passwordInput.type = "text";
+                  icon.classList.remove("bi-eye");
+                  icon.classList.add("bi-eye-slash");
+              } else {
+                  passwordInput.type = "password";
+                  icon.classList.remove("bi-eye-slash");
+                  icon.classList.add("bi-eye");
+              }
+          }
+
+          // ✅ Function to show toast dynamically
+          function showToast(message, type = "success") {
+              var toastEl = document.getElementById("toastMessage");
+              var toastBody = document.getElementById("toastBody");
+
+              // Set message
+              toastBody.textContent = message;
+
+              // Change background color based on type
+              if (type === "success") {
+                  toastEl.classList.add("bg-success");
+                  toastEl.classList.remove("bg-danger");
+              } else {
+                  toastEl.classList.add("bg-danger");
+                  toastEl.classList.remove("bg-success");
+              }
+
+              var toast = new bootstrap.Toast(toastEl);
+              toast.show();
+          }
+
     </script>
 }
 

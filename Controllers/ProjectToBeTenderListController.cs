@@ -53,7 +53,7 @@ namespace KLENZ.Controllers
         {
             ViewData["CompanyNameId"] = new SelectList(_context.CompanyName, "Id", "FullName");
             ViewData["FyYear"] = new SelectList(_context.FinancialYear, "Id", "FyYear");
-            ViewData["GSTTypeId"] = new SelectList(_context.GSTTypes, "Id", "Id");
+            ViewData["GSTTypeId"] = new SelectList(_context.GSTTypes, "Id", "GSTType");
             return View();
         }
 
@@ -72,7 +72,7 @@ namespace KLENZ.Controllers
             }
             ViewData["CompanyNameId"] = new SelectList(_context.CompanyName, "Id", "FullName", project_ToBeTenderList.CompanyNameId);
             ViewData["FyYear"] = new SelectList(_context.FinancialYear, "Id", "FyYear", project_ToBeTenderList.FyYear);
-            ViewData["GSTTypeId"] = new SelectList(_context.GSTTypes, "Id", "Id", project_ToBeTenderList.GSTTypeId);
+            ViewData["GSTTypeId"] = new SelectList(_context.GSTTypes, "Id", "GSTType", project_ToBeTenderList.GSTTypeId);
             return View(project_ToBeTenderList);
         }
 

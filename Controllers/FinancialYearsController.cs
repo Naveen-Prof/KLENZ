@@ -85,7 +85,7 @@ namespace KLENZ.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FyYear,IsActive,CreatedDateTime,CreatedUserId")] FinancialYear financialYear)
+        public async Task<IActionResult> Create([Bind("Id,FyYear,IsActiveBool,CreatedDateTime,CreatedUserId")] FinancialYear financialYear)
         {
             if (ModelState.IsValid)
             {

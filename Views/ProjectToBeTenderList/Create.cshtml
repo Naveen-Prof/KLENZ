@@ -1,85 +1,146 @@
 ﻿@model KLENZ.Models.Project_ToBeTenderList
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Project To Be Tendered";
 }
 
-<h1>Create</h1>
+<div class="card shadow-lg">
+    <div class="card-header bg-primary bg-opacity-75 text-white d-flex">
+        <div class="ms-3">
+            <a asp-action="Index" class="btn btn-white ms-lg-5">
+                <i class="bi bi-arrow-left-circle text-primary"></i> Back to List
+            </a>
+        </div>
+        <div class="flex-grow-1">
+            <h4 class="mt-1 text-white ms-4">Create Project To Be Tendered</h4>
+        </div>
+        <div class="flex-grow-1">
+            <h5 class="mt-1 text-white ms-4">Active Financial Year: "@ViewBag.ActiveFinancialYear"</h5>
+        </div>
+    </div>
 
-<h4>Project_ToBeTenderList</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="FyYear" class="control-label"></label>
-                <select asp-for="FyYear" class ="form-control" asp-items="ViewBag.FyYear"></select>
+
+            <div class="row d-flex justify-content-center">
+                <!-- Left Column -->
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label asp-for="FyYear" class="form-label fw-bold"></label>
+                        <select asp-for="FyYear" class="form-select" asp-items="ViewBag.FyYear">
+                            <option value="">-- Select Financial Year --</option>
+                        </select>
+                        <span asp-validation-for="FyYear" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="WorkOrderDate" class="form-label fw-bold"></label>
+                        <div class="input-group date-picker-group">
+                            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                            <input asp-for="WorkOrderDate" type="date" class="form-control" />
+                        </div>
+                        <span asp-validation-for="WorkOrderDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CompanyNameId" class="form-label fw-bold"></label>
+                        <select asp-for="CompanyNameId" class="form-select" asp-items="ViewBag.CompanyNameId">
+                            <option value="">-- Select Company --</option>
+                        </select>
+                        <span asp-validation-for="CompanyNameId" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CustomerDetails" class="form-label fw-bold"></label>
+                        <textarea asp-for="CustomerDetails" class="form-control" placeholder="Enter customer details" rows="1"></textarea>
+                        <span asp-validation-for="CustomerDetails" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="WorkDetails" class="form-label fw-bold"></label>
+                        <textarea asp-for="WorkDetails" class="form-control" placeholder="Enter work details" rows="1"></textarea>
+                        <span asp-validation-for="WorkDetails" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label asp-for="ProjectCost" class="form-label fw-bold"></label>
+                        <input asp-for="ProjectCost" class="form-control" id="projectCost" type="number" min="0" step="0.01" placeholder="Enter project cost" />
+                        <span asp-validation-for="ProjectCost" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="GSTTypeId" class="form-label fw-bold"></label>
+                        <select asp-for="GSTTypeId" class="form-select" id="gstType" asp-items="ViewBag.GSTTypeId">
+                            <option value="">-- Select GST Type --</option>
+                        </select>
+                        <span asp-validation-for="GSTTypeId" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Total" class="form-label fw-bold"></label>
+                        <div class="input-group">
+                            <span class="input-group-text fw-bold">₹</span>
+                            <input asp-for="Total" class="form-control" id="totalCost" readonly />
+                        </div>
+                        <span asp-validation-for="Total" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="WorkDuration" class="form-label fw-bold"></label>
+                        <input asp-for="WorkDuration" class="form-control" placeholder="Enter work duration" />
+                        <span asp-validation-for="WorkDuration" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Remarks" class="form-label fw-bold"></label>
+                        <textarea asp-for="Remarks" class="form-control" rows="1"></textarea>
+                        <span asp-validation-for="Remarks" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="WorkOrderDate" class="control-label"></label>
-                <input asp-for="WorkOrderDate" class="form-control" />
-                <span asp-validation-for="WorkOrderDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CompanyNameId" class="control-label"></label>
-                <select asp-for="CompanyNameId" class ="form-control" asp-items="ViewBag.CompanyNameId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="CustomerDetails" class="control-label"></label>
-                <input asp-for="CustomerDetails" class="form-control" />
-                <span asp-validation-for="CustomerDetails" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="WorkDetails" class="control-label"></label>
-                <input asp-for="WorkDetails" class="form-control" />
-                <span asp-validation-for="WorkDetails" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ProjectCost" class="control-label"></label>
-                <input asp-for="ProjectCost" class="form-control" />
-                <span asp-validation-for="ProjectCost" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="GSTTypeId" class="control-label"></label>
-                <select asp-for="GSTTypeId" class ="form-control" asp-items="ViewBag.GSTTypeId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Total" class="control-label"></label>
-                <input asp-for="Total" class="form-control" />
-                <span asp-validation-for="Total" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="WorkDuration" class="control-label"></label>
-                <input asp-for="WorkDuration" class="form-control" />
-                <span asp-validation-for="WorkDuration" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Remarks" class="control-label"></label>
-                <input asp-for="Remarks" class="form-control" />
-                <span asp-validation-for="Remarks" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedDateTime" class="control-label"></label>
-                <input asp-for="CreatedDateTime" class="form-control" />
-                <span asp-validation-for="CreatedDateTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedUserId" class="control-label"></label>
-                <input asp-for="CreatedUserId" class="form-control" />
-                <span asp-validation-for="CreatedUserId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+
+            <div class="button-group mt-2 d-flex justify-content-center gap-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Create
+                </button>
+                <button type="reset" class="btn btn-warning">
+                    <i class="bi bi-arrow-clockwise"></i> Reset
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Auto-calculate total cost with GST
+        $(document).ready(function () {
+            function calculateTotal() {
+                let projectCost = parseFloat($("#projectCost").val()) || 0;
+                let gstText = $("#gstType option:selected").text();
+                let gstMatch = gstText.match(/(\d+(\.\d+)?)/);
+                let gstPercent = gstMatch ? parseFloat(gstMatch[1]) : 0;
+
+                let total = projectCost + (projectCost * gstPercent / 100);
+                $("#totalCost").val(total.toFixed(2));
+            }
+
+            $("#projectCost, #gstType").on("input change", calculateTotal);
+        });
+
+        // Datepicker trigger
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelector(".date-picker-group")?.addEventListener("click", function () {
+                this.querySelector("input")?.showPicker();
+            });
+        });
+    </script>
 }
