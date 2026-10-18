@@ -1,4 +1,4 @@
-﻿@using KLENZ.Controllers
+@using KLENZ.Controllers
 @model IEnumerable<PositiveEnquiry>
 
 @{
@@ -8,45 +8,7 @@
 <script src="~/js/custom_datatables.js"></script>
 <script src="~/js/pdf_excel_export.js"></script>
 
-<style>
-    .table {
-        table-layout: fixed;
-        width: 99%;
-    }
 
-        .table th:nth-child(1), .table td:nth-child(1) {
-            width: 60px;
-        }
-
-        .table th:nth-child(2), .table td:nth-child(2) {
-            width: 120px;
-        }
-
-        .table th:nth-child(3), .table td:nth-child(3) {
-            width: 200px;
-        }
-
-        .table th:nth-child(4), .table td:nth-child(4) {
-            width: 200px;
-        }
-
-        .table th:nth-child(5), .table td:nth-child(5) {
-            width: 150px;
-        }
-
-        .table th:nth-child(6), .table td:nth-child(6) {
-            width: 120px;
-        }
-
-        .table th:nth-child(7), .table td:nth-child(7) {
-            width: 150px;
-        }
-
-        .table th:nth-child(8), .table td:nth-child(8) {
-            width: 100px;
-        }
-
-</style>
 
 <div class="card rounded-card shadow-lg mt-3">
     <div class="card-header d-flex justify-content-between align-items-center bg-primary bg-opacity-75 text-white rounded-top">
@@ -65,53 +27,62 @@
 
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table datatable rounded-table">
+            <table class="table datatable rounded-table align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th>Actions</th>
-                        <th>@Html.DisplayNameFor(model => model.QuotationDate)</th>
-                        <th>@Html.DisplayNameFor(model => model.CompanyNameStr)</th>
-                        <th>@Html.DisplayNameFor(model => model.ProductDetails)</th>
-                        <th>@Html.DisplayNameFor(model => model.CustomerDetails)</th>
-                        <th>@Html.DisplayNameFor(model => model.QuotationValue)</th>
-                        <th class="text-center">@Html.DisplayNameFor(model => model.CurrentStatus)</th>
+                        <th class="action-column">Actions</th>
+                        <th>Quotation Date</th>
+                        <th>Company Name</th>
+                        <th>Product Details</th>
+                        <th>Customer Details</th>
+                        <th>Quotation Value</th>
+                        <th class="text-center">Current Status</th>
+                        <th>Created Date</th>
+                        <th>Created User</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>
-                                <a asp-action="Edit" asp-route-id="@item.Id" title="Edit" class="text-decoration-none">
-                                    <i class="bi bi-pencil-square text-success"></i>
-                                </a>
-                                <a asp-action="Details" asp-route-id="@item.Id" title="Details" class="text-decoration-none">
-                                    <i class="bi bi-eye" style="color:blue"></i>
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" title="Delete" class="text-decoration-none">
-                                    <i class="bi bi-trash-fill" style="color:red"></i>
-                                </a>
+                            <td class="action-column">
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" title="Edit" class="text-decoration-none">
+                                        <i class="bi bi-pencil-square text-success fs-5"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" title="Details" class="text-decoration-none">
+                                        <i class="bi bi-info-circle text-primary fs-5"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" title="Delete" class="text-decoration-none">
+                                        <i class="bi bi-trash text-danger fs-5"></i>
+                                    </a>
+                                </div>
                             </td>
-                            <td>@item.QuotationDate?.ToShortDateString()</td>
-                            <td>@(item.Company?.ShortName ?? "N/A")</td>
-                            <td>@Html.DisplayFor(modelItem => item.ProductDetails)</td>
-                            <td>@Html.DisplayFor(modelItem => item.CustomerDetails)</td>
-                            <td>@Html.DisplayFor(modelItem => item.QuotationValue)</td>
+                            <td>@item.QuotationDate?.ToString("dd/MM/yyyy")</td>
+                            <td><strong class="text-dark">@(item.Company?.ShortName ?? "N/A")</strong></td>
+                            <td>@item.ProductDetails</td>
+                            <td>@item.CustomerDetails</td>
+                            <td>@(item.QuotationValue.HasValue ? item.QuotationValue.Value.ToString("C") : "N/A")</td>
                             <td class="text-center">
                                 @if (item.CurrentStatus == "Pending")
                                 {
-                                    <span class="btn btn-sm btn-warning">Pending</span>
+                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2.5 py-1 fs-7 rounded-pill">Pending</span>
                                 }
                                 else if (item.CurrentStatus == "Approved")
                                 {
-                                    <span class="btn btn-sm btn-success">Approved</span>
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2.5 py-1 fs-7 rounded-pill">Approved</span>
                                 }
                                 else if (item.CurrentStatus == "Rejected")
                                 {
-                                    <span class="btn btn-sm btn-danger">Rejected</span>
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2.5 py-1 fs-7 rounded-pill">Rejected</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 px-2.5 py-1 fs-7 rounded-pill">@(item.CurrentStatus ?? "N/A")</span>
                                 }
                             </td>
-
+                            <td>@item.CreatedDateTime?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.CreatedUserName) ? "System" : item.CreatedUserName)</td>
                         </tr>
                     }
                 </tbody>

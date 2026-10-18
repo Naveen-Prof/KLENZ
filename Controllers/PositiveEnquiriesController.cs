@@ -1,4 +1,4 @@
-﻿using KLENZ.Data;
+using KLENZ.Data;
 using KLENZ.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -77,14 +77,30 @@ namespace KLENZ.Controllers
         // GET: PositiveEnquiries
         public async Task<IActionResult> Index()
         {
-            var companyNameList = await _context.PositiveEnquiry.Include(c => c.Company).OrderByDescending(c => c.CreatedDateTime).ToListAsync();
+            var companyNameList = await _context.PositiveEnquiry
+                .Include(c => c.Company)
+                .OrderByDescending(c => c.CreatedDateTime)
+                .Select(pe => new PositiveEnquiry
+                {
+                    Id = pe.Id,
+                    QuotationDate = pe.QuotationDate,
+                    CompanyNameId = pe.CompanyNameId,
+                    FyYear = pe.FyYear,
+                    Company = pe.Company,
+                    ProductDetails = pe.ProductDetails,
+                    CustomerDetails = pe.CustomerDetails,
+                    QuotationValue = pe.QuotationValue,
+                    CurrentStatus = pe.CurrentStatus,
+                    CreatedDateTime = pe.CreatedDateTime,
+                    CreatedUserId = pe.CreatedUserId,
+                    CreatedUserName = _context.Users
+                        .Where(u => u.Id == pe.CreatedUserId)
+                        .Select(u => u.UserName ?? u.Email)
+                        .FirstOrDefault() ?? "System"
+                })
+                .ToListAsync();
 
-            if (companyNameList == null)
-            {
-                return View(new List<PositiveEnquiry>());
-            }
-
-            return View(companyNameList);
+            return View(companyNameList ?? new List<PositiveEnquiry>());
         }
 
         // GET: PositiveEnquiries/Details/5

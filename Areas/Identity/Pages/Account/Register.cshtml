@@ -1,51 +1,88 @@
-﻿@page
+@page
 @model RegisterModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Create Account";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="auth-wrapper d-flex justify-content-center align-items-center w-100">
+    <div class="auth-card register-card">
+        <div class="text-center">
+            <div class="auth-brand">
+                <i class="bi bi-shield-check"></i> KLENZ
+            </div>
+            <h3 class="fw-bold mb-1">Create Account</h3>
+            <p class="text-muted mb-4">Enter your details to register a new account</p>
+        </div>
 
-<div class="row">
-    <div class="col-md-4">
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a new account.</h2>
-            <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger p-2" role="alert"></div>
 
-            <!-- Username Field (New) -->
-            <div class="form-floating mb-3">
-                <input asp-for="Input.UserName" class="form-control" autocomplete="username" aria-required="true" placeholder="Enter your username" />
+            <div class="auth-input-group">
                 <label asp-for="Input.UserName">Username</label>
-                <span asp-validation-for="Input.UserName" class="text-danger"></span>
+                <div class="auth-input-wrapper">
+                    <input asp-for="Input.UserName" class="form-control" autocomplete="username" aria-required="true" placeholder="Enter your username" required />
+                    <i class="bi bi-person auth-input-icon"></i>
+                </div>
+                <span asp-validation-for="Input.UserName" class="text-danger small"></span>
             </div>
 
-            <!-- Email Field (Modified - Now Optional) -->
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="email" aria-required="false" placeholder="name@example.com" />
+            <div class="auth-input-group">
                 <label asp-for="Input.Email">Email (Optional)</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
+                <div class="auth-input-wrapper">
+                    <input asp-for="Input.Email" class="form-control" autocomplete="email" aria-required="false" placeholder="name@example.com" />
+                    <i class="bi bi-envelope auth-input-icon"></i>
+                </div>
+                <span asp-validation-for="Input.Email" class="text-danger small"></span>
             </div>
 
-            <!-- Password Field -->
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+            <div class="auth-input-group">
                 <label asp-for="Input.Password">Password</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
+                <div class="auth-input-wrapper">
+                    <input asp-for="Input.Password" id="registerPassword" type="password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Create a password" required />
+                    <i class="bi bi-lock auth-input-icon"></i>
+                    <i id="toggleRegPasswordIcon" class="bi bi-eye auth-toggle-pwd" onclick="toggleRegPassword('registerPassword', 'toggleRegPasswordIcon')" title="Toggle Password Visibility"></i>
+                </div>
+                <span asp-validation-for="Input.Password" class="text-danger small"></span>
             </div>
 
-            <!-- Confirm Password Field -->
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+            <div class="auth-input-group">
                 <label asp-for="Input.ConfirmPassword">Confirm Password</label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                <div class="auth-input-wrapper">
+                    <input asp-for="Input.ConfirmPassword" id="confirmPassword" type="password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Confirm your password" required />
+                    <i class="bi bi-shield-lock auth-input-icon"></i>
+                    <i id="toggleConfirmPasswordIcon" class="bi bi-eye auth-toggle-pwd" onclick="toggleRegPassword('confirmPassword', 'toggleConfirmPasswordIcon')" title="Toggle Password Visibility"></i>
+                </div>
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
             </div>
 
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-auth-primary mt-2">
+                <i class="bi bi-check-circle me-1"></i> Register Account
+            </button>
+
+            <div class="text-center mt-3">
+                <span class="text-muted">Already have an account? </span>
+                <a asp-page="./Login" class="fw-bold text-primary text-decoration-none ms-1">Sign In</a>
+            </div>
         </form>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function toggleRegPassword(inputId, iconId) {
+            var passwordInput = document.getElementById(inputId);
+            var icon = document.getElementById(iconId);
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                icon.classList.remove("bi-eye");
+                icon.classList.add("bi-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
+            }
+        }
+    </script>
 }

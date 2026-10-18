@@ -1,4 +1,4 @@
-﻿using KLENZ.Data;
+using KLENZ.Data;
 using KLENZ.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -78,16 +78,31 @@ namespace KLENZ.Controllers
         // GET: QuotationReports
         public async Task<IActionResult> Index()
         {
+            var companyNameList = await _context.QuotationReport
+                .Include(c => c.Company)
+                .OrderByDescending(c => c.CreatedDateTime)
+                .Select(qr => new QuotationReport
+                {
+                    Id = qr.Id,
+                    QuotationDate = qr.QuotationDate,
+                    CompanyNameId = qr.CompanyNameId,
+                    FyYear = qr.FyYear,
+                    Company = qr.Company,
+                    ProductDetails = qr.ProductDetails,
+                    CustomerDetails = qr.CustomerDetails,
+                    QuotationValue = qr.QuotationValue,
+                    Remarks = qr.Remarks,
+                    IsPositive = qr.IsPositive,
+                    CreatedDateTime = qr.CreatedDateTime,
+                    CreatedUserId = qr.CreatedUserId,
+                    CreatedUserName = _context.Users
+                        .Where(u => u.Id == qr.CreatedUserId)
+                        .Select(u => u.UserName ?? u.Email)
+                        .FirstOrDefault() ?? "System"
+                })
+                .ToListAsync();
 
-            var companyNameList = await _context.QuotationReport.Include(c => c.Company).OrderByDescending(c=>c.CreatedDateTime).ToListAsync();
-
-            if (companyNameList == null)
-            {
-                return View(new List<QuotationReport>());
-            }
-            return View(companyNameList);
-
-            //return View(await _context.QuotationReport.ToListAsync());
+            return View(companyNameList ?? new List<QuotationReport>());
         }
 
         // GET: QuotationReports/Details/5

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using KLENZ.Models;
@@ -18,16 +18,28 @@ namespace KLENZ.Data // ✅ Correct namespace
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<SalesEnquiry>().ToTable("SalesEnquiry", "Sales"); // Ensure schema
-            modelBuilder.Entity<CompanyName>().ToTable("Companies", schema: "Services");
+
+            // Exclude non-Identity tables from EF Core migrations as they are managed via SQL files
+            modelBuilder.Entity<SalesEnquiry>().ToTable("SalesEnquiry", "Sales", t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<Status>().ToTable("Status", "Sales", t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<CompanyName>().ToTable("Companies", "Services", t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<PositiveEnquiry>().ToTable("PositiveEnquiry", "Sales", t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<ProjectList>().ToTable("ProjectList", "Sales", t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<QuotationReport>().ToTable("QuotationReport", "Sales", t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<FinancialYear>().ToTable("FinancialYear", "Services", t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<GSTTypes>().ToTable("GSTTypes", "Services", t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<Project_Consultancy>().ToTable("Consultancy", "Project", t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<Project_TenderList>().ToTable("TenderList", "Project", t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<Project_ToBeTenderList>().ToTable("ToBeTenderList", "Project", t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<Project_KlenzChemicals>().ToTable("KlenzChemicals", "Project", t => t.ExcludeFromMigrations());
 
             modelBuilder.Entity<PositiveEnquiry>()
-            .Property(p => p.QuotationValue)
-            .HasColumnType("decimal(18,4)");
+                .Property(p => p.QuotationValue)
+                .HasColumnType("decimal(18,4)");
 
             modelBuilder.Entity<ProjectList>()
-                  .Property(p => p.WorkOrderValue)
-                  .HasColumnType("decimal(18,2)");
+                .Property(p => p.WorkOrderValue)
+                .HasColumnType("decimal(18,2)");
 
             modelBuilder.Entity<QuotationReport>()
                 .Property(q => q.QuotationValue)

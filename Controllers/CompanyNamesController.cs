@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using KLENZ.Data;
 using KLENZ.Models;
 
@@ -13,16 +14,35 @@ namespace KLENZ.Controllers
     public class CompanyNamesController : Controller
     {
         private readonly KLENZDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public CompanyNamesController(KLENZDbContext context)
+        public CompanyNamesController(KLENZDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: CompanyNames
         public async Task<IActionResult> Index()
         {
-            return View(await _context.CompanyName.OrderByDescending(c => c.CreatedDateTime).ToListAsync());
+            var companies = await _context.CompanyName
+                .OrderByDescending(c => c.CreatedDateTime)
+                .Select(c => new CompanyName
+                {
+                    Id = c.Id,
+                    FullName = c.FullName,
+                    ShortName = c.ShortName,
+                    IsActive = c.IsActive,
+                    CreatedDateTime = c.CreatedDateTime,
+                    CreatedUserId = c.CreatedUserId,
+                    CreatedUserName = _context.Users
+                        .Where(u => u.Id == c.CreatedUserId)
+                        .Select(u => u.UserName ?? u.Email)
+                        .FirstOrDefault() ?? "System"
+                })
+                .ToListAsync();
+
+            return View(companies);
         }
 
         // GET: CompanyNames/Details/5
@@ -50,16 +70,26 @@ namespace KLENZ.Controllers
         }
 
         // POST: CompanyNames/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FullName,ShortName,IsActive,CreatedDateTime,CreatedUserId")] CompanyName companyName)
         {
             if (ModelState.IsValid)
             {
+                var userId = _userManager.GetUserId(User);
+                if (!string.IsNullOrEmpty(userId) && await _context.Users.AnyAsync(u => u.Id == userId))
+                {
+                    companyName.CreatedUserId = userId;
+                }
+                else
+                {
+                    companyName.CreatedUserId = null;
+                }
+                companyName.CreatedDateTime = DateTime.Now;
+
                 _context.Add(companyName);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Company Name created successfully!";
                 return RedirectToAction(nameof(Index));
             }
             return View(companyName);
@@ -82,8 +112,6 @@ namespace KLENZ.Controllers
         }
 
         // POST: CompanyNames/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,ShortName,IsActive,CreatedDateTime,CreatedUserId")] CompanyName companyName)
@@ -99,6 +127,7 @@ namespace KLENZ.Controllers
                 {
                     _context.Update(companyName);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Company Name updated successfully!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {

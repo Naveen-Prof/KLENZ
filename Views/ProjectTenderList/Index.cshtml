@@ -1,4 +1,4 @@
-﻿@model IEnumerable<KLENZ.Models.Project_TenderList>
+@model IEnumerable<KLENZ.Models.Project_TenderList>
 
 @{
     ViewData["Title"] = "Project Tender List";
@@ -25,47 +25,53 @@
 
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table datatable rounded-table">
+            <table class="table datatable rounded-table align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th>Actions</th>
-                        <th>@Html.DisplayNameFor(model => model.FinancialYear)</th>
-                        <th>@Html.DisplayNameFor(model => model.WorkOrderDate)</th>
-                        <th>@Html.DisplayNameFor(model => model.Company)</th>
-                        <th>@Html.DisplayNameFor(model => model.CustomerDetails)</th>
-                        <th>@Html.DisplayNameFor(model => model.WorkDetails)</th>
-                        <th>@Html.DisplayNameFor(model => model.ProjectCost)</th>
-                        <th>@Html.DisplayNameFor(model => model.GSTType)</th>
-                        <th>@Html.DisplayNameFor(model => model.Total)</th>
-                        <th>@Html.DisplayNameFor(model => model.WorkDuration)</th>
-                        <th>@Html.DisplayNameFor(model => model.Remarks)</th>
+                        <th class="action-column">Actions</th>
+                        <th>Financial Year</th>
+                        <th>Work Order Date</th>
+                        <th>Company Name</th>
+                        <th>Customer Details</th>
+                        <th>Work Details</th>
+                        <th>Project Cost</th>
+                        <th>GST (%)</th>
+                        <th>Total</th>
+                        <th>Work Duration</th>
+                        <th>Remarks</th>
+                        <th>Created Date</th>
+                        <th>Created User</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>
-                                <a asp-action="Edit" asp-route-id="@item.Id" title="Edit" class="text-decoration-none">
-                                    <i class="bi bi-pencil-square text-success"></i>
-                                </a>
-                                <a asp-action="Details" asp-route-id="@item.Id" title="Details" class="text-decoration-none">
-                                    <i class="bi bi-eye text-primary"></i>
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" title="Delete" class="text-decoration-none">
-                                    <i class="bi bi-trash text-danger"></i>
-                                </a>
+                            <td class="action-column">
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" title="Edit" class="text-decoration-none">
+                                        <i class="bi bi-pencil-square text-success fs-5"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" title="Details" class="text-decoration-none">
+                                        <i class="bi bi-info-circle text-primary fs-5"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" title="Delete" class="text-decoration-none">
+                                        <i class="bi bi-trash text-danger fs-5"></i>
+                                    </a>
+                                </div>
                             </td>
                             <td>@(item.FinancialYear?.FyYear ?? "N/A")</td>
-                            <td>@item.WorkOrderDate?.ToShortDateString()</td>
-                            <td>@(item.Company?.ShortName ?? "N/A")</td>
-                            <td>@Html.DisplayFor(modelItem => item.CustomerDetails)</td>
-                            <td>@Html.DisplayFor(modelItem => item.WorkDetails)</td>
-                            <td>@Html.DisplayFor(modelItem => item.ProjectCost)</td>
-                            <td>@(item.GSTType?.GSTType.ToString() + " %" ?? "N/A")</td>
-                            <td>@Html.DisplayFor(modelItem => item.Total)</td>
-                            <td>@Html.DisplayFor(modelItem => item.WorkDuration)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Remarks)</td>
+                            <td>@item.WorkOrderDate?.ToString("dd/MM/yyyy")</td>
+                            <td><strong class="text-dark">@(item.Company?.ShortName ?? "N/A")</strong></td>
+                            <td>@item.CustomerDetails</td>
+                            <td>@item.WorkDetails</td>
+                            <td>@(item.ProjectCost.HasValue ? item.ProjectCost.Value.ToString("C") : "N/A")</td>
+                            <td>@(item.GSTType != null ? $"{item.GSTType.GSTType} %" : "N/A")</td>
+                            <td>@(item.Total.HasValue ? item.Total.Value.ToString("C") : "N/A")</td>
+                            <td>@item.WorkDuration</td>
+                            <td>@item.Remarks</td>
+                            <td>@item.CreatedDateTime?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.CreatedUserName) ? "System" : item.CreatedUserName)</td>
                         </tr>
                     }
                 </tbody>

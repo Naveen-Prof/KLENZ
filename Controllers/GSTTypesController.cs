@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using KLENZ.Data;
 using KLENZ.Models;
 
@@ -13,16 +14,33 @@ namespace KLENZ.Controllers
     public class GSTTypesController : Controller
     {
         private readonly KLENZDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public GSTTypesController(KLENZDbContext context)
+        public GSTTypesController(KLENZDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: GSTTypes
         public async Task<IActionResult> Index()
         {
-            return View(await _context.GSTTypes.OrderByDescending(g => g.CreatedDateTime).ToListAsync());
+            var gstList = await _context.GSTTypes
+                .OrderByDescending(g => g.CreatedDateTime)
+                .Select(g => new GSTTypes
+                {
+                    Id = g.Id,
+                    GSTType = g.GSTType,
+                    CreatedDateTime = g.CreatedDateTime,
+                    CreatedUserId = g.CreatedUserId,
+                    CreatedUserName = _context.Users
+                        .Where(u => u.Id == g.CreatedUserId)
+                        .Select(u => u.UserName ?? u.Email)
+                        .FirstOrDefault() ?? "System"
+                })
+                .ToListAsync();
+
+            return View(gstList);
         }
 
         // GET: GSTTypes/Details/5
@@ -50,16 +68,26 @@ namespace KLENZ.Controllers
         }
 
         // POST: GSTTypes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,GSTType,CreatedDateTime,CreatedUserId")] GSTTypes gSTTypes)
         {
             if (ModelState.IsValid)
             {
+                var userId = _userManager.GetUserId(User);
+                if (!string.IsNullOrEmpty(userId) && await _context.Users.AnyAsync(u => u.Id == userId))
+                {
+                    gSTTypes.CreatedUserId = userId;
+                }
+                else
+                {
+                    gSTTypes.CreatedUserId = null;
+                }
+                gSTTypes.CreatedDateTime = DateTime.Now;
+
                 _context.Add(gSTTypes);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "GST Type created successfully!";
                 return RedirectToAction(nameof(Index));
             }
             return View(gSTTypes);

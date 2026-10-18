@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -48,6 +48,9 @@ namespace KLENZ.Models
 
         [MaxLength(450)]
         public string? CreatedUserId { get; set; }
+
+        [NotMapped]
+        public string? CreatedUserName { get; set; }
 
         [ForeignKey("FyYear")]
         [DisplayName("Financial Year")]

@@ -48,9 +48,19 @@ namespace KLENZ.Controllers
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 string query = "SELECT COUNT(*) FROM Sales.SalesEnquiry s\r\nINNER JOIN Services.FinancialYear fy ON fy.Id = s.FyYear \r\nWHERE fy.IsActive = 1\r\n";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                conn.Open();
-                count = (int)cmd.ExecuteScalar();
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    conn.Open();
+                    object? result = cmd.ExecuteScalar();
+                    if (result == null || result == DBNull.Value)
+                    {
+                        count = 0;
+                    }
+                    else
+                    {
+                        count = Convert.ToInt32(result);
+                    }
+                }
             }
 
             return count;

@@ -1,70 +1,254 @@
-/* Default styles */
-html {
-    font-size: 14px;
+/* ==========================================================================
+   Global Design System & Consistent Typography
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+html,
+body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14.5px;
+    color: #334155;
+    background-color: #f8fafc;
+    line-height: 1.5;
 }
 
-.container-box {
+/* Global Font Size Rules for UI Elements */
+p,
+span,
+label,
+div,
+input,
+select,
+textarea,
+button,
+a,
+.nav-link,
+.dropdown-item,
+.form-control,
+.form-select,
+.btn,
+.card-body,
+.alert {
+    font-size: 0.925rem;
+}
+
+/* Base Headings Scale */
+h1,
+.h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+h2,
+.h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+h3,
+.h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+h4,
+.h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+h5,
+.h5 {
+    font-size: 1.0rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+h6,
+.h6 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+/* DataTables Headers (Can differ in size/style as requested) */
+.table thead th,
+.dataTables_wrapper thead th,
+.datatable thead th {
+    font-size: 0.825rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.6px !important;
+    color: #0f172a !important;
+    background-color: #e2e8f0 !important;
+    padding: 11px 12px !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+}
+
+/* ==========================================================================
+   Interactive Auth UI (Login & Register Pages)
+   ========================================================================== */
+.auth-wrapper {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    max-width: 500px;
-    max-height: 600px;
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.auth-card {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.03);
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 2.25rem 2rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-card.register-card {
+    max-width: 460px;
+    margin: 0 auto;
+}
+
+.auth-card:hover {
+    box-shadow: 0 25px 50px -12px rgba(13, 110, 253, 0.12);
+}
+
+.auth-brand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0d6efd;
+    background: rgba(13, 110, 253, 0.08);
+    padding: 8px 20px;
+    border-radius: 50px;
+    margin-bottom: 1rem;
+    letter-spacing: 0.5px;
+}
+
+.auth-input-group {
     position: relative;
-    overflow: hidden;
-    transition: transform 0.5s ease-in-out, width 0.5s ease-in-out;
+    margin-bottom: 1.15rem;
 }
 
-    .container-box.register {
-        max-width: 700px; /* Default size for register */
-    }
-
-.form-box {
-    width: 100%;
-    height: 100%;
-    transition: transform 0.5s ease-in-out;
+.auth-input-group label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #475569;
+    display: block;
 }
 
-    .form-box.register {
-        position: absolute;
-        width: 100%;
-    }
-
-/* Tablet & larger screens */
-@media screen and (min-width: 768px) {
-    html {
-        font-size: 14px;
-    }
-
-    .container-box {
-        width: 62%;
-        max-width: 550px;
-    }
-
-        .container-box.register {
-            width: 60%;
-            max-width: 900px;
-        }
+.auth-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
-/* Mobile View (Max 425px) */
-@media (max-width: 425px) {
-    html {
-        font-size: 14px;
-    }
-
-    .container-box {
-        width: 90%; /* Take more space on mobile */
-        max-width: 350px;
-    }
-
-        .container-box.register {
-            max-width: 450px; /* Adjusted for mobile */
-        }
+.auth-input-wrapper .form-control {
+    height: 48px;
+    padding-left: 2.75rem;
+    padding-right: 2.75rem;
+    border-radius: 12px;
+    border: 1.5px solid #cbd5e1;
+    background-color: #f8fafc;
+    font-size: 0.925rem;
+    transition: all 0.2s ease;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+.auth-input-wrapper .form-control:focus {
+    background-color: #ffffff;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.12);
+}
+
+.auth-input-icon {
+    position: absolute;
+    left: 1rem;
+    color: #94a3b8;
+    font-size: 1.1rem;
+    transition: color 0.2s ease;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.auth-input-wrapper .form-control:focus~.auth-input-icon {
+    color: #0d6efd;
+}
+
+.auth-toggle-pwd {
+    position: absolute;
+    right: 1rem;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: color 0.2s ease, transform 0.2s ease;
+    z-index: 5;
+}
+
+.auth-toggle-pwd:hover {
+    color: #0d6efd;
+    transform: scale(1.1);
+}
+
+.btn-auth-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: #ffffff !important;
+    border: none;
+    height: 46px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-auth-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.35);
+    color: #ffffff !important;
+}
+
+.btn-auth-primary:active {
+    transform: translateY(0);
+}
+
+.btn-auth-secondary {
+    border: 1.5px solid #cbd5e1;
+    color: #475569 !important;
+    height: 44px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-auth-secondary:hover {
+    background: #f1f5f9;
+    color: #0f172a !important;
+    border-color: #94a3b8;
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
@@ -74,9 +258,12 @@ html {
 }
 
 .rounded-table {
-    border-radius: 10px; /* Adjust as needed */
-    overflow: hidden; /* Ensures corners are properly rounded */
-    border: 1px solid #dee2e6; /* Optional: Adds a border */
+    border-radius: 10px;
+    /* Adjust as needed */
+    overflow: hidden;
+    /* Ensures corners are properly rounded */
+    border: 1px solid #dee2e6;
+    /* Optional: Adds a border */
 }
 
 body {
@@ -93,16 +280,16 @@ body {
     display: none;
 }
 
-    .sidebar a {
-        color: white;
-        padding: 10px 20px;
-        display: block;
-        text-decoration: none;
-    }
+.sidebar a {
+    color: white;
+    padding: 10px 20px;
+    display: block;
+    text-decoration: none;
+}
 
-        .sidebar a:hover {
-            background-color: #495057;
-        }
+.sidebar a:hover {
+    background-color: #495057;
+}
 
 .content {
     margin-left: 0;
@@ -118,47 +305,168 @@ body {
 }
 
 .rounded-card {
-    border-radius: 10px; /* Adjust as needed */
-    overflow: hidden; /* Ensures content doesn’t overflow rounded corners */
-    border: 1px solid #ddd; /* Optional: Adds a border */
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Adds shadow */
+    border-radius: 10px;
+    /* Adjust as needed */
+    overflow: hidden;
+    /* Ensures content doesnÂ’t overflow rounded corners */
+    border: 1px solid #ddd;
+    /* Optional: Adds a border */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    /* Optional: Adds shadow */
 }
 
 .custom-btn {
-    border-radius: 8px; /* Slightly rounded corners */
-    padding: 10px 15px; /* Comfortable padding */
-    font-weight: bold; /* Make text stand out */
-    transition: all 0.3s ease-in-out; /* Smooth hover effect */
+    border-radius: 8px;
+    /* Slightly rounded corners */
+    padding: 10px 15px;
+    /* Comfortable padding */
+    font-weight: bold;
+    /* Make text stand out */
+    transition: all 0.3s ease-in-out;
+    /* Smooth hover effect */
 }
 
-    .custom-btn:hover {
-        background-color: white; /* Subtle hover effect */
-        transform: scale(1.05); /* Slight increase on hover */
-    }
+.custom-btn:hover {
+    background-color: white;
+    /* Subtle hover effect */
+    transform: scale(1.05);
+    /* Slight increase on hover */
+}
 
-#profileDropdown::after {
+/* ==========================================================================
+   Modern Header & Dropdown UI Styling
+   ========================================================================== */
+
+#profileDropdown::after,
+.dropdown-toggle::after {
     display: none !important;
 }
 
 .rounded-navbar {
-    border-radius: 10px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    background: #ffffff !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
 }
 
-.table td, .table th {
+/* Nav Links & Toggles */
+.navbar-nav .nav-link {
+    font-weight: 500;
+    padding: 0.5rem 0.85rem !important;
+    border-radius: 8px;
+    color: #475569 !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link:focus,
+.navbar-nav .nav-link.show {
+    color: #0d6efd !important;
+    background-color: rgba(13, 110, 253, 0.08);
+}
+
+/* Chevron Icon Styling & Smooth Rotation
+   Normally UPWARD (bi-chevron-up) -> when opened (.show), rotates 180 deg DOWNWARD */
+.dropdown-icon {
+    font-size: 0.75rem;
+    line-height: 1;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-block;
+    color: #64748b;
+}
+
+.nav-link:hover .dropdown-icon {
+    color: #0d6efd;
+}
+
+/* When the dropdown is toggled/clicked open, rotate the chevron 180 degrees to point DOWNWARD */
+.nav-link.show .dropdown-icon,
+.dropdown.show .dropdown-icon,
+.nav-item.dropdown.show .dropdown-icon {
+    transform: rotate(180deg);
+}
+
+/* Modern Floating Dropdown Card */
+.dropdown-menu {
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05) !important;
+    padding: 8px !important;
+    margin-top: 8px !important;
+    background-color: #ffffff;
+    min-width: 210px;
+}
+
+/* Animated reveal for dropdown menu */
+.dropdown-menu.show {
+    animation: dropdownSlideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dropdownSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Dropdown Menu Items */
+.dropdown-item {
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #334155 !important;
+    transition: all 0.18s ease-in-out !important;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: #f1f5f9 !important;
+    color: #0d6efd !important;
+    transform: translateX(4px);
+}
+
+.dropdown-item i {
+    font-size: 1rem;
+    transition: transform 0.18s ease;
+}
+
+.dropdown-item:hover i {
+    transform: scale(1.15);
+}
+
+.dropdown-divider {
+    border-top-color: #e2e8f0;
+    margin: 6px 0;
+}
+
+.table td,
+.table th {
     white-space: normal;
     word-wrap: break-word;
 }
 
 .export-icon {
     cursor: pointer;
-    transition: color 0.3s ease-in-out; /* Smooth color transition */
+    transition: color 0.3s ease-in-out;
+    /* Smooth color transition */
 }
 
-    /* Change color on hover */
-    .export-icon:hover {
-        color: #ffc107; /* Yellow highlight */
-    }
+/* Change color on hover */
+.export-icon:hover {
+    color: #ffc107;
+    /* Yellow highlight */
+}
 
 /* for datatable pagination */
 
@@ -168,32 +476,32 @@ body {
     padding: 5px 10px;
 }
 
-    .dataTables_paginate .pagination .page-item .page-link {
-        color: #6c757d !important;
-        border-radius: 6px !important;
-        border: 1px solid #dee2e6 !important;
-        margin: 0 3px;
-        outline: none !important;
-        box-shadow: none !important;
-    }
+.dataTables_paginate .pagination .page-item .page-link {
+    color: #6c757d !important;
+    border-radius: 6px !important;
+    border: 1px solid #dee2e6 !important;
+    margin: 0 3px;
+    outline: none !important;
+    box-shadow: none !important;
+}
 
-    .dataTables_paginate .pagination .page-item.active .page-link {
-        background-color: #6c757d !important;
-        color: #fff !important;
-        border-color: #6c757d !important;
-    }
+.dataTables_paginate .pagination .page-item.active .page-link {
+    background-color: #6c757d !important;
+    color: #fff !important;
+    border-color: #6c757d !important;
+}
 
-    .dataTables_paginate .pagination .page-item .page-link:hover {
-        background-color: #e9ecef !important;
-        color: #495057 !important;
-    }
+.dataTables_paginate .pagination .page-item .page-link:hover {
+    background-color: #e9ecef !important;
+    color: #495057 !important;
+}
 
-    .dataTables_paginate .pagination .page-item .page-link:focus,
-    .dataTables_paginate .pagination .page-item .page-link:active {
-        outline: none !important;
-        box-shadow: none !important;
-        border-color: #dee2e6 !important;
-    }
+.dataTables_paginate .pagination .page-item .page-link:focus,
+.dataTables_paginate .pagination .page-item .page-link:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: #dee2e6 !important;
+}
 
 .table thead th {
     border-bottom: none !important;
@@ -215,21 +523,23 @@ body {
 .table-hover tbody tr:hover {
     background-color: #eef2f7 !important;
 }
+
 .table thead th {
-    background-color: #cce0ff !important; 
-    color: black !important; 
+    background-color: #cce0ff !important;
+    color: black !important;
     border-bottom: none !important;
     font-weight: bold;
     padding: 10px;
-    
+
 }
 
 .table tbody tr {
-    
-    padding: 10px; 
-    
-  
+
+    padding: 10px;
+
+
 }
+
 /*
 @media (max-width: 1200px) {
     .dashboard-card {
@@ -265,7 +575,7 @@ body {
 
 
 
-.card-header{
+.card-header {
     border-radius: 6px !important;
 }
 
@@ -273,7 +583,7 @@ body {
     width: 100%;
     padding: 15px;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     background: #fff;
 }
 
@@ -282,7 +592,8 @@ body {
 }
 
 .input-group {
-    border-radius: 15px !important; /* Ensures input inside .input-group has rounded borders */
+    border-radius: 15px !important;
+    /* Ensures input inside .input-group has rounded borders */
 }
 
 .input-group-text {
@@ -306,7 +617,96 @@ body {
 }
 
 
-    .btn-white:hover {
-        background-color: white;
-        color: var(--bs-primary);
+.btn-white:hover {
+    background-color: white;
+    color: var(--bs-primary);
+}
+
+
+/* Table Optimization for Laptops/Desktops (entire project) */
+@media (min-width: 992px) {
+    .table-responsive {
+        overflow-x: auto;
     }
+
+    .table {
+        width: 100% !important;
+        table-layout: auto !important;
+        /* Allow columns to adaptively distribute space */
+        font-size: 0.85rem !important;
+        /* Slightly smaller text size to fit more columns */
+    }
+
+    .table td,
+    .table th {
+        padding: 8px 6px !important;
+        /* Compact padding to fit columns */
+        vertical-align: middle !important;
+        white-space: normal;
+        /* Allow cell contents to wrap instead of forcing horizontal overflow */
+        word-wrap: break-word;
+    }
+
+    /* Prevent text columns from stretching too wide */
+    .table td {
+        max-width: 250px;
+    }
+}
+
+/* Action column styling: exact space for the three icons, prevent wrapping */
+.table th.action-column,
+.table td.action-column {
+    width: 95px !important;
+    min-width: 95px !important;
+    max-width: 95px !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+}
+
+/* Ensure the anchors inside action column are inline and properly spaced */
+.table td.action-column a {
+    display: inline-block !important;
+    margin: 0 4px !important;
+    font-size: 1.1rem !important;
+}
+
+/* ==========================================================================
+   Flatpickr Year & Month Dropdown Styling
+   ========================================================================== */
+.flatpickr-calendar {
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid #cbd5e1 !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.flatpickr-current-month {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding-top: 6px !important;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    border: 1px solid #93c5fd !important;
+    padding: 2px 6px !important;
+    background-color: #ffffff !important;
+}
+
+.flatpickr-year-select {
+    border-radius: 6px !important;
+    border: 1px solid #93c5fd !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    outline: none !important;
+}
+
+.flatpickr-day.selected {
+    background: #0d6efd !important;
+    border-color: #0d6efd !important;
+}

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,17 +26,31 @@ namespace KLENZ.Controllers
         public async Task<IActionResult> Index()
         {
             var projectLists = await _context.ProjectList
-                .Include(p => p.FinancialYear) // Ensure FinancialYear is loaded
+                .Include(p => p.FinancialYear)
                 .Include(c => c.Company)
                 .OrderByDescending(p => p.CreatedDateTime)
+                .Select(p => new ProjectList
+                {
+                    Id = p.Id,
+                    FyYear = p.FyYear,
+                    FinancialYear = p.FinancialYear,
+                    WorkOrderDate = p.WorkOrderDate,
+                    CompanyNameId = p.CompanyNameId,
+                    Company = p.Company,
+                    CustomerDetails = p.CustomerDetails,
+                    WorkDetails = p.WorkDetails,
+                    WorkOrderValue = p.WorkOrderValue,
+                    Remarks = p.Remarks,
+                    CreatedDateTime = p.CreatedDateTime,
+                    CreatedUserId = p.CreatedUserId,
+                    CreatedUserName = _context.Users
+                        .Where(u => u.Id == p.CreatedUserId)
+                        .Select(u => u.UserName ?? u.Email)
+                        .FirstOrDefault() ?? "System"
+                })
                 .ToListAsync();
 
-            if (projectLists == null)
-            {
-                return View(new List<ProjectList>()); // Ensure Model is never null
-            }
-
-            return View(projectLists);
+            return View(projectLists ?? new List<ProjectList>());
         }
 
 

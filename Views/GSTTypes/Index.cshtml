@@ -1,47 +1,59 @@
-﻿@model IEnumerable<KLENZ.Models.GSTTypes>
+@model IEnumerable<KLENZ.Models.GSTTypes>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "GST Types";
 }
 
-<h1>Index</h1>
+<script src="~/js/custom_datatables.js"></script>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.GSTType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedDateTime)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedUserId)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.GSTType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedDateTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedUserId)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="card rounded-card shadow-lg mt-3">
+    <div class="card-header d-flex justify-content-between align-items-center bg-primary bg-opacity-75 text-white rounded-top">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-percent me-2 fs-4"></i>
+            <h4 class="mb-0">GST Types</h4>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Create" class="btn btn-light text-primary shadow-sm custom-btn">
+                <i class="bi bi-plus-circle me-1"></i> Create New
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table datatable rounded-table align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="action-column">Actions</th>
+                        <th>GST Type (%)</th>
+                        <th>Created Date</th>
+                        <th>Created User</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="action-column">
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" title="Edit" class="text-decoration-none">
+                                        <i class="bi bi-pencil-square text-success fs-5"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" title="Details" class="text-decoration-none">
+                                        <i class="bi bi-info-circle text-primary fs-5"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" title="Delete" class="text-decoration-none">
+                                        <i class="bi bi-trash text-danger fs-5"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            <td><strong class="text-dark">@item.GSTType %</strong></td>
+                            <td>@item.CreatedDateTime?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.CreatedUserName) ? "System" : item.CreatedUserName)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

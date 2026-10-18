@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Versioning;
+// using NuGet.Versioning;
 
 namespace KLENZ.Controllers
 {
@@ -86,6 +86,28 @@ namespace KLENZ.Controllers
             var salesEnquiryList = await _context.SalesEnquiries
                 .Include(se => se.Company) 
                 .OrderByDescending(se => se.CreatedDateTime) 
+                .Select(se => new SalesEnquiry
+                {
+                    Id = se.Id,
+                    CompanyNameId = se.CompanyNameId,
+                    FyYear = se.FyYear,
+                    Company = se.Company,
+                    ReferedBy = se.ReferedBy,
+                    EnquiryDetails = se.EnquiryDetails,
+                    EnquiryDate = se.EnquiryDate,
+                    CustomerDetails = se.CustomerDetails,
+                    Status = se.Status,
+                    Remarks = se.Remarks,
+                    ReminderDate = se.ReminderDate,
+                    ReminderPlace = se.ReminderPlace,
+                    FilePath = se.FilePath,
+                    CreatedDateTime = se.CreatedDateTime,
+                    CreatedUserId = se.CreatedUserId,
+                    CreatedUserName = _context.Users
+                        .Where(u => u.Id == se.CreatedUserId)
+                        .Select(u => u.UserName ?? u.Email)
+                        .FirstOrDefault() ?? "System"
+                })
                 .ToListAsync();
 
             return View(salesEnquiryList ?? new List<SalesEnquiry>());
@@ -167,13 +189,15 @@ namespace KLENZ.Controllers
             if (ModelState.IsValid)
             {
                 var userId = _userManager.GetUserId(User);
-                if (string.IsNullOrEmpty(userId))
+                if (!string.IsNullOrEmpty(userId) && await _context.Users.AnyAsync(u => u.Id == userId))
                 {
-                    ModelState.AddModelError(string.Empty, "You must be logged in to create a sales enquiry.");
-                    return View(salesEnquiry);
+                    salesEnquiry.CreatedUserId = userId;
+                }
+                else
+                {
+                    salesEnquiry.CreatedUserId = null;
                 }
 
-                salesEnquiry.CreatedUserId = userId;
                 salesEnquiry.CreatedDateTime = DateTime.Now;
 
                 if (File != null && File.Length > 0)
@@ -202,6 +226,7 @@ namespace KLENZ.Controllers
                 // ✅ Save Data to Database
                 _context.Add(salesEnquiry);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Sales Enquiry created successfully!";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -283,13 +308,14 @@ namespace KLENZ.Controllers
                     salesEnquiry.FyYear = GetFyId();
                     _context.Entry(existingEnquiry).CurrentValues.SetValues(salesEnquiry);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Sales Enquiry updated successfully!";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!SalesEnquiryExists(salesEnquiry.Id)) return NotFound();
                     else throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
 
             ViewBag.Companies = _context.CompanyName

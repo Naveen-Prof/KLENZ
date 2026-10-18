@@ -1,4 +1,4 @@
-﻿@model IEnumerable<KLENZ.Models.ProjectList>
+@model IEnumerable<KLENZ.Models.ProjectList>
 
 @{
     ViewData["Title"] = "Project List";
@@ -7,48 +7,7 @@
 <script src="~/js/custom_datatables.js"></script>
 <script src="~/js/pdf_excel_export.js"></script>
 
-<style>
-    .table {
-        table-layout: fixed;
-        width: 99%;
-    }
 
-        .table th:nth-child(1), .table td:nth-child(1) {
-            width: 50px;
-        }
-
-        .table th:nth-child(2), .table td:nth-child(2) {
-            width: 120px;
-        }
-
-        .table th:nth-child(3), .table td:nth-child(3) {
-            width: 100px;
-        }
-
-        .table th:nth-child(4), .table td:nth-child(4) {
-            width: 200px;
-        }
-
-        .table th:nth-child(5), .table td:nth-child(5) {
-            width: 200px;
-        }
-
-        .table th:nth-child(6), .table td:nth-child(6) {
-            width: 180px;
-        }
-
-        .table th:nth-child(7), .table td:nth-child(7) {
-            width: 150px;
-        }
-
-        .table th:nth-child(8), .table td:nth-child(8) {
-            width: 100px;
-        }
-
-        .table th:nth-child(9), .table td:nth-child(9) {
-            width: 100px;
-        }
-</style>
 
 <div class="card rounded-card shadow-lg mt-3">
     <div class="card-header d-flex justify-content-between align-items-center bg-primary bg-opacity-75 text-white rounded-top">
@@ -71,41 +30,47 @@
 
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table datatable rounded-table">
+            <table class="table datatable rounded-table align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th>Actions</th>
-                        <th>@Html.DisplayNameFor(model => model.FinancialYear)</th>
-                        <th>@Html.DisplayNameFor(model => model.WorkOrderDate)</th>
-                        <th>@Html.DisplayNameFor(model => model.CompanyNameStr)</th>
-                        <th>@Html.DisplayNameFor(model => model.CustomerDetails)</th>
-                        <th>@Html.DisplayNameFor(model => model.WorkDetails)</th>
-                        <th>@Html.DisplayNameFor(model => model.WorkOrderValue)</th>
-                        <th>@Html.DisplayNameFor(model => model.Remarks)</th>
+                        <th class="action-column">Actions</th>
+                        <th>Financial Year</th>
+                        <th>Work Order Date</th>
+                        <th>Company Name</th>
+                        <th>Customer Details</th>
+                        <th>Work Details</th>
+                        <th>Work Order Value</th>
+                        <th>Remarks</th>
+                        <th>Created Date</th>
+                        <th>Created User</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>
-                                <a asp-action="Edit" asp-route-id="@item.Id" title="Edit" class="text-decoration-none">
-                                    <i class="bi bi-pencil-square text-success"></i>
-                                </a>
-                                <a asp-action="Details" asp-route-id="@item.Id" title="Details" class="text-decoration-none">
-                                    <i class="bi bi-eye text-primary"></i>
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" title="Delete" class="text-decoration-none">
-                                    <i class="bi bi-trash text-danger"></i>
-                                </a>
+                            <td class="action-column">
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" title="Edit" class="text-decoration-none">
+                                        <i class="bi bi-pencil-square text-success fs-5"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" title="Details" class="text-decoration-none">
+                                        <i class="bi bi-info-circle text-primary fs-5"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" title="Delete" class="text-decoration-none">
+                                        <i class="bi bi-trash text-danger fs-5"></i>
+                                    </a>
+                                </div>
                             </td>
                             <td>@(item.FinancialYear != null ? item.FinancialYear.FyYear : "N/A")</td>
-                            <td>@item.WorkOrderDate?.ToShortDateString()</td>
-                            <td>@(item.Company?.ShortName ?? "N/A")</td>
-                            <td>@Html.DisplayFor(modelItem => item.CustomerDetails)</td>
-                            <td>@Html.DisplayFor(modelItem => item.WorkDetails)</td>
-                            <td>@Html.DisplayFor(modelItem => item.WorkOrderValue)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Remarks)</td>
+                            <td>@item.WorkOrderDate?.ToString("dd/MM/yyyy")</td>
+                            <td><strong class="text-dark">@(item.Company?.ShortName ?? "N/A")</strong></td>
+                            <td>@item.CustomerDetails</td>
+                            <td>@item.WorkDetails</td>
+                            <td>@(item.WorkOrderValue.HasValue ? item.WorkOrderValue.Value.ToString("C") : "N/A")</td>
+                            <td>@item.Remarks</td>
+                            <td>@item.CreatedDateTime?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.CreatedUserName) ? "System" : item.CreatedUserName)</td>
                         </tr>
                     }
                 </tbody>

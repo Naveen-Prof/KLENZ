@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,9 +11,18 @@ namespace KLENZ.Models
         public int Id { get; set; }
 
         [Required]
+        [DataType(DataType.Date)]
+        [Display(Name = "Start Date")]
+        public DateTime StartDate { get; set; } = DateTime.Today;
+
+        [Required]
+        [DataType(DataType.Date)]
+        [Display(Name = "End Date")]
+        public DateTime EndDate { get; set; } = DateTime.Today.AddYears(1).AddDays(-1);
+
         [StringLength(250)]
         [Display(Name = "Financial Year")]
-        public required string FyYear { get; set; }
+        public string? FyYear { get; set; }
 
         [Required]
         [Display(Name = "Is Active?")]

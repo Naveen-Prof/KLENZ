@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,9 +22,37 @@ namespace KLENZ.Controllers
         // GET: ProjectToBeTenderList
         public async Task<IActionResult> Index()
         {
-            var kLENZDbContext = _context.Project_ToBeTenderList.Include(p => p.Company).Include(p => p.FinancialYear)
-                .Include(p => p.GSTType).OrderByDescending(p=> p.CreatedDateTime);
-            return View(await kLENZDbContext.ToListAsync());
+            var list = await _context.Project_ToBeTenderList
+                .Include(p => p.Company)
+                .Include(p => p.FinancialYear)
+                .Include(p => p.GSTType)
+                .OrderByDescending(p => p.CreatedDateTime)
+                .Select(p => new Project_ToBeTenderList
+                {
+                    Id = p.Id,
+                    FyYear = p.FyYear,
+                    WorkOrderDate = p.WorkOrderDate,
+                    CompanyNameId = p.CompanyNameId,
+                    CustomerDetails = p.CustomerDetails,
+                    WorkDetails = p.WorkDetails,
+                    ProjectCost = p.ProjectCost,
+                    GSTTypeId = p.GSTTypeId,
+                    Total = p.Total,
+                    WorkDuration = p.WorkDuration,
+                    Remarks = p.Remarks,
+                    CreatedDateTime = p.CreatedDateTime,
+                    CreatedUserId = p.CreatedUserId,
+                    CreatedUserName = _context.Users
+                        .Where(u => u.Id == p.CreatedUserId)
+                        .Select(u => u.UserName ?? u.Email)
+                        .FirstOrDefault() ?? "System",
+                    FinancialYear = p.FinancialYear,
+                    Company = p.Company,
+                    GSTType = p.GSTType
+                })
+                .ToListAsync();
+
+            return View(list);
         }
 
         // GET: ProjectToBeTenderList/Details/5

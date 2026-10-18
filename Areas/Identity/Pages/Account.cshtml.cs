@@ -33,6 +33,12 @@ namespace KLENZ.Pages.Account
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
             _logger = logger;
+
+            LoginModel = new LoginInputModel();
+            RegisterModel = new RegisterInputModel();
+            ResetPasswordModel = new ResetPasswordInputModel();
+            ReturnUrl = string.Empty;
+            ExternalLogins = new List<Microsoft.AspNetCore.Authentication.AuthenticationScheme>();
         }
 
         [BindProperty(SupportsGet = false)]
@@ -52,12 +58,12 @@ namespace KLENZ.Pages.Account
         {
             [Required]
             [Display(Name = "Username")]
-            public string UserName { get; set; }
+            public string? UserName { get; set; }
 
             [Required]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
-            public string Password { get; set; }
+            public string? Password { get; set; }
 
             public bool RememberMe { get; set; }
         }
@@ -66,47 +72,47 @@ namespace KLENZ.Pages.Account
         {
             [Required]
             [Display(Name = "Username")]
-            public string UserName { get; set; }
+            public string? UserName { get; set; }
 
             [EmailAddress]
             [Display(Name = "Email (Optional)")]
-            public string Email { get; set; }
+            public string? Email { get; set; }
 
             [Required]
             [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
-            public string Password { get; set; }
+            public string? Password { get; set; }
 
             [DataType(DataType.Password)]
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-            public string ConfirmPassword { get; set; }
+            public string? ConfirmPassword { get; set; }
         }
 
         public class ResetPasswordInputModel
         {
             [Required]
             [Display(Name = "Username")]
-            public string UserName { get; set; }
+            public string? UserName { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task OnGetAsync(string? returnUrl = null)
         {
             ReturnUrl = returnUrl ?? Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-            if (User.Identity.IsAuthenticated)
+            if (User?.Identity?.IsAuthenticated == true)
             {
                 Response.Redirect(ReturnUrl);  // Prevent logged-in users from accessing login page
             }
         }
 
-        public async Task<IActionResult> OnPostLoginAsync(string returnUrl = null)
+        public async Task<IActionResult> OnPostLoginAsync(string? returnUrl = null)
         {
             if (string.IsNullOrEmpty(returnUrl) || returnUrl.Contains("Error"))
             {
-                returnUrl = Url.Content("~/Home/Index"); // Force correct redirection
+                returnUrl = Url.Content("~/Home/Index"); // Force correct redirection 
             }
 
             ModelState.Clear(); // Clear previous validation errors
@@ -119,14 +125,14 @@ namespace KLENZ.Pages.Account
                 return Page();
             }
 
-            var user = await _userManager.FindByNameAsync(LoginModel.UserName);
+            var user = await _userManager.FindByNameAsync(LoginModel.UserName ?? string.Empty);
             if (user == null)
             {
                 TempData["ErrorMessage"] = "Invalid username or password.";
                 return Page();
             }
 
-            var result = await _signInManager.PasswordSignInAsync(user, LoginModel.Password, LoginModel.RememberMe, lockoutOnFailure: false);
+            var result = await _signInManager.PasswordSignInAsync(user, LoginModel.Password ?? string.Empty, LoginModel.RememberMe, lockoutOnFailure: false);
 
             if (result.Succeeded)
             {
@@ -151,7 +157,7 @@ namespace KLENZ.Pages.Account
 
 
 
-        public async Task<IActionResult> OnPostRegisterAsync(string returnUrl = null)
+        public async Task<IActionResult> OnPostRegisterAsync(string? returnUrl = null)
         {
             ModelState.Clear();
 
@@ -194,8 +200,16 @@ namespace KLENZ.Pages.Account
                 return Page();
             }
 
+            var userName = ResetPasswordModel?.UserName?.Trim();
+            if (string.IsNullOrEmpty(userName))
+            {
+                ModelState.AddModelError(string.Empty, "Username is required.");
+                return Page();
+            }
+
+            var normalizedUserName = userName.ToUpperInvariant();
             var user = await _userManager.Users
-                .Where(u => u.NormalizedUserName == ResetPasswordModel.UserName.Trim().ToUpper())
+                .Where(u => u.NormalizedUserName == normalizedUserName)
                 .FirstOrDefaultAsync();
 
             if (user == null)
