@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -88,7 +88,7 @@ namespace KLENZ.Areas.Identity.Pages.Account
             if (result.Succeeded)
             {
                 _logger.LogInformation("User logged in.");
-                return LocalRedirect(returnUrl); // ✅ Ensures a valid redirect
+                return LocalRedirect("~/CompanySelection");
             }
             else
             {

@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model KLENZ.Areas.Identity.Pages.Account.EditMyProfileModel
 @{
     ViewData["Title"] = "Edit Profile";
@@ -14,17 +14,26 @@
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-4">
-                        <label for="ProfilePicture" class="position-relative d-inline-block" style="cursor: pointer;">
-                            <img src="@(Model.CurrentProfilePicture != null
+                        <label for="ProfilePicture" class="position-relative d-inline-block" style="cursor: pointer;" title="Click to upload a new picture">
+                            <img id="profileImagePreview" src="@(Model.CurrentProfilePicture != null && Model.CurrentProfilePicture.Length > 0
                                      ? $"data:image/png;base64,{Convert.ToBase64String(Model.CurrentProfilePicture)}"
                                      : Url.Content("~/images/profile.png"))"
                                  class="rounded-circle shadow"
                                  alt="Profile Picture"
                                  style="width: 150px; height: 150px; object-fit: cover;" />
-                            <i class="bi bi-pencil-fill position-absolute bottom-0 end-0 bg-light p-2 rounded-circle shadow-sm"
-                               style="font-size: 1.1rem;"></i>
+                            <i class="bi bi-camera-fill position-absolute bottom-0 end-0 bg-light p-2 rounded-circle shadow-sm"
+                               style="font-size: 1.1rem;" title="Upload new photo"></i>
                         </label>
-                        <input type="file" id="ProfilePicture" name="ProfilePicture" class="d-none" />
+                        <input type="file" id="ProfilePicture" name="ProfilePicture" class="d-none" accept="image/*" />
+
+                        @if (Model.CurrentProfilePicture != null && Model.CurrentProfilePicture.Length > 0)
+                        {
+                            <div class="mt-2">
+                                <button type="submit" asp-page-handler="RemovePicture" formnovalidate class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to remove your profile picture?');">
+                                    <i class="bi bi-trash3 me-1"></i> Remove Picture
+                                </button>
+                            </div>
+                        }
                     </div>
 
                     <!-- Form fields in two-column layout -->
@@ -74,3 +83,23 @@
         </div>
     </div>
 </form>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const fileInput = document.getElementById('ProfilePicture');
+            const imgPreview = document.getElementById('profileImagePreview');
+            if (fileInput && imgPreview) {
+                fileInput.addEventListener('change', function () {
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            imgPreview.src = e.target.result;
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+            }
+        });
+    </script>
+}

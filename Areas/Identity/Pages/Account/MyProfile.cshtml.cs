@@ -1,5 +1,6 @@
 using KLENZ.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -40,6 +41,26 @@ namespace KLENZ.Areas.Identity.Pages.Account
                     ProfilePicture = user.ProfilePicture;
                 }
             }
+        }
+
+        public async Task<IActionResult> OnPostRemovePictureAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
+
+            user.ProfilePicture = null;
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Profile picture removed successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Failed to remove profile picture.";
+            }
+
+            return RedirectToPage("MyProfile");
         }
     }
 }

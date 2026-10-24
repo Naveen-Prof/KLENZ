@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KLENZ.Data;
 using KLENZ.Models;
+using KLENZ.Services;
 using Microsoft.AspNetCore.Identity;
 
 namespace KLENZ.Controllers
@@ -15,20 +16,32 @@ namespace KLENZ.Controllers
     {
         private readonly KLENZDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ICompanyContext _companyContext;
 
-        public FinancialYearsController(KLENZDbContext context, UserManager<ApplicationUser> userManager)
+        public FinancialYearsController(
+            KLENZDbContext context, 
+            UserManager<ApplicationUser> userManager,
+            ICompanyContext companyContext)
         {
             _context = context;
             _userManager = userManager;
+            _companyContext = companyContext;
         }
 
         // GET: FinancialYears
         public async Task<IActionResult> Index()
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int currentCompId = _companyContext.CurrentCompanyId!.Value;
             var currentUser = await _userManager.GetUserAsync(User);
             var defaultUserName = currentUser?.UserName ?? currentUser?.Email ?? "System";
 
             var financialYears = await _context.FinancialYear
+                .Where(fy => fy.CompanyNameId == currentCompId)
                 .Select(fy => new
                 {
                     fy.Id,
@@ -36,6 +49,7 @@ namespace KLENZ.Controllers
                     fy.EndDate,
                     fy.FyYear,
                     fy.IsActive,
+                    fy.CompanyNameId,
                     fy.CreatedDateTime,
                     fy.CreatedUserId,
                     CreatedUserName = _context.Users
@@ -47,6 +61,9 @@ namespace KLENZ.Controllers
                 .ThenByDescending(fy => fy.CreatedDateTime)
                 .ToListAsync();
 
+            var currentCompanyName = _companyContext.CurrentCompanyShortName ?? _companyContext.CurrentCompanyName ?? "Selected Company";
+            ViewBag.CurrentCompanyName = currentCompanyName;
+
             var model = financialYears.Select(fy => new FinancialYear
             {
                 Id = fy.Id,
@@ -54,6 +71,8 @@ namespace KLENZ.Controllers
                 EndDate = fy.EndDate,
                 FyYear = string.IsNullOrWhiteSpace(fy.FyYear) ? $"{fy.StartDate.Year} - {fy.EndDate.Year}" : fy.FyYear,
                 IsActive = fy.IsActive,
+                CompanyNameId = fy.CompanyNameId,
+                CompanyNameStr = currentCompanyName,
                 CreatedDateTime = fy.CreatedDateTime,
                 CreatedUserId = fy.CreatedUserId,
                 CreatedUserName = string.IsNullOrWhiteSpace(fy.CreatedUserName) ? defaultUserName : fy.CreatedUserName
@@ -65,30 +84,49 @@ namespace KLENZ.Controllers
         // GET: FinancialYears/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
             if (id == null)
             {
                 return NotFound();
             }
 
+            int currentCompId = _companyContext.CurrentCompanyId!.Value;
             var financialYear = await _context.FinancialYear
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(fy => fy.Company)
+                .FirstOrDefaultAsync(m => m.Id == id && m.CompanyNameId == currentCompId);
+
             if (financialYear == null)
             {
                 return NotFound();
             }
 
+            financialYear.CompanyNameStr = financialYear.Company?.ShortName ?? _companyContext.CurrentCompanyShortName;
             return View(financialYear);
         }
 
         // GET: FinancialYears/Create
         public IActionResult Create()
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int currentCompId = _companyContext.CurrentCompanyId!.Value;
             var model = new FinancialYear
             {
                 StartDate = new DateTime(DateTime.Now.Year, 4, 1),
                 EndDate = new DateTime(DateTime.Now.Year + 1, 3, 31),
-                IsActive = 0
+                IsActive = 0,
+                CompanyNameId = currentCompId,
+                CompanyNameStr = _companyContext.CurrentCompanyShortName ?? _companyContext.CurrentCompanyName
             };
+
+            ViewBag.CurrentCompanyName = model.CompanyNameStr;
             return View(model);
         }
 
@@ -97,19 +135,29 @@ namespace KLENZ.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,StartDate,EndDate,IsActiveBool")] FinancialYear financialYear)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int currentCompId = _companyContext.CurrentCompanyId!.Value;
+            financialYear.CompanyNameId = currentCompId;
+            ViewBag.CurrentCompanyName = _companyContext.CurrentCompanyShortName ?? _companyContext.CurrentCompanyName;
+
             if (ModelState.IsValid)
             {
                 var fyYearString = $"{financialYear.StartDate.Year} - {financialYear.EndDate.Year}";
 
-                // Duplicate check
+                // Duplicate check scoped to current company
                 bool isDuplicate = await _context.FinancialYear.AnyAsync(fy =>
-                    fy.FyYear == fyYearString ||
-                    (fy.StartDate.Date == financialYear.StartDate.Date && fy.EndDate.Date == financialYear.EndDate.Date));
+                    fy.CompanyNameId == currentCompId &&
+                    (fy.FyYear == fyYearString ||
+                    (fy.StartDate.Date == financialYear.StartDate.Date && fy.EndDate.Date == financialYear.EndDate.Date)));
 
                 if (isDuplicate)
                 {
-                    ModelState.AddModelError("StartDate", $"Financial Year '{fyYearString}' already exists.");
-                    TempData["ErrorMessage"] = $"Financial Year '{fyYearString}' already exists!";
+                    ModelState.AddModelError("StartDate", $"Financial Year '{fyYearString}' already exists for {_companyContext.CurrentCompanyShortName}.");
+                    TempData["ErrorMessage"] = $"Financial Year '{fyYearString}' already exists for {_companyContext.CurrentCompanyShortName}!";
                     return View(financialYear);
                 }
 
@@ -126,10 +174,13 @@ namespace KLENZ.Controllers
                 financialYear.IsActive = financialYear.IsActiveBool ? (byte)1 : (byte)0;
                 financialYear.FyYear = fyYearString;
 
-                // Single active financial year logic: deactivate all others if this one is active
+                // Scoped single active financial year logic: deactivate other financial years for THIS company only
                 if (financialYear.IsActive == 1)
                 {
-                    var existingActive = await _context.FinancialYear.Where(fy => fy.IsActive == 1).ToListAsync();
+                    var existingActive = await _context.FinancialYear
+                        .Where(fy => fy.CompanyNameId == currentCompId && fy.IsActive == 1)
+                        .ToListAsync();
+
                     foreach (var fy in existingActive)
                     {
                         fy.IsActive = 0;
@@ -138,7 +189,7 @@ namespace KLENZ.Controllers
 
                 _context.Add(financialYear);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = $"Financial Year '{financialYear.FyYear}' created successfully!";
+                TempData["SuccessMessage"] = $"Financial Year '{financialYear.FyYear}' created for {_companyContext.CurrentCompanyShortName}!";
                 return RedirectToAction(nameof(Index));
             }
             return View(financialYear);
@@ -147,16 +198,26 @@ namespace KLENZ.Controllers
         // GET: FinancialYears/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
             if (id == null)
             {
                 return NotFound();
             }
 
-            var financialYear = await _context.FinancialYear.FindAsync(id);
+            int currentCompId = _companyContext.CurrentCompanyId!.Value;
+            var financialYear = await _context.FinancialYear
+                .FirstOrDefaultAsync(fy => fy.Id == id && fy.CompanyNameId == currentCompId);
+
             if (financialYear == null)
             {
                 return NotFound();
             }
+
+            ViewBag.CurrentCompanyName = _companyContext.CurrentCompanyShortName ?? _companyContext.CurrentCompanyName;
             return View(financialYear);
         }
 
@@ -165,14 +226,24 @@ namespace KLENZ.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,StartDate,EndDate,IsActiveBool")] FinancialYear financialYear)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int currentCompId = _companyContext.CurrentCompanyId!.Value;
             if (id != financialYear.Id)
             {
                 return NotFound();
             }
 
+            ViewBag.CurrentCompanyName = _companyContext.CurrentCompanyShortName ?? _companyContext.CurrentCompanyName;
+
             if (ModelState.IsValid)
             {
-                var existingFyYear = await _context.FinancialYear.FindAsync(id);
+                var existingFyYear = await _context.FinancialYear
+                    .FirstOrDefaultAsync(fy => fy.Id == id && fy.CompanyNameId == currentCompId);
+
                 if (existingFyYear == null)
                 {
                     return NotFound();
@@ -180,15 +251,17 @@ namespace KLENZ.Controllers
 
                 var fyYearString = $"{financialYear.StartDate.Year} - {financialYear.EndDate.Year}";
 
-                // Duplicate check
+                // Duplicate check scoped to current company
                 bool isDuplicate = await _context.FinancialYear.AnyAsync(fy =>
-                    fy.Id != id && (fy.FyYear == fyYearString ||
+                    fy.CompanyNameId == currentCompId &&
+                    fy.Id != id && 
+                    (fy.FyYear == fyYearString ||
                     (fy.StartDate.Date == financialYear.StartDate.Date && fy.EndDate.Date == financialYear.EndDate.Date)));
 
                 if (isDuplicate)
                 {
-                    ModelState.AddModelError("StartDate", $"Financial Year '{fyYearString}' already exists.");
-                    TempData["ErrorMessage"] = $"Financial Year '{fyYearString}' already exists!";
+                    ModelState.AddModelError("StartDate", $"Financial Year '{fyYearString}' already exists for {_companyContext.CurrentCompanyShortName}.");
+                    TempData["ErrorMessage"] = $"Financial Year '{fyYearString}' already exists for {_companyContext.CurrentCompanyShortName}!";
                     return View(financialYear);
                 }
 
@@ -199,10 +272,13 @@ namespace KLENZ.Controllers
                     existingFyYear.FyYear = fyYearString;
                     existingFyYear.IsActive = financialYear.IsActiveBool ? (byte)1 : (byte)0;
 
-                    // Single active financial year logic: deactivate all others if this one is active
+                    // Scoped single active financial year logic: deactivate other financial years for THIS company only
                     if (existingFyYear.IsActive == 1)
                     {
-                        var otherActive = await _context.FinancialYear.Where(fy => fy.Id != id && fy.IsActive == 1).ToListAsync();
+                        var otherActive = await _context.FinancialYear
+                            .Where(fy => fy.CompanyNameId == currentCompId && fy.Id != id && fy.IsActive == 1)
+                            .ToListAsync();
+
                         foreach (var fy in otherActive)
                         {
                             fy.IsActive = 0;
@@ -217,7 +293,7 @@ namespace KLENZ.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!FinancialYearExists(financialYear.Id))
+                    if (!FinancialYearExists(financialYear.Id, currentCompId))
                     {
                         return NotFound();
                     }
@@ -236,33 +312,51 @@ namespace KLENZ.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Activate(int id)
         {
-            var allYears = await _context.FinancialYear.ToListAsync();
-            var targetYear = allYears.FirstOrDefault(fy => fy.Id == id);
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int currentCompId = _companyContext.CurrentCompanyId!.Value;
+            var companyYears = await _context.FinancialYear
+                .Where(fy => fy.CompanyNameId == currentCompId)
+                .ToListAsync();
+
+            var targetYear = companyYears.FirstOrDefault(fy => fy.Id == id);
             if (targetYear == null)
             {
                 return NotFound();
             }
 
-            foreach (var fy in allYears)
+            // Deactivate all for this company, activate target
+            foreach (var fy in companyYears)
             {
                 fy.IsActive = (fy.Id == id) ? (byte)1 : (byte)0;
             }
 
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Financial Year '{targetYear.FyYear}' is now Active!";
+            TempData["SuccessMessage"] = $"Financial Year '{targetYear.FyYear}' is now Active for {_companyContext.CurrentCompanyShortName}!";
             return RedirectToAction(nameof(Index));
         }
 
         // GET: FinancialYears/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
             if (id == null)
             {
                 return NotFound();
             }
 
+            int currentCompId = _companyContext.CurrentCompanyId!.Value;
             var financialYear = await _context.FinancialYear
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(fy => fy.Company)
+                .FirstOrDefaultAsync(m => m.Id == id && m.CompanyNameId == currentCompId);
+
             if (financialYear == null)
             {
                 return NotFound();
@@ -276,19 +370,28 @@ namespace KLENZ.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var financialYear = await _context.FinancialYear.FindAsync(id);
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int currentCompId = _companyContext.CurrentCompanyId!.Value;
+            var financialYear = await _context.FinancialYear
+                .FirstOrDefaultAsync(fy => fy.Id == id && fy.CompanyNameId == currentCompId);
+
             if (financialYear != null)
             {
                 _context.FinancialYear.Remove(financialYear);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Financial Year deleted successfully!";
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool FinancialYearExists(int id)
+        private bool FinancialYearExists(int id, int companyId)
         {
-            return _context.FinancialYear.Any(e => e.Id == id);
+            return _context.FinancialYear.Any(e => e.Id == id && e.CompanyNameId == companyId);
         }
     }
 }

@@ -15,17 +15,26 @@ namespace KLENZ.Controllers
     {
         private readonly KLENZDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly KLENZ.Services.ICompanyContext _companyContext;
 
-        public ProjectListsController(KLENZDbContext context, UserManager<ApplicationUser> userManager)
+        public ProjectListsController(KLENZDbContext context, UserManager<ApplicationUser> userManager, KLENZ.Services.ICompanyContext companyContext)
         {
             _context = context;
             _userManager = userManager;
+            _companyContext = companyContext;
         }
 
         // GET: ProjectLists
         public async Task<IActionResult> Index()
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
             var projectLists = await _context.ProjectList
+                .Where(p => p.CompanyNameId == compId)
                 .Include(p => p.FinancialYear)
                 .Include(c => c.Company)
                 .OrderByDescending(p => p.CreatedDateTime)
@@ -56,12 +65,18 @@ namespace KLENZ.Controllers
 
         public async Task<IActionResult> Details(int? id)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
             if (id == null) return NotFound();
 
+            int compId = _companyContext.CurrentCompanyId!.Value;
             var projectList = await _context.ProjectList
-                .Include(p => p.FinancialYear)  // Ensure FinancialYear is loaded
-                .Include(p => p.Company)        // Ensure Company entity is loaded
-                .Where(p => p.Id == id)
+                .Include(p => p.FinancialYear)
+                .Include(p => p.Company)
+                .Where(p => p.Id == id && p.CompanyNameId == compId)
                 .Select(p => new
                 {
                     p.Id,
@@ -76,9 +91,9 @@ namespace KLENZ.Controllers
                         .Where(u => u.Id == p.CreatedUserId)
                         .Select(u => u.UserName)
                         .FirstOrDefault(),
-                    CompanyShortName = p.Company != null ? p.Company.ShortName : "N/A", // Fetch Company Name
+                    CompanyShortName = p.Company != null ? p.Company.ShortName : "N/A",
                     FinancialYear = _context.FinancialYear
-                        .Where(f=> f.Id == p.FyYear)
+                        .Where(f => f.Id == p.FyYear)
                         .Select(f => f.FyYear)
                         .FirstOrDefault()
                 })
@@ -89,7 +104,7 @@ namespace KLENZ.Controllers
             var viewModel = new ProjectList
             {
                 Id = projectList.Id,
-                FinancialYearStr = projectList.FinancialYear, // Convert if needed
+                FinancialYearStr = projectList.FinancialYear,
                 WorkOrderDate = projectList.WorkOrderDate,
                 CustomerDetails = projectList.CustomerDetails,
                 WorkDetails = projectList.WorkDetails,
@@ -104,112 +119,115 @@ namespace KLENZ.Controllers
             return View(viewModel);
         }
 
-
-
         // GET: ProjectLists/Create
         public IActionResult Create()
         {
-            ViewData["FyYear"] = new SelectList(_context.FinancialYear.Where(fy => fy.IsActive == 1),"Id", "FyYear");
-            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(c => c.IsActive == 1), "Id", "ShortName");
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            ViewData["FyYear"] = new SelectList(_context.FinancialYear.Where(fy => fy.CompanyNameId == compId), "Id", "FyYear");
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(c => c.IsActive == 1), "Id", "ShortName", compId);
 
             return View();
         }
 
         // POST: ProjectLists/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FyYear,WorkOrderDate,CompanyNameId,CustomerDetails,WorkDetails,WorkOrderValue" +
             ",Remarks,CreatedDateTime,CreatedUserId")] ProjectList projectList)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            projectList.CompanyNameId = compId;
+
             if (ModelState.IsValid)
             {
                 var userId = _userManager.GetUserId(User);
                 if (string.IsNullOrEmpty(userId))
                 {
-                    ModelState.AddModelError(string.Empty, "You must be logged in to create a sales enquiry.");
+                    ModelState.AddModelError(string.Empty, "You must be logged in to create a project.");
                     return View(projectList);
                 }
                
-                // Set the CreatedUserId and CreatedDateTime
                 projectList.CreatedUserId = userId;
                 projectList.CreatedDateTime = DateTime.Now;
 
                 _context.Add(projectList);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Project created successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FyYear"] = new SelectList(_context.FinancialYear, "Id", "FyYear", projectList.FyYear);
-            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
+            ViewData["FyYear"] = new SelectList(_context.FinancialYear.Where(fy => fy.CompanyNameId == compId), "Id", "FyYear", projectList.FyYear);
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName", compId);
             return View(projectList);
         }
 
         // GET: ProjectLists/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (!_companyContext.HasSelectedCompany)
             {
-                return NotFound();
+                return RedirectToAction("Index", "CompanySelection");
             }
 
-            var projectList = await _context.ProjectList.FindAsync(id);
-            if (projectList == null)
-            {
-                return NotFound();
-            }
-            ViewData["FyYear"] = new SelectList(_context.FinancialYear, "Id", "FyYear", projectList.FyYear);
-            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
+            if (id == null) return NotFound();
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            var projectList = await _context.ProjectList.FirstOrDefaultAsync(p => p.Id == id && p.CompanyNameId == compId);
+            if (projectList == null) return NotFound();
+
+            ViewData["FyYear"] = new SelectList(_context.FinancialYear.Where(fy => fy.CompanyNameId == compId), "Id", "FyYear", projectList.FyYear);
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName", compId);
             return View(projectList);
         }
 
         // POST: ProjectLists/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FyYear,WorkOrderDate,CompanyNameId,CustomerDetails,WorkDetails,WorkOrderValue,Remarks")] ProjectList projectList)
         {
-            if (id != projectList.Id)
+            if (!_companyContext.HasSelectedCompany)
             {
-                return NotFound();
+                return RedirectToAction("Index", "CompanySelection");
             }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            projectList.CompanyNameId = compId;
+
+            if (id != projectList.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
-                var existingProjectList = await _context.ProjectList.FindAsync(id);
-                if (existingProjectList == null)
-                {
-                    return NotFound();
-                }
+                var existingProjectList = await _context.ProjectList.FirstOrDefaultAsync(p => p.Id == id && p.CompanyNameId == compId);
+                if (existingProjectList == null) return NotFound();
 
                 try
                 {
-                    // Preserve CreatedUserId and CreatedDateTime
                     projectList.CreatedUserId = existingProjectList.CreatedUserId;
                     projectList.CreatedDateTime = existingProjectList.CreatedDateTime;
 
-                    // Update only the modified fields
                     _context.Entry(existingProjectList).CurrentValues.SetValues(projectList);
-
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Project updated successfully!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProjectListExists(projectList.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!ProjectListExists(projectList.Id, compId)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["FyYear"] = new SelectList(_context.FinancialYear, "Id", "FyYear", projectList.FyYear);
-            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
+            ViewData["FyYear"] = new SelectList(_context.FinancialYear.Where(fy => fy.CompanyNameId == compId), "Id", "FyYear", projectList.FyYear);
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName", compId);
             return View(projectList);
         }
 
@@ -217,19 +235,19 @@ namespace KLENZ.Controllers
         // GET: ProjectLists/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
+            if (!_companyContext.HasSelectedCompany)
             {
-                return NotFound();
+                return RedirectToAction("Index", "CompanySelection");
             }
 
+            if (id == null) return NotFound();
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
             var projectList = await _context.ProjectList
                 .Include(p => p.FinancialYear)
                 .Include(p => p.Company)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (projectList == null)
-            {
-                return NotFound();
-            }
+                .FirstOrDefaultAsync(m => m.Id == id && m.CompanyNameId == compId);
+            if (projectList == null) return NotFound();
 
             return View(projectList);
         }
@@ -239,19 +257,26 @@ namespace KLENZ.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var projectList = await _context.ProjectList.FindAsync(id);
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            var projectList = await _context.ProjectList.FirstOrDefaultAsync(p => p.Id == id && p.CompanyNameId == compId);
             if (projectList != null)
             {
                 _context.ProjectList.Remove(projectList);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Project deleted successfully!";
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ProjectListExists(int id)
+        private bool ProjectListExists(int id, int companyId)
         {
-            return _context.ProjectList.Any(e => e.Id == id);
+            return _context.ProjectList.Any(e => e.Id == id && e.CompanyNameId == companyId);
         }
     }
 }

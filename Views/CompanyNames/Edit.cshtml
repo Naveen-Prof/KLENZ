@@ -17,6 +17,14 @@
             <input type="hidden" asp-for="CreatedUserId" />
 
             <div class="row align-items-center mb-3">
+                <label asp-for="SequenceNo" class="col-md-4 col-form-label fw-bold text-md-end"></label>
+                <div class="col-md-5">
+                    <input asp-for="SequenceNo" class="form-control border-warning shadow-sm" type="number" min="1" placeholder="Enter Sequence No" required />
+                    <span asp-validation-for="SequenceNo" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-3">
                 <label asp-for="FullName" class="col-md-4 col-form-label fw-bold text-md-end"></label>
                 <div class="col-md-5">
                     <input asp-for="FullName" class="form-control border-warning shadow-sm" placeholder="Enter Full Company Name" required />

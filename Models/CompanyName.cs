@@ -10,6 +10,9 @@ namespace KLENZ.Models
         [Key]
         public int Id { get; set; }
 
+        [Display(Name = "Sequence No")]
+        public int SequenceNo { get; set; } = 1;
+
         [Required]
         [MaxLength(500)]
         public required string FullName { get; set; }

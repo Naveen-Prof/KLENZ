@@ -81,11 +81,32 @@ namespace KLENZ.Areas.Identity.Pages.Account
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
 
+                CurrentProfilePicture = user.ProfilePicture;
                 return Page();
             }
 
+            TempData["SuccessMessage"] = "Profile updated successfully.";
             return RedirectToPage("MyProfile");
         }
 
+        public async Task<IActionResult> OnPostRemovePictureAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
+
+            user.ProfilePicture = null;
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Profile picture removed successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Failed to remove profile picture.";
+            }
+
+            return RedirectToPage("EditMyProfile");
+        }
     }
 }

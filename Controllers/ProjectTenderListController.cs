@@ -7,22 +7,34 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KLENZ.Data;
 using KLENZ.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace KLENZ.Controllers
 {
     public class ProjectTenderListController : Controller
     {
         private readonly KLENZDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly KLENZ.Services.ICompanyContext _companyContext;
 
-        public ProjectTenderListController(KLENZDbContext context)
+        public ProjectTenderListController(KLENZDbContext context, UserManager<ApplicationUser> userManager, KLENZ.Services.ICompanyContext companyContext)
         {
             _context = context;
+            _userManager = userManager;
+            _companyContext = companyContext;
         }
 
         // GET: ProjectTenderList
         public async Task<IActionResult> Index()
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
             var list = await _context.Project_TenderList
+                .Where(p => p.CompanyNameId == compId)
                 .Include(p => p.Company)
                 .Include(p => p.FinancialYear)
                 .Include(p => p.GSTType)
@@ -58,16 +70,19 @@ namespace KLENZ.Controllers
         // GET: ProjectTenderList/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            if (!_companyContext.HasSelectedCompany)
             {
-                return NotFound();
+                return RedirectToAction("Index", "CompanySelection");
             }
 
+            if (id == null) return NotFound();
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
             var project_TenderList = await _context.Project_TenderList
                 .Include(p => p.Company)
                 .Include(p => p.FinancialYear)
                 .Include(p => p.GSTType)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.CompanyNameId == compId);
             if (project_TenderList == null)
             {
                 return NotFound();
@@ -79,72 +94,102 @@ namespace KLENZ.Controllers
         // GET: ProjectTenderList/Create
         public IActionResult Create()
         {
-            ViewData["CompanyNameId"] = new SelectList(_context.CompanyName, "Id", "FullName");
-            ViewData["FyYear"] = new SelectList(_context.FinancialYear, "Id", "FyYear");
-            ViewData["GSTTypeId"] = new SelectList(_context.GSTTypes, "Id", "Id");
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            ViewData["CompanyNameId"] = new SelectList(_context.CompanyName.Where(c => c.IsActive == 1), "Id", "ShortName", compId);
+            ViewData["FyYear"] = new SelectList(_context.FinancialYear.Where(fy => fy.CompanyNameId == compId), "Id", "FyYear");
+            ViewData["GSTTypeId"] = new SelectList(_context.GSTTypes, "Id", "GSTType");
             return View();
         }
 
         // POST: ProjectTenderList/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FyYear,WorkOrderDate,CompanyNameId,CustomerDetails,WorkDetails,ProjectCost,GSTTypeId,Total,WorkDuration,Remarks,CreatedDateTime,CreatedUserId")] Project_TenderList project_TenderList)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            project_TenderList.CompanyNameId = compId;
+
             if (ModelState.IsValid)
             {
+                var userId = _userManager.GetUserId(User);
+                project_TenderList.CreatedUserId = userId;
+                project_TenderList.CreatedDateTime = DateTime.Now;
+
                 _context.Add(project_TenderList);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Tender Project created successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CompanyNameId"] = new SelectList(_context.CompanyName, "Id", "FullName", project_TenderList.CompanyNameId);
-            ViewData["FyYear"] = new SelectList(_context.FinancialYear, "Id", "FyYear", project_TenderList.FyYear);
-            ViewData["GSTTypeId"] = new SelectList(_context.GSTTypes, "Id", "Id", project_TenderList.GSTTypeId);
+            ViewData["CompanyNameId"] = new SelectList(_context.CompanyName.Where(c => c.IsActive == 1), "Id", "ShortName", compId);
+            ViewData["FyYear"] = new SelectList(_context.FinancialYear.Where(fy => fy.CompanyNameId == compId), "Id", "FyYear", project_TenderList.FyYear);
+            ViewData["GSTTypeId"] = new SelectList(_context.GSTTypes, "Id", "GSTType", project_TenderList.GSTTypeId);
             return View(project_TenderList);
         }
 
         // GET: ProjectTenderList/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (!_companyContext.HasSelectedCompany)
             {
-                return NotFound();
+                return RedirectToAction("Index", "CompanySelection");
             }
 
-            var project_TenderList = await _context.Project_TenderList.FindAsync(id);
+            if (id == null) return NotFound();
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            var project_TenderList = await _context.Project_TenderList.FirstOrDefaultAsync(p => p.Id == id && p.CompanyNameId == compId);
             if (project_TenderList == null)
             {
                 return NotFound();
             }
-            ViewData["CompanyNameId"] = new SelectList(_context.CompanyName, "Id", "FullName", project_TenderList.CompanyNameId);
-            ViewData["FyYear"] = new SelectList(_context.FinancialYear, "Id", "FyYear", project_TenderList.FyYear);
-            ViewData["GSTTypeId"] = new SelectList(_context.GSTTypes, "Id", "Id", project_TenderList.GSTTypeId);
+            ViewData["CompanyNameId"] = new SelectList(_context.CompanyName.Where(c => c.IsActive == 1), "Id", "ShortName", compId);
+            ViewData["FyYear"] = new SelectList(_context.FinancialYear.Where(fy => fy.CompanyNameId == compId), "Id", "FyYear", project_TenderList.FyYear);
+            ViewData["GSTTypeId"] = new SelectList(_context.GSTTypes, "Id", "GSTType", project_TenderList.GSTTypeId);
             return View(project_TenderList);
         }
 
         // POST: ProjectTenderList/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FyYear,WorkOrderDate,CompanyNameId,CustomerDetails,WorkDetails,ProjectCost,GSTTypeId,Total,WorkDuration,Remarks,CreatedDateTime,CreatedUserId")] Project_TenderList project_TenderList)
         {
-            if (id != project_TenderList.Id)
+            if (!_companyContext.HasSelectedCompany)
             {
-                return NotFound();
+                return RedirectToAction("Index", "CompanySelection");
             }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            project_TenderList.CompanyNameId = compId;
+
+            if (id != project_TenderList.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(project_TenderList);
+                    var existing = await _context.Project_TenderList.FirstOrDefaultAsync(p => p.Id == id && p.CompanyNameId == compId);
+                    if (existing == null) return NotFound();
+
+                    project_TenderList.CreatedUserId = existing.CreatedUserId;
+                    project_TenderList.CreatedDateTime = existing.CreatedDateTime;
+
+                    _context.Entry(existing).CurrentValues.SetValues(project_TenderList);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Tender Project updated successfully!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!Project_TenderListExists(project_TenderList.Id))
+                    if (!Project_TenderListExists(project_TenderList.Id, compId))
                     {
                         return NotFound();
                     }
@@ -155,25 +200,28 @@ namespace KLENZ.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CompanyNameId"] = new SelectList(_context.CompanyName, "Id", "FullName", project_TenderList.CompanyNameId);
-            ViewData["FyYear"] = new SelectList(_context.FinancialYear, "Id", "FyYear", project_TenderList.FyYear);
-            ViewData["GSTTypeId"] = new SelectList(_context.GSTTypes, "Id", "Id", project_TenderList.GSTTypeId);
+            ViewData["CompanyNameId"] = new SelectList(_context.CompanyName.Where(c => c.IsActive == 1), "Id", "ShortName", compId);
+            ViewData["FyYear"] = new SelectList(_context.FinancialYear.Where(fy => fy.CompanyNameId == compId), "Id", "FyYear", project_TenderList.FyYear);
+            ViewData["GSTTypeId"] = new SelectList(_context.GSTTypes, "Id", "GSTType", project_TenderList.GSTTypeId);
             return View(project_TenderList);
         }
 
         // GET: ProjectTenderList/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
+            if (!_companyContext.HasSelectedCompany)
             {
-                return NotFound();
+                return RedirectToAction("Index", "CompanySelection");
             }
 
+            if (id == null) return NotFound();
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
             var project_TenderList = await _context.Project_TenderList
                 .Include(p => p.Company)
                 .Include(p => p.FinancialYear)
                 .Include(p => p.GSTType)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.CompanyNameId == compId);
             if (project_TenderList == null)
             {
                 return NotFound();
@@ -187,19 +235,26 @@ namespace KLENZ.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var project_TenderList = await _context.Project_TenderList.FindAsync(id);
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            var project_TenderList = await _context.Project_TenderList.FirstOrDefaultAsync(p => p.Id == id && p.CompanyNameId == compId);
             if (project_TenderList != null)
             {
                 _context.Project_TenderList.Remove(project_TenderList);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Tender Project deleted successfully!";
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool Project_TenderListExists(int id)
+        private bool Project_TenderListExists(int id, int companyId)
         {
-            return _context.Project_TenderList.Any(e => e.Id == id);
+            return _context.Project_TenderList.Any(e => e.Id == id && e.CompanyNameId == companyId);
         }
     }
 }

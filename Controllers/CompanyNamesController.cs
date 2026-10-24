@@ -26,10 +26,12 @@ namespace KLENZ.Controllers
         public async Task<IActionResult> Index()
         {
             var companies = await _context.CompanyName
-                .OrderByDescending(c => c.CreatedDateTime)
+                .OrderBy(c => c.SequenceNo)
+                .ThenBy(c => c.ShortName)
                 .Select(c => new CompanyName
                 {
                     Id = c.Id,
+                    SequenceNo = c.SequenceNo,
                     FullName = c.FullName,
                     ShortName = c.ShortName,
                     IsActive = c.IsActive,
@@ -60,39 +62,35 @@ namespace KLENZ.Controllers
                 return NotFound();
             }
 
+            if (!string.IsNullOrEmpty(companyName.CreatedUserId))
+            {
+                companyName.CreatedUserName = (await _context.Users
+                    .Where(u => u.Id == companyName.CreatedUserId)
+                    .Select(u => u.UserName ?? u.Email)
+                    .FirstOrDefaultAsync()) ?? "System";
+            }
+            else
+            {
+                companyName.CreatedUserName = "System";
+            }
+
             return View(companyName);
         }
 
-        // GET: CompanyNames/Create
+        // GET: CompanyNames/Create (Provision removed - companies created via query)
         public IActionResult Create()
         {
-            return View();
+            TempData["InfoMessage"] = "Company creation via UI is disabled. Companies are created via database query.";
+            return RedirectToAction(nameof(Index));
         }
 
-        // POST: CompanyNames/Create
+        // POST: CompanyNames/Create (Provision removed - companies created via query)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FullName,ShortName,IsActive,CreatedDateTime,CreatedUserId")] CompanyName companyName)
+        public IActionResult Create([Bind("Id,SequenceNo,FullName,ShortName,IsActive")] CompanyName companyName)
         {
-            if (ModelState.IsValid)
-            {
-                var userId = _userManager.GetUserId(User);
-                if (!string.IsNullOrEmpty(userId) && await _context.Users.AnyAsync(u => u.Id == userId))
-                {
-                    companyName.CreatedUserId = userId;
-                }
-                else
-                {
-                    companyName.CreatedUserId = null;
-                }
-                companyName.CreatedDateTime = DateTime.Now;
-
-                _context.Add(companyName);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Company Name created successfully!";
-                return RedirectToAction(nameof(Index));
-            }
-            return View(companyName);
+            TempData["InfoMessage"] = "Company creation via UI is disabled. Companies are created via database query.";
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: CompanyNames/Edit/5
@@ -114,7 +112,7 @@ namespace KLENZ.Controllers
         // POST: CompanyNames/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,ShortName,IsActive,CreatedDateTime,CreatedUserId")] CompanyName companyName)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,SequenceNo,FullName,ShortName,IsActive,CreatedDateTime,CreatedUserId")] CompanyName companyName)
         {
             if (id != companyName.Id)
             {
@@ -125,7 +123,33 @@ namespace KLENZ.Controllers
             {
                 try
                 {
-                    _context.Update(companyName);
+                    var existing = await _context.CompanyName.FindAsync(id);
+                    if (existing == null)
+                    {
+                        return NotFound();
+                    }
+
+                    int oldSequenceNo = existing.SequenceNo;
+                    int newSequenceNo = companyName.SequenceNo;
+
+                    // If sequence number changed, swap with any conflicting company
+                    if (oldSequenceNo != newSequenceNo)
+                    {
+                        var conflictingCompanies = await _context.CompanyName
+                            .Where(c => c.Id != id && c.SequenceNo == newSequenceNo)
+                            .ToListAsync();
+
+                        foreach (var conflict in conflictingCompanies)
+                        {
+                            conflict.SequenceNo = oldSequenceNo;
+                        }
+                    }
+
+                    existing.SequenceNo = newSequenceNo;
+                    existing.FullName = companyName.FullName;
+                    existing.ShortName = companyName.ShortName;
+                    existing.IsActive = companyName.IsActive;
+
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "Company Name updated successfully!";
                 }
@@ -158,6 +182,18 @@ namespace KLENZ.Controllers
             if (companyName == null)
             {
                 return NotFound();
+            }
+
+            if (!string.IsNullOrEmpty(companyName.CreatedUserId))
+            {
+                companyName.CreatedUserName = (await _context.Users
+                    .Where(u => u.Id == companyName.CreatedUserId)
+                    .Select(u => u.UserName ?? u.Email)
+                    .FirstOrDefaultAsync()) ?? "System";
+            }
+            else
+            {
+                companyName.CreatedUserName = "System";
             }
 
             return View(companyName);

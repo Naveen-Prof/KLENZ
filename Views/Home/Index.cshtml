@@ -1,5 +1,5 @@
-﻿@{
-    ViewData["Title"] = "Dashboard";
+@{
+    ViewData["Title"] = "Workspace";
 }
 
 <style>
@@ -18,7 +18,7 @@
         transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         border: 1px solid #e2e8f0;
         position: relative;
-       height:100px;
+        height: 100px;
     }
 
         .dashboard-card:hover {
@@ -97,6 +97,7 @@
         .table-card .table {
             margin-bottom: 0;
         }
+
     .dataTables_filter {
         margin-bottom: 1rem;
     }
@@ -131,15 +132,91 @@
         font-size: 0.85rem;
         color: #343a40;
     }
-
-
 </style>
 
-@* <div class="text-center">
-    <small class="display-6">Dashboard</small>
-</div> *@
-
 <div class="container-fluid mt-3">
+    @if (ViewBag.CompanyName != null)
+    {
+        <div class="d-flex align-items-center justify-content-between bg-white rounded-3 p-4 mb-4 border shadow-sm flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
+                     style="width: 54px; height: 54px; background: linear-gradient(135deg, #1e3a8a, #3b82f6); font-size: 1.25rem;">
+                    @ViewBag.CompanyShortName
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-1 text-dark">@ViewBag.CompanyName</h4>
+                    <p class="text-muted mb-0"><i class="bi bi-briefcase me-1"></i>Active Workspace &bull; Select a module from the top navigation to view records</p>
+                </div>
+            </div>
+            <div>
+                <a asp-controller="CompanySelection" asp-action="Index" class="btn btn-outline-primary rounded-pill px-3 py-1">
+                    <i class="bi bi-arrow-repeat me-1"></i> Switch Company
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3">
+                            <i class="bi bi-graph-up fs-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Sales Module</h5>
+                            <small class="text-muted">Enquiries, Quotes & Projects</small>
+                        </div>
+                    </div>
+                    <p class="text-muted small">Access and manage sales enquiries, quotation reports, and positive enquiry leads for @ViewBag.CompanyShortName.</p>
+                    <div class="mt-auto pt-2">
+                        <a asp-controller="SalesEnquiries" asp-action="Index" class="btn btn-sm btn-primary w-100 py-2">
+                            Go to Sales Enquiries <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="p-3 bg-success bg-opacity-10 text-success rounded-3">
+                            <i class="bi bi-briefcase fs-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Projects Module</h5>
+                            <small class="text-muted">Tender Lists & Consultancy</small>
+                        </div>
+                    </div>
+                    <p class="text-muted small">Review active project lists, consultancies, tender lists, and chemicals for @ViewBag.CompanyShortName.</p>
+                    <div class="mt-auto pt-2">
+                        <a asp-controller="ProjectTenderList" asp-action="Index" class="btn btn-sm btn-success text-white w-100 py-2">
+                            Go to Projects <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="p-3 bg-warning bg-opacity-10 text-dark rounded-3">
+                            <i class="bi bi-gear fs-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Services Module</h5>
+                            <small class="text-muted">Master Data & Settings</small>
+                        </div>
+                    </div>
+                    <p class="text-muted small">Configure financial years, GST types, and company profiles across the enterprise platform.</p>
+                    <div class="mt-auto pt-2">
+                        <a asp-controller="CompanyNames" asp-action="Index" class="btn btn-sm btn-outline-secondary w-100 py-2">
+                            Go to Services <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @* ==================== DASHBOARD CONTENT COMMENTED OUT FOR NOW ====================
     <div class="row g-3 mb-3">
         <div class="col-md-2 col-sm-6">
             <div class="dashboard-card d-flex p-3">
@@ -297,10 +374,10 @@
             </div>
         </div>
     </div>
-
+    ==================== END OF COMMENTED OUT DASHBOARD CONTENT ==================== *@
 </div>
 
-
+@* ==================== APEXCHARTS SCRIPTS COMMENTED OUT FOR NOW ====================
 <script src="~/js/custom_datatables.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
@@ -310,43 +387,20 @@
             series: [
                 {
                     data: [
-                        {
-                            x: '2008',
-                            y: [2800, 4500]
-                        },
-                        {
-                            x: '2009',
-                            y: [3200, 4100]
-                        },
-                        {
-                            x: '2010',
-                            y: [2950, 7800]
-                        },
-                        {
-                            x: '2011',
-                            y: [3000, 4600]
-                        },
-                        {
-                            x: '2012',
-                            y: [3500, 4100]
-                        },
-                        {
-                            x: '2013',
-                            y: [4500, 6500]
-                        },
-                        {
-                            x: '2014',
-                            y: [4100, 5600]
-                        }
+                        { x: '2008', y: [2800, 4500] },
+                        { x: '2009', y: [3200, 4100] },
+                        { x: '2010', y: [2950, 7800] },
+                        { x: '2011', y: [3000, 4600] },
+                        { x: '2012', y: [3500, 4100] },
+                        { x: '2013', y: [4500, 6500] },
+                        { x: '2014', y: [4100, 5600] }
                     ]
                 }
             ],
             chart: {
                 height: 350,
                 type: 'rangeBar',
-                zoom: {
-                    enabled: false
-                }
+                zoom: { enabled: false }
             },
             plotOptions: {
                 bar: {
@@ -372,80 +426,64 @@
                 }
             },
             grid: {
-                xaxis: {
-                    lines: {
-                        show: true
-                    }
-                },
-                yaxis: {
-                    lines: {
-                        show: false
-                    }
-                }
+                xaxis: { lines: { show: true } },
+                yaxis: { lines: { show: false } }
             },
-            xaxis: {
-                tickPlacement: 'on'
-            }
+            xaxis: { tickPlacement: 'on' }
         };
 
-    var chart = new ApexCharts(document.querySelector("#chartA"), options);
+        var chart = new ApexCharts(document.querySelector("#chartA"), options);
         chart.render();
 
+        dayjs.extend(window.dayjs_plugin_quarterOfYear);
 
-        //chartb
-    dayjs.extend(window.dayjs_plugin_quarterOfYear);
-
-    // Chart B
-    var chartBOptions = {
-        series: [{
-            name: "sales",
-            data: [
-                { x: '2019/01/01', y: 400 },
-                { x: '2019/04/01', y: 430 },
-                { x: '2019/07/01', y: 448 },
-                { x: '2019/10/01', y: 470 },
-                { x: '2020/01/01', y: 540 },
-                { x: '2020/04/01', y: 580 },
-                { x: '2020/07/01', y: 690 },
-                { x: '2020/10/01', y: 690 }
-            ]
-        }],
-        chart: {
-            type: 'bar',
-            height: 380
-        },
-        xaxis: {
-            type: 'category',
-            labels: {
-                formatter: function (val) {
-                    return "Q" + dayjs(val).quarter();
+        var chartBOptions = {
+            series: [{
+                name: "sales",
+                data: [
+                    { x: '2019/01/01', y: 400 },
+                    { x: '2019/04/01', y: 430 },
+                    { x: '2019/07/01', y: 448 },
+                    { x: '2019/10/01', y: 470 },
+                    { x: '2020/01/01', y: 540 },
+                    { x: '2020/04/01', y: 580 },
+                    { x: '2020/07/01', y: 690 },
+                    { x: '2020/10/01', y: 690 }
+                ]
+            }],
+            chart: {
+                type: 'bar',
+                height: 380
+            },
+            xaxis: {
+                type: 'category',
+                labels: {
+                    formatter: function (val) {
+                        return "Q" + dayjs(val).quarter();
+                    }
+                },
+                group: {
+                    style: {
+                        fontSize: '10px',
+                        fontWeight: 700
+                    },
+                    groups: [
+                        { title: '2019', cols: 4 },
+                        { title: '2020', cols: 4 }
+                    ]
                 }
             },
-            group: {
-                style: {
-                    fontSize: '10px',
-                    fontWeight: 700
-                },
-                groups: [
-                    { title: '2019', cols: 4 },
-                    { title: '2020', cols: 4 }
-                ]
-            }
-        },
-        title: {
-            text: 'Grouped Labels on the X-axis',
-        },
-        tooltip: {
-            x: {
-                formatter: function (val) {
-                    return "Q" + dayjs(val).quarter() + " " + dayjs(val).format("YYYY");
+            title: { text: 'Grouped Labels on the X-axis' },
+            tooltip: {
+                x: {
+                    formatter: function (val) {
+                        return "Q" + dayjs(val).quarter() + " " + dayjs(val).format("YYYY");
+                    }
                 }
-            }
-        },
-    };
+            },
+        };
 
-    var chartB = new ApexCharts(document.querySelector("#chartB"), chartBOptions);
-    chartB.render();
-
-    </script>
-
+        var chartB = new ApexCharts(document.querySelector("#chartB"), chartBOptions);
+        chartB.render();
+</script>
+==================== END OF COMMENTED OUT SCRIPTS ==================== *@

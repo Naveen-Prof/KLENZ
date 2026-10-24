@@ -31,6 +31,16 @@ namespace KLENZ.Models
         [NotMapped]
         public bool IsActiveBool { get => IsActive == 1; set => IsActive = value ? (byte)1 : (byte)0; }
 
+        [Display(Name = "Company")]
+        public int? CompanyNameId { get; set; }
+
+        [ForeignKey("CompanyNameId")]
+        public virtual CompanyName? Company { get; set; }
+
+        [NotMapped]
+        [Display(Name = "Company Name")]
+        public string? CompanyNameStr { get; set; }
+
         [Display(Name = "Created Date Time")]
         public DateTime? CreatedDateTime { get; set; }
 

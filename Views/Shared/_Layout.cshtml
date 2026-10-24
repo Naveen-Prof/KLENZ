@@ -1,3 +1,4 @@
+@inject KLENZ.Services.ICompanyContext CompanyContext
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,14 +29,21 @@
         <!-- Conditionally hide navbar for Login & Register auth pages -->
         @{
             var pageName = ViewContext.RouteData.Values["Page"]?.ToString() ?? "";
+            var controllerName = ViewContext.RouteData.Values["Controller"]?.ToString() ?? "";
             var isAuthPage = pageName.Contains("/Account/Register") || pageName.Contains("/Account/Login");
+            var isCompanySelectionPage = string.Equals(controllerName, "CompanySelection", StringComparison.OrdinalIgnoreCase);
         }
         @if (!isAuthPage)
         {
             <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3 rounded-navbar">
                 <div class="container-fluid">
                     <!-- Left: Brand & Toggler -->
-                    <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">KLENZ</a>
+                    @if (!isCompanySelectionPage)
+                    {
+                        <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index" title="@CompanyContext.CurrentCompanyName">
+                            @(CompanyContext.HasSelectedCompany ? (CompanyContext.CurrentCompanyShortName ?? CompanyContext.CurrentCompanyName) : "KLENZ")
+                        </a>
+                    }
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
@@ -44,9 +52,11 @@
                     <!-- Center: Collapsible Menu -->
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav me-auto">
+                            @* Dashboard commented out for now
                             <li class="nav-item">
                                 <a class="nav-link text-dark fw-medium" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                             </li>
+                            *@
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-dark fw-medium" href="#" id="nav-sales-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     Sales <i class="bi bi-chevron-up dropdown-icon ms-1"></i>
@@ -82,9 +92,40 @@
                         </ul>
                     </div>
 
-                    <!-- Right: Profile Dropdown -->
-                    <div class="dropdown ms-auto">
-                        @await Component.InvokeAsync("UserProfile")
+                    <!-- Right: Company Workspace & Profile Dropdown -->
+                    <div class="d-flex align-items-center ms-auto gap-2">
+                        @if ((User.Identity?.IsAuthenticated ?? false) && !isCompanySelectionPage)
+                        {
+                            @if (CompanyContext.HasSelectedCompany)
+                            {
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 d-flex align-items-center gap-2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Active Company Workspace">
+                                        <i class="bi bi-building"></i>
+                                        <span class="fw-semibold">@CompanyContext.CurrentCompanyShortName</span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2">
+                                        <li class="dropdown-header text-uppercase small text-muted">Active Workspace</li>
+                                        <li><span class="dropdown-item-text fw-bold text-dark">@CompanyContext.CurrentCompanyName</span></li>
+                                        <li><hr class="dropdown-divider my-1"></li>
+                                        <li>
+                                            <a class="dropdown-item text-primary" asp-area="" asp-controller="CompanySelection" asp-action="Index">
+                                                <i class="bi bi-arrow-repeat me-2"></i> Switch Company
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            }
+                            else
+                            {
+                                <a asp-area="" asp-controller="CompanySelection" asp-action="Index" class="btn btn-sm btn-warning rounded-pill px-3 py-1 fw-semibold text-dark">
+                                    <i class="bi bi-building-add me-1"></i> Select Company
+                                </a>
+                            }
+                        }
+
+                        <div class="dropdown">
+                            @await Component.InvokeAsync("UserProfile")
+                        </div>
                     </div>
                 </div>
             </nav>

@@ -1,0 +1,71 @@
+@model IEnumerable<KLENZ.Models.Project_KlenzChemicals>
+
+@{
+    ViewData["Title"] = "Klenz Chemicals";
+}
+
+<script src="~/js/Custom_DataTables.js"></script>
+
+<div class="card rounded-card shadow-lg mt-3">
+    <div class="card-header d-flex justify-content-between align-items-center bg-primary bg-opacity-75 text-white rounded-top">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-flask me-2 fs-4"></i>
+            <h4 class="mb-0">Klenz Chemicals</h4>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Create" class="btn btn-light text-primary shadow-sm custom-btn">
+                <i class="bi bi-plus-circle me-1"></i> Create New
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table datatable rounded-table align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="action-column">Actions</th>
+                        <th>Financial Year</th>
+                        <th>Work Order Date</th>
+                        <th>Company Name</th>
+                        <th>Customer Details</th>
+                        <th>Work Details</th>
+                        <th>Project Cost</th>
+                        <th>GST (%)</th>
+                        <th>Total</th>
+                        <th>Work Duration</th>
+                        <th>Remarks</th>
+                        <th>Created Date</th>
+                        <th>Created User</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="action-column">
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <a asp-action="Details" asp-route-id="@item.Id" title="Details" class="text-decoration-none">
+                                        <i class="bi bi-info-circle text-primary fs-5"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            <td>@(item.FinancialYear != null ? item.FinancialYear.FyYear : item.FyYear.ToString())</td>
+                            <td>@(item.WorkOrderDate.HasValue ? item.WorkOrderDate.Value.ToString("dd-MM-yyyy") : "-")</td>
+                            <td>@(item.Company != null ? item.Company.ShortName : item.CompanyNameStr ?? "-")</td>
+                            <td>@item.CustomerDetails</td>
+                            <td>@item.WorkDetails</td>
+                            <td>@(item.ProjectCost.HasValue ? item.ProjectCost.Value.ToString("N2") : "-")</td>
+                            <td>@(item.GSTType != null ? item.GSTType.GSTType : "-")</td>
+                            <td>@(item.Total.HasValue ? item.Total.Value.ToString("N2") : "-")</td>
+                            <td>@item.WorkDuration</td>
+                            <td>@item.Remarks</td>
+                            <td>@(item.CreatedDateTime.HasValue ? item.CreatedDateTime.Value.ToString("dd-MM-yyyy HH:mm") : "-")</td>
+                            <td>@item.CreatedUserName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

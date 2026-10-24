@@ -18,15 +18,19 @@ namespace KLENZ.Controllers
         private readonly KLENZDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
-        public PositiveEnquiriesController(KLENZDbContext context, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        private readonly KLENZ.Services.ICompanyContext _companyContext;
+
+        public PositiveEnquiriesController(KLENZDbContext context, UserManager<ApplicationUser> userManager, IConfiguration configuration, KLENZ.Services.ICompanyContext companyContext)
         {
             _context = context;
             _userManager = userManager;
             _configuration = configuration;
+            _companyContext = companyContext;
         }
 
-        public string GetActiveFinancialYear()
+        public string GetActiveFinancialYear(int? companyId = null)
         {
+            int compId = companyId ?? _companyContext.CurrentCompanyId ?? 0;
             string financialYear = "";
             string? connectionString = _configuration.GetConnectionString("KLENZDbContext");
 
@@ -37,36 +41,44 @@ namespace KLENZ.Controllers
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT FyYear, Id FROM Services.FinancialYear WHERE IsActive = 1";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                conn.Open();
-
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                string query = "SELECT TOP 1 FyYear FROM Services.FinancialYear WHERE IsActive = 1 AND (CompanyNameId = @CompanyId OR (CompanyNameId IS NULL AND @CompanyId = 0)) ORDER BY Id DESC";
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
-                    if (reader.Read())
+                    cmd.Parameters.AddWithValue("@CompanyId", compId);
+                    conn.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        financialYear = $"{reader.GetString(0)}";
+                        if (reader.Read() && !reader.IsDBNull(0))
+                        {
+                            financialYear = $"{reader.GetString(0)}";
+                        }
                     }
                 }
             }
             return financialYear;
         }
-        public int GetFyId()
+
+        public int GetFyId(int? companyId = null)
         {
+            int compId = companyId ?? _companyContext.CurrentCompanyId ?? 0;
             int fyId = 0;
             string? connectionString = _configuration.GetConnectionString("KLENZDbContext");
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT Id FROM Services.FinancialYear WHERE IsActive = 1";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                conn.Open();
-
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                string query = "SELECT TOP 1 Id FROM Services.FinancialYear WHERE IsActive = 1 AND (CompanyNameId = @CompanyId OR (CompanyNameId IS NULL AND @CompanyId = 0)) ORDER BY Id DESC";
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
-                    if (reader.Read())
+                    cmd.Parameters.AddWithValue("@CompanyId", compId);
+                    conn.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        fyId = reader.GetInt32(0);
+                        if (reader.Read())
+                        {
+                            fyId = reader.GetInt32(0);
+                        }
                     }
                 }
             }
@@ -77,7 +89,14 @@ namespace KLENZ.Controllers
         // GET: PositiveEnquiries
         public async Task<IActionResult> Index()
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
             var companyNameList = await _context.PositiveEnquiry
+                .Where(pe => pe.CompanyNameId == compId)
                 .Include(c => c.Company)
                 .OrderByDescending(c => c.CreatedDateTime)
                 .Select(pe => new PositiveEnquiry
@@ -106,10 +125,16 @@ namespace KLENZ.Controllers
         // GET: PositiveEnquiries/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
             if (id == null) return NotFound();
 
+            int compId = _companyContext.CurrentCompanyId!.Value;
             var positiveEnquiry = await _context.PositiveEnquiry
-                .Where(m => m.Id == id)
+                .Where(m => m.Id == id && m.CompanyNameId == compId)
                 .Select(pe => new
                 {
                     pe.Id,
@@ -125,7 +150,7 @@ namespace KLENZ.Controllers
                         .Select(u => u.UserName)
                         .FirstOrDefault(),
                     CompanyName = _context.CompanyName
-                        .Where(c => c.Id == pe.CompanyNameId) // Assuming CompanyNameId is the foreign key
+                        .Where(c => c.Id == pe.CompanyNameId)
                         .Select(c => c.ShortName)
                         .FirstOrDefault()
                 })
@@ -147,7 +172,6 @@ namespace KLENZ.Controllers
                 CompanyNameStr = positiveEnquiry.CompanyName
             };
 
-
             return View(viewModel);
         }
 
@@ -155,102 +179,117 @@ namespace KLENZ.Controllers
         // GET: PositiveEnquiries/Create
         public IActionResult Create()
         {
-            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
-            ViewBag.ActiveFinancialYear = GetActiveFinancialYear();
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName", compId);
+            ViewBag.ActiveFinancialYear = GetActiveFinancialYear(compId);
             return View();
         }
 
         // POST: PositiveEnquiries/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,QuotationDate,CompanyNameId,ProductDetails,CustomerDetails,QuotationValue," +
             "CurrentStatus,CreatedDateTime,CreatedUserId")] PositiveEnquiry positiveEnquiry)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            positiveEnquiry.CompanyNameId = compId;
+
             if (ModelState.IsValid)
             {
                 var userId = _userManager.GetUserId(User);
                 if (string.IsNullOrEmpty(userId))
                 {
-                    ModelState.AddModelError(string.Empty, "You must be logged in to create a sales enquiry.");
+                    ModelState.AddModelError(string.Empty, "You must be logged in to create a positive enquiry.");
                     return View(positiveEnquiry);
                 }
                 positiveEnquiry.CreatedUserId = userId;
                 positiveEnquiry.CreatedDateTime = DateTime.Now;
-                positiveEnquiry.FyYear = GetFyId();
+                positiveEnquiry.FyYear = GetFyId(compId);
 
                 _context.Add(positiveEnquiry);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Positive Enquiry created successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
+
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName", compId);
+            ViewBag.ActiveFinancialYear = GetActiveFinancialYear(compId);
             return View(positiveEnquiry);
         }
 
         // GET: PositiveEnquiries/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (!_companyContext.HasSelectedCompany)
             {
-                return NotFound();
+                return RedirectToAction("Index", "CompanySelection");
             }
 
-            var positiveEnquiry = await _context.PositiveEnquiry.FindAsync(id);
-            if (positiveEnquiry == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            var positiveEnquiry = await _context.PositiveEnquiry.FirstOrDefaultAsync(pe => pe.Id == id && pe.CompanyNameId == compId);
+            if (positiveEnquiry == null) return NotFound();
 
             ViewBag.Companies = _context.CompanyName
-              .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.ShortName })
-              .ToList();
+                .Where(c => c.Id == compId || c.IsActive == 1)
+                .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.ShortName })
+                .ToList();
+
             return View(positiveEnquiry);
         }
 
         // POST: PositiveEnquiries/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,QuotationDate,CompanyNameId,ProductDetails,CustomerDetails" +
             ",QuotationValue,CurrentStatus,CreatedDateTime,CreatedUserId")] PositiveEnquiry positiveEnquiry)
         {
-            if (id != positiveEnquiry.Id)
+            if (!_companyContext.HasSelectedCompany)
             {
-                return NotFound();
+                return RedirectToAction("Index", "CompanySelection");
             }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            positiveEnquiry.CompanyNameId = compId;
+
+            if (id != positiveEnquiry.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var existingPosEnquiry = await _context.SalesEnquiries.FindAsync(id);
+                    var existingPosEnquiry = await _context.PositiveEnquiry.FirstOrDefaultAsync(pe => pe.Id == id && pe.CompanyNameId == compId);
                     if (existingPosEnquiry == null) return NotFound();
 
                     positiveEnquiry.CreatedUserId = existingPosEnquiry.CreatedUserId;
                     positiveEnquiry.CreatedDateTime = existingPosEnquiry.CreatedDateTime;
-                    positiveEnquiry.FyYear = GetFyId();
+                    positiveEnquiry.FyYear = existingPosEnquiry.FyYear != 0 ? existingPosEnquiry.FyYear : GetFyId(compId);
 
                     _context.Entry(existingPosEnquiry).CurrentValues.SetValues(positiveEnquiry);
-
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Positive Enquiry updated successfully!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PositiveEnquiryExists(positiveEnquiry.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!PositiveEnquiryExists(positiveEnquiry.Id, compId)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
 
             ViewBag.Companies = _context.CompanyName
+               .Where(c => c.Id == compId || c.IsActive == 1)
                .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.ShortName })
                .ToList();
 
@@ -260,17 +299,17 @@ namespace KLENZ.Controllers
         // GET: PositiveEnquiries/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
+            if (!_companyContext.HasSelectedCompany)
             {
-                return NotFound();
+                return RedirectToAction("Index", "CompanySelection");
             }
 
+            if (id == null) return NotFound();
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
             var positiveEnquiry = await _context.PositiveEnquiry
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (positiveEnquiry == null)
-            {
-                return NotFound();
-            }
+                .FirstOrDefaultAsync(m => m.Id == id && m.CompanyNameId == compId);
+            if (positiveEnquiry == null) return NotFound();
 
             return View(positiveEnquiry);
         }
@@ -280,19 +319,26 @@ namespace KLENZ.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var positiveEnquiry = await _context.PositiveEnquiry.FindAsync(id);
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            var positiveEnquiry = await _context.PositiveEnquiry.FirstOrDefaultAsync(pe => pe.Id == id && pe.CompanyNameId == compId);
             if (positiveEnquiry != null)
             {
                 _context.PositiveEnquiry.Remove(positiveEnquiry);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Positive Enquiry deleted successfully!";
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool PositiveEnquiryExists(int id)
+        private bool PositiveEnquiryExists(int id, int companyId)
         {
-            return _context.PositiveEnquiry.Any(e => e.Id == id);
+            return _context.PositiveEnquiry.Any(e => e.Id == id && e.CompanyNameId == companyId);
         }
     }
 }

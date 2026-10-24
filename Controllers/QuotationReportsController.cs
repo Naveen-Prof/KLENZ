@@ -18,16 +18,19 @@ namespace KLENZ.Controllers
         private readonly KLENZDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly KLENZ.Services.ICompanyContext _companyContext;
 
-        public QuotationReportsController(KLENZDbContext context, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public QuotationReportsController(KLENZDbContext context, UserManager<ApplicationUser> userManager, IConfiguration configuration, KLENZ.Services.ICompanyContext companyContext)
         {
             _context = context;
             _userManager = userManager;
             _configuration = configuration;
+            _companyContext = companyContext;
         }
 
-        public string GetActiveFinancialYear()
+        public string GetActiveFinancialYear(int? companyId = null)
         {
+            int compId = companyId ?? _companyContext.CurrentCompanyId ?? 0;
             string financialYear = "";
             string? connectionString = _configuration.GetConnectionString("KLENZDbContext");
 
@@ -38,36 +41,44 @@ namespace KLENZ.Controllers
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT FyYear, Id FROM Services.FinancialYear WHERE IsActive = 1";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                conn.Open();
-
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                string query = "SELECT TOP 1 FyYear FROM Services.FinancialYear WHERE IsActive = 1 AND (CompanyNameId = @CompanyId OR (CompanyNameId IS NULL AND @CompanyId = 0)) ORDER BY Id DESC";
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
-                    if (reader.Read())
+                    cmd.Parameters.AddWithValue("@CompanyId", compId);
+                    conn.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        financialYear = $"{reader.GetString(0)}";
+                        if (reader.Read() && !reader.IsDBNull(0))
+                        {
+                            financialYear = $"{reader.GetString(0)}";
+                        }
                     }
                 }
             }
             return financialYear;
         }
-        public int GetFyId()
+
+        public int GetFyId(int? companyId = null)
         {
+            int compId = companyId ?? _companyContext.CurrentCompanyId ?? 0;
             int fyId = 0;
             string? connectionString = _configuration.GetConnectionString("KLENZDbContext");
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT Id FROM Services.FinancialYear WHERE IsActive = 1";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                conn.Open();
-
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                string query = "SELECT TOP 1 Id FROM Services.FinancialYear WHERE IsActive = 1 AND (CompanyNameId = @CompanyId OR (CompanyNameId IS NULL AND @CompanyId = 0)) ORDER BY Id DESC";
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
-                    if (reader.Read())
+                    cmd.Parameters.AddWithValue("@CompanyId", compId);
+                    conn.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        fyId = reader.GetInt32(0);
+                        if (reader.Read())
+                        {
+                            fyId = reader.GetInt32(0);
+                        }
                     }
                 }
             }
@@ -78,7 +89,14 @@ namespace KLENZ.Controllers
         // GET: QuotationReports
         public async Task<IActionResult> Index()
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
             var companyNameList = await _context.QuotationReport
+                .Where(qr => qr.CompanyNameId == compId)
                 .Include(c => c.Company)
                 .OrderByDescending(c => c.CreatedDateTime)
                 .Select(qr => new QuotationReport
@@ -108,10 +126,16 @@ namespace KLENZ.Controllers
         // GET: QuotationReports/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
             if (id == null) return NotFound();
 
+            int compId = _companyContext.CurrentCompanyId!.Value;
             var quotationReport = await _context.QuotationReport
-                .Where(m => m.Id == id)
+                .Where(m => m.Id == id && m.CompanyNameId == compId)
                 .Select(qr => new 
                 {
                     qr.Id,
@@ -128,7 +152,7 @@ namespace KLENZ.Controllers
                         .Select(u => u.UserName)
                         .FirstOrDefault(),
                     CompanyName = _context.CompanyName
-                        .Where(c => c.Id == qr.CompanyNameId) // Assuming CompanyNameId is the foreign key
+                        .Where(c => c.Id == qr.CompanyNameId)
                         .Select(c => c.ShortName)
                         .FirstOrDefault()
                 })
@@ -158,19 +182,30 @@ namespace KLENZ.Controllers
         // GET: QuotationReports/Create
         public IActionResult Create()
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
 
-            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
-            ViewBag.ActiveFinancialYear = GetActiveFinancialYear();
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName", compId);
+            ViewBag.ActiveFinancialYear = GetActiveFinancialYear(compId);
             return View();
         }
 
         // POST: QuotationReports/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,QuotationDate,CompanyNameId,ProductDetails,CustomerDetails,QuotationValue,Remarks,IsPositive,CreatedDateTime,CreatedUserId")] QuotationReport quotationReport)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            quotationReport.CompanyNameId = compId;
+
             if (ModelState.IsValid)
             {
                 var userId = _userManager.GetUserId(User);
@@ -184,7 +219,7 @@ namespace KLENZ.Controllers
                 // Set the CreatedUserId and CreatedDateTime
                 quotationReport.CreatedUserId = userId;
                 quotationReport.CreatedDateTime = DateTime.Now;
-                quotationReport.FyYear = GetFyId();
+                quotationReport.FyYear = GetFyId(compId);
 
                 // Insert into QuotationReport
                 _context.Add(quotationReport);
@@ -196,7 +231,7 @@ namespace KLENZ.Controllers
                     var positiveEnquiry = new PositiveEnquiry
                     {
                         QuotationDate = quotationReport.QuotationDate,
-                        CompanyNameId = quotationReport.CompanyNameId,
+                        CompanyNameId = compId,
                         ProductDetails = quotationReport.ProductDetails,
                         CustomerDetails = quotationReport.CustomerDetails,
                         QuotationValue = quotationReport.QuotationValue,
@@ -209,10 +244,12 @@ namespace KLENZ.Controllers
                     await _context.SaveChangesAsync();
                 }
 
+                TempData["SuccessMessage"] = "Quotation Report created successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
 
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName", compId);
+            ViewBag.ActiveFinancialYear = GetActiveFinancialYear(compId);
             return View(quotationReport);
         }
 
@@ -221,65 +258,66 @@ namespace KLENZ.Controllers
         // GET: QuotationReports/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (!_companyContext.HasSelectedCompany)
             {
-                return NotFound();
+                return RedirectToAction("Index", "CompanySelection");
             }
-            var quotationReport = await _context.QuotationReport.FindAsync(id);
-            if (quotationReport == null)
-            {
-                return NotFound();
-            }
+
+            if (id == null) return NotFound();
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            var quotationReport = await _context.QuotationReport.FirstOrDefaultAsync(qr => qr.Id == id && qr.CompanyNameId == compId);
+            if (quotationReport == null) return NotFound();
+
             ViewBag.Companies = _context.CompanyName
-            .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.ShortName })
-            .ToList();
+                .Where(c => c.Id == compId || c.IsActive == 1)
+                .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.ShortName })
+                .ToList();
+
             return View(quotationReport);
         }
 
         // POST: QuotationReports/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,QuotationDate,CompanyNameId,ProductDetails,CustomerDetails,QuotationValue,Remarks,IsPositive,CreatedDateTime,CreatedUserId")] QuotationReport quotationReport)
         {
-            if (id != quotationReport.Id)
+            if (!_companyContext.HasSelectedCompany)
             {
-                return NotFound();
+                return RedirectToAction("Index", "CompanySelection");
             }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            quotationReport.CompanyNameId = compId;
+
+            if (id != quotationReport.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
                     quotationReport.IsPositive = quotationReport.IsPositiveBool ? (byte)1 : (byte)0;
-                    // Get the existing record before updating
-                    var existingQuotation = await _context.QuotationReport.FindAsync(id);
-                    if (existingQuotation == null)
-                    {
-                        return NotFound();
-                    }
+                    var existingQuotation = await _context.QuotationReport.FirstOrDefaultAsync(qr => qr.Id == id && qr.CompanyNameId == compId);
+                    if (existingQuotation == null) return NotFound();
 
-                    // Preserve CreatedUserId and CreatedDateTime (if needed)
                     quotationReport.CreatedUserId = existingQuotation.CreatedUserId;
                     quotationReport.CreatedDateTime = existingQuotation.CreatedDateTime;
-                    quotationReport.FyYear = GetFyId();
+                    quotationReport.FyYear = existingQuotation.FyYear != 0 ? existingQuotation.FyYear : GetFyId(compId);
 
                     // Update QuotationReport
                     _context.Entry(existingQuotation).CurrentValues.SetValues(quotationReport);
                     await _context.SaveChangesAsync();
 
                     // Check if IsPositive == 1 (Update or Insert into PositiveEnquiry)
-                    var existingPositiveEnquiry = await _context.PositiveEnquiry.FirstOrDefaultAsync(pe => pe.Id == quotationReport.Id);
+                    var existingPositiveEnquiry = await _context.PositiveEnquiry.FirstOrDefaultAsync(pe => pe.Id == quotationReport.Id && pe.CompanyNameId == compId);
                     if (quotationReport.IsPositive == 1)
                     {
                         if (existingPositiveEnquiry == null)
                         {
-                            // Insert new PositiveEnquiry
                             var positiveEnquiry = new PositiveEnquiry
                             {
                                 QuotationDate = quotationReport.QuotationDate,
-                                CompanyNameId = quotationReport.CompanyNameId,
+                                CompanyNameId = compId,
                                 ProductDetails = quotationReport.ProductDetails,
                                 CustomerDetails = quotationReport.CustomerDetails,
                                 QuotationValue = quotationReport.QuotationValue,
@@ -291,9 +329,8 @@ namespace KLENZ.Controllers
                         }
                         else
                         {
-                            // Update existing PositiveEnquiry
                             existingPositiveEnquiry.QuotationDate = quotationReport.QuotationDate;
-                            existingPositiveEnquiry.CompanyNameId = quotationReport.CompanyNameId;
+                            existingPositiveEnquiry.CompanyNameId = compId;
                             existingPositiveEnquiry.ProductDetails = quotationReport.ProductDetails;
                             existingPositiveEnquiry.CustomerDetails = quotationReport.CustomerDetails;
                             existingPositiveEnquiry.QuotationValue = quotationReport.QuotationValue;
@@ -304,29 +341,24 @@ namespace KLENZ.Controllers
                     }
                     else
                     {
-                        // If IsPositive is 0 or null, remove from PositiveEnquiry if exists
                         if (existingPositiveEnquiry != null)
                         {
                             _context.PositiveEnquiry.Remove(existingPositiveEnquiry);
                             await _context.SaveChangesAsync();
                         }
                     }
+                    TempData["SuccessMessage"] = "Quotation Report updated successfully!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!QuotationReportExists(quotationReport.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!QuotationReportExists(quotationReport.Id, compId)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
 
             ViewBag.Companies = _context.CompanyName
+              .Where(c => c.Id == compId || c.IsActive == 1)
               .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.ShortName })
               .ToList();
 
@@ -336,17 +368,17 @@ namespace KLENZ.Controllers
         // GET: QuotationReports/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
+            if (!_companyContext.HasSelectedCompany)
             {
-                return NotFound();
+                return RedirectToAction("Index", "CompanySelection");
             }
 
+            if (id == null) return NotFound();
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
             var quotationReport = await _context.QuotationReport
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (quotationReport == null)
-            {
-                return NotFound();
-            }
+                .FirstOrDefaultAsync(m => m.Id == id && m.CompanyNameId == compId);
+            if (quotationReport == null) return NotFound();
 
             return View(quotationReport);
         }
@@ -356,19 +388,26 @@ namespace KLENZ.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var quotationReport = await _context.QuotationReport.FindAsync(id);
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            var quotationReport = await _context.QuotationReport.FirstOrDefaultAsync(qr => qr.Id == id && qr.CompanyNameId == compId);
             if (quotationReport != null)
             {
                 _context.QuotationReport.Remove(quotationReport);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Quotation Report deleted successfully!";
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool QuotationReportExists(int id)
+        private bool QuotationReportExists(int id, int companyId)
         {
-            return _context.QuotationReport.Any(e => e.Id == id);
+            return _context.QuotationReport.Any(e => e.Id == id && e.CompanyNameId == companyId);
         }
     }
 }

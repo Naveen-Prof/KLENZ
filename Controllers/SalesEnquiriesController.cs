@@ -22,17 +22,20 @@ namespace KLENZ.Controllers
         private readonly string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".pdf", ".docx" };
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly KLENZ.Services.ICompanyContext _companyContext;
 
-        public SalesEnquiriesController(KLENZDbContext context, IWebHostEnvironment hostEnvironment, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public SalesEnquiriesController(KLENZDbContext context, IWebHostEnvironment hostEnvironment, UserManager<ApplicationUser> userManager, IConfiguration configuration, KLENZ.Services.ICompanyContext companyContext)
         {
             _context = context;
             _hostEnvironment = hostEnvironment;
             _userManager = userManager;
             _configuration = configuration;
+            _companyContext = companyContext;
         }
 
-        public string GetActiveFinancialYear()
+        public string GetActiveFinancialYear(int? companyId = null)
         {
+            int compId = companyId ?? _companyContext.CurrentCompanyId ?? 0;
             string financialYear = "";
             string? connectionString = _configuration.GetConnectionString("KLENZDbContext");
 
@@ -43,36 +46,44 @@ namespace KLENZ.Controllers
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT FyYear, Id FROM Services.FinancialYear WHERE IsActive = 1";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                conn.Open();
-
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                string query = "SELECT TOP 1 FyYear FROM Services.FinancialYear WHERE IsActive = 1 AND (CompanyNameId = @CompanyId OR (CompanyNameId IS NULL AND @CompanyId = 0)) ORDER BY Id DESC";
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
-                    if (reader.Read())
+                    cmd.Parameters.AddWithValue("@CompanyId", compId);
+                    conn.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        financialYear = $"{reader.GetString(0)}";
+                        if (reader.Read() && !reader.IsDBNull(0))
+                        {
+                            financialYear = $"{reader.GetString(0)}";
+                        }
                     }
                 }
             }
             return financialYear;
         }
-        public int GetFyId()
+
+        public int GetFyId(int? companyId = null)
         {
+            int compId = companyId ?? _companyContext.CurrentCompanyId ?? 0;
             int fyId = 0;
             string? connectionString = _configuration.GetConnectionString("KLENZDbContext");
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT Id FROM Services.FinancialYear WHERE IsActive = 1";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                conn.Open();
-
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                string query = "SELECT TOP 1 Id FROM Services.FinancialYear WHERE IsActive = 1 AND (CompanyNameId = @CompanyId OR (CompanyNameId IS NULL AND @CompanyId = 0)) ORDER BY Id DESC";
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
-                    if (reader.Read())
+                    cmd.Parameters.AddWithValue("@CompanyId", compId);
+                    conn.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        fyId = reader.GetInt32(0);
+                        if (reader.Read())
+                        {
+                            fyId = reader.GetInt32(0);
+                        }
                     }
                 }
             }
@@ -83,7 +94,14 @@ namespace KLENZ.Controllers
         // GET: SalesEnquiries
         public async Task<IActionResult> Index()
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
             var salesEnquiryList = await _context.SalesEnquiries
+                .Where(se => se.CompanyNameId == compId)
                 .Include(se => se.Company) 
                 .OrderByDescending(se => se.CreatedDateTime) 
                 .Select(se => new SalesEnquiry
@@ -116,21 +134,30 @@ namespace KLENZ.Controllers
         // GET: SalesEnquiries/Create
         public IActionResult Create()
         {
-            //ViewBag.Companies = _context.CompanyName
-            //    .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.FullName })
-            //    .ToList();
-            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
-            ViewBag.ActiveFinancialYear = GetActiveFinancialYear();
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName", compId);
+            ViewBag.ActiveFinancialYear = GetActiveFinancialYear(compId);
             return View();
         }
 
         // GET: SalesEnquiries/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
             if (id == null) return NotFound();
 
+            int compId = _companyContext.CurrentCompanyId!.Value;
             var salesEnquiry = await _context.SalesEnquiries
-                .Where(m => m.Id == id)
+                .Where(m => m.Id == id && m.CompanyNameId == compId)
                 .Select(se => new
                 {
                     se.Id,
@@ -150,7 +177,7 @@ namespace KLENZ.Controllers
                         .Select(u => u.UserName)
                         .FirstOrDefault(),
                     CompanyName = _context.CompanyName
-                        .Where(c => c.Id == se.CompanyNameId) // Assuming CompanyNameId is the foreign key
+                        .Where(c => c.Id == se.CompanyNameId)
                         .Select(c => c.ShortName)
                         .FirstOrDefault()
                 })
@@ -173,7 +200,7 @@ namespace KLENZ.Controllers
                 CreatedDateTime = salesEnquiry.CreatedDateTime,
                 CreatedUserId = salesEnquiry.CreatedUserId,
                 CreatedUserName = salesEnquiry.CreatedUserName,
-                CompanyNameStr = salesEnquiry.CompanyName    // Now assigning ShortName to CompanyName
+                CompanyNameStr = salesEnquiry.CompanyName
             };
 
             return View(viewModel);
@@ -186,6 +213,14 @@ namespace KLENZ.Controllers
         public async Task<IActionResult> Create([Bind("CompanyNameId, ReferedBy, EnquiryDetails, EnquiryDate, " +
             "CustomerDetails, Status, Remarks, ReminderDate, ReminderPlace, FilePath")] SalesEnquiry salesEnquiry, IFormFile? File)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            salesEnquiry.CompanyNameId = compId;
+
             if (ModelState.IsValid)
             {
                 var userId = _userManager.GetUserId(User);
@@ -222,7 +257,7 @@ namespace KLENZ.Controllers
 
                     salesEnquiry.FilePath = "/uploads/" + uniqueFileName;
                 }
-                salesEnquiry.FyYear = GetFyId();
+                salesEnquiry.FyYear = GetFyId(compId);
                 // ✅ Save Data to Database
                 _context.Add(salesEnquiry);
                 await _context.SaveChangesAsync();
@@ -230,7 +265,8 @@ namespace KLENZ.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName");
+            ViewData["Companies"] = new SelectList(_context.CompanyName.Where(fy => fy.IsActive == 1), "Id", "ShortName", compId);
+            ViewBag.ActiveFinancialYear = GetActiveFinancialYear(compId);
 
             return View(salesEnquiry);
         }
@@ -240,12 +276,19 @@ namespace KLENZ.Controllers
         // GET: SalesEnquiries/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
             if (id == null) return NotFound();
 
-            var salesEnquiry = await _context.SalesEnquiries.FindAsync(id);
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            var salesEnquiry = await _context.SalesEnquiries.FirstOrDefaultAsync(se => se.Id == id && se.CompanyNameId == compId);
             if (salesEnquiry == null) return NotFound();
 
             ViewBag.Companies = _context.CompanyName
+               .Where(c => c.Id == compId || c.IsActive == 1)
                .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.ShortName })
                .ToList();
 
@@ -257,13 +300,21 @@ namespace KLENZ.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, SalesEnquiry salesEnquiry, IFormFile? File)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            salesEnquiry.CompanyNameId = compId;
+
             if (id != salesEnquiry.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var existingEnquiry = await _context.SalesEnquiries.FindAsync(id);
+                    var existingEnquiry = await _context.SalesEnquiries.FirstOrDefaultAsync(se => se.Id == id && se.CompanyNameId == compId);
                     if (existingEnquiry == null) return NotFound();
 
                     // Handle File Upload
@@ -305,7 +356,7 @@ namespace KLENZ.Controllers
                     }
                     salesEnquiry.CreatedUserId = existingEnquiry.CreatedUserId;
                     salesEnquiry.CreatedDateTime = existingEnquiry.CreatedDateTime;
-                    salesEnquiry.FyYear = GetFyId();
+                    salesEnquiry.FyYear = existingEnquiry.FyYear != 0 ? existingEnquiry.FyYear : GetFyId(compId);
                     _context.Entry(existingEnquiry).CurrentValues.SetValues(salesEnquiry);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "Sales Enquiry updated successfully!";
@@ -313,12 +364,13 @@ namespace KLENZ.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SalesEnquiryExists(salesEnquiry.Id)) return NotFound();
+                    if (!SalesEnquiryExists(salesEnquiry.Id, compId)) return NotFound();
                     else throw;
                 }
             }
 
             ViewBag.Companies = _context.CompanyName
+               .Where(c => c.Id == compId || c.IsActive == 1)
                .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.ShortName })
                .ToList();
 
@@ -328,9 +380,15 @@ namespace KLENZ.Controllers
         // GET: SalesEnquiries/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
             if (id == null) return NotFound();
 
-            var salesEnquiry = await _context.SalesEnquiries.FirstOrDefaultAsync(m => m.Id == id);
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            var salesEnquiry = await _context.SalesEnquiries.FirstOrDefaultAsync(m => m.Id == id && m.CompanyNameId == compId);
             if (salesEnquiry == null) return NotFound();
 
             return View(salesEnquiry);
@@ -341,7 +399,13 @@ namespace KLENZ.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var salesEnquiry = await _context.SalesEnquiries.FindAsync(id);
+            if (!_companyContext.HasSelectedCompany)
+            {
+                return RedirectToAction("Index", "CompanySelection");
+            }
+
+            int compId = _companyContext.CurrentCompanyId!.Value;
+            var salesEnquiry = await _context.SalesEnquiries.FirstOrDefaultAsync(se => se.Id == id && se.CompanyNameId == compId);
             if (salesEnquiry != null)
             {
                 // Delete the associated file
@@ -360,9 +424,9 @@ namespace KLENZ.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool SalesEnquiryExists(int id)
+        private bool SalesEnquiryExists(int id, int companyId)
         {
-            return _context.SalesEnquiries.Any(e => e.Id == id);
+            return _context.SalesEnquiries.Any(e => e.Id == id && e.CompanyNameId == companyId);
         }
     }
 }

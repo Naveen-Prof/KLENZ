@@ -24,6 +24,42 @@ BEGIN
     EXEC('CREATE SCHEMA [Sales]')
 END
 
+IF NOT EXISTS (SELECT TOP 1 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'Services' AND TABLE_NAME = 'Companies')
+BEGIN
+	CREATE TABLE Services.Companies (
+		Id				INT				IDENTITY(1,1) PRIMARY KEY,
+		SequenceNo		INT				NOT NULL CONSTRAINT DF_Companies_SequenceNo DEFAULT 1,
+		FullName		NVARCHAR(500)   NOT NULL,
+		ShortName		NVARCHAR(250)   NOT NULL,
+		IsActive		TINYINT			NOT NULL CONSTRAINT DF_Companies_IsActive DEFAULT 1,
+		CreatedDateTime DATETIME		NULL CONSTRAINT DF_Companies_CreatedDateTime DEFAULT GETDATE(),
+		CreatedUserId	NVARCHAR(450)	NULL,
+
+		CONSTRAINT FK_Companies_CreatedUser	FOREIGN KEY (CreatedUserId) REFERENCES dbo.AspNetUsers(Id)
+	)
+
+	-- Seed initial companies
+	SET IDENTITY_INSERT Services.Companies ON;
+	INSERT INTO Services.Companies (Id, SequenceNo, FullName, ShortName, IsActive, CreatedDateTime)
+	VALUES 
+		(1, 1, 'KLENZ', 'KLENZ', 1, GETDATE()),
+		(2, 2, 'ARCUS', 'ARCUS', 1, GETDATE()),
+		(3, 3, 'ZION ENTERPRICES', 'ZION', 1, GETDATE()),
+		(4, 4, 'GTN', 'GTN', 1, GETDATE());
+	SET IDENTITY_INSERT Services.Companies OFF;
+END
+ELSE
+BEGIN
+	IF NOT EXISTS (SELECT TOP 1 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'Services' AND TABLE_NAME = 'Companies' AND COLUMN_NAME = 'SequenceNo')
+	BEGIN
+		ALTER TABLE Services.Companies ADD SequenceNo INT NULL;
+		EXEC('UPDATE Services.Companies SET SequenceNo = Id WHERE SequenceNo IS NULL');
+		ALTER TABLE Services.Companies ALTER COLUMN SequenceNo INT NOT NULL;
+		ALTER TABLE Services.Companies ADD CONSTRAINT DF_Companies_SequenceNo DEFAULT 1 FOR SequenceNo;
+	END
+END
+
+
 IF NOT EXISTS (SELECT TOP 1 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'Services' AND TABLE_NAME = 'FinancialYear')
 BEGIN
 	CREATE TABLE Services.FinancialYear (
@@ -32,10 +68,12 @@ BEGIN
 		EndDate         DATETIME        NOT NULL,
 		FyYear			NVARCHAR(250)   NOT NULL,
 		IsActive		TINYINT			NOT NULL,
+		CompanyNameId	INT				NULL,
 		CreatedDateTime DATETIME		NULL,
 		CreatedUserId	NVARCHAR(450)	NULL,
 
-		CONSTRAINT FK_FinancialYear_CreatedUser	FOREIGN KEY (CreatedUserId) REFERENCES dbo.AspNetUsers(Id)
+		CONSTRAINT FK_FinancialYear_CreatedUser	FOREIGN KEY (CreatedUserId) REFERENCES dbo.AspNetUsers(Id),
+		CONSTRAINT FK_FinancialYear_Company		FOREIGN KEY (CompanyNameId) REFERENCES Services.Companies(Id)
 	)
 END
 ELSE
@@ -48,22 +86,11 @@ BEGIN
 	BEGIN
 		ALTER TABLE Services.FinancialYear ADD EndDate DATETIME NOT NULL CONSTRAINT DF_FinancialYear_EndDate DEFAULT '2026-03-31';
 	END
-END
-
-
-
-IF NOT EXISTS (SELECT TOP 1 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'Services' AND TABLE_NAME = 'Companies')
-BEGIN
-	CREATE TABLE Services.Companies (
-		Id				INT				IDENTITY(1,1) PRIMARY KEY,
-		FullName		NVARCHAR(500)   NOT NULL,
-		ShortName		NVARCHAR(250)   NOT NULL,
-		IsActive		TINYINT			NOT NULL,
-		CreatedDateTime DATETIME		NULL,
-		CreatedUserId	NVARCHAR(450)	NULL,
-
-		CONSTRAINT FK_Companies_CreatedUser	FOREIGN KEY (CreatedUserId) REFERENCES dbo.AspNetUsers(Id)
-	)
+	IF NOT EXISTS (SELECT TOP 1 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'Services' AND TABLE_NAME = 'FinancialYear' AND COLUMN_NAME = 'CompanyNameId')
+	BEGIN
+		ALTER TABLE Services.FinancialYear ADD CompanyNameId INT NULL;
+		ALTER TABLE Services.FinancialYear ADD CONSTRAINT FK_FinancialYear_Company FOREIGN KEY (CompanyNameId) REFERENCES Services.Companies(Id);
+	END
 END
 
 
