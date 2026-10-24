@@ -19,7 +19,7 @@
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
     @RenderSection("Styles", required: false)
@@ -154,24 +154,59 @@
     <script src="~/js/custom_datatables.js"></script>
     <script src="~/js/site.js"></script>
 
-    <!-- 🔹 Toastr Notifications -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- 🔹 SweetAlert2 Modern UI Toaster -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        $(document).ready(function () {
-            toastr.options = {
-                "closeButton": true,
-                "progressBar": true,
-                "positionClass": "toast-top-right",
-                "showDuration": "300",
-                "hideDuration": "1000",
-                "timeOut": "4000",
-                "extendedTimeOut": "1000",
-                "showEasing": "swing",
-                "hideEasing": "linear",
-                "showMethod": "fadeIn",
-                "hideMethod": "fadeOut"
-            };
+        const ModernToast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            showCloseButton: true,
+            timer: 3500,
+            timerProgressBar: true,
+            customClass: {
+                popup: 'modern-toast-popup'
+            },
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            }
+        });
 
+        // Global Toastr bridge for seamless modern UI notifications
+        window.toastr = {
+            success: function (message) {
+                ModernToast.fire({
+                    icon: 'success',
+                    title: message,
+                    customClass: { popup: 'modern-toast-popup toast-success' }
+                });
+            },
+            error: function (message) {
+                ModernToast.fire({
+                    icon: 'error',
+                    title: message,
+                    customClass: { popup: 'modern-toast-popup toast-error' }
+                });
+            },
+            warning: function (message) {
+                ModernToast.fire({
+                    icon: 'warning',
+                    title: message,
+                    customClass: { popup: 'modern-toast-popup toast-warning' }
+                });
+            },
+            info: function (message) {
+                ModernToast.fire({
+                    icon: 'info',
+                    title: message,
+                    customClass: { popup: 'modern-toast-popup toast-info' }
+                });
+            }
+        };
+        window.Toast = window.toastr;
+
+        $(document).ready(function () {
             @if (TempData["SuccessMessage"] != null)
             {
                 <text>toastr.success(@Json.Serialize(TempData["SuccessMessage"]));</text>
