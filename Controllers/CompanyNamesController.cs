@@ -169,48 +169,19 @@ namespace KLENZ.Controllers
             return View(companyName);
         }
 
-        // GET: CompanyNames/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: CompanyNames/Delete/5 (Disabled - companies cannot be deleted)
+        public IActionResult Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var companyName = await _context.CompanyName
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (companyName == null)
-            {
-                return NotFound();
-            }
-
-            if (!string.IsNullOrEmpty(companyName.CreatedUserId))
-            {
-                companyName.CreatedUserName = (await _context.Users
-                    .Where(u => u.Id == companyName.CreatedUserId)
-                    .Select(u => u.UserName ?? u.Email)
-                    .FirstOrDefaultAsync()) ?? "System";
-            }
-            else
-            {
-                companyName.CreatedUserName = "System";
-            }
-
-            return View(companyName);
+            TempData["InfoMessage"] = "Company deletion is disabled.";
+            return RedirectToAction(nameof(Index));
         }
 
-        // POST: CompanyNames/Delete/5
+        // POST: CompanyNames/Delete/5 (Disabled - companies cannot be deleted)
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed(int id)
         {
-            var companyName = await _context.CompanyName.FindAsync(id);
-            if (companyName != null)
-            {
-                _context.CompanyName.Remove(companyName);
-            }
-
-            await _context.SaveChangesAsync();
+            TempData["InfoMessage"] = "Company deletion is disabled.";
             return RedirectToAction(nameof(Index));
         }
 

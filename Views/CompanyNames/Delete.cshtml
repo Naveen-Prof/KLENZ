@@ -5,90 +5,20 @@
 }
 
 <div class="card shadow-lg rounded-card border-0 mt-3">
-    <div class="card-header bg-danger bg-opacity-75 text-white py-2.5 px-3 rounded-top d-flex align-items-center">
-        <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
-        <h5 class="mb-0 fw-semibold">Delete Company</h5>
+    <div class="card-header bg-secondary text-white py-2.5 px-3 rounded-top d-flex align-items-center">
+        <i class="bi bi-shield-lock me-2 fs-4"></i>
+        <h5 class="mb-0 fw-semibold">Company Deletion Disabled</h5>
     </div>
-    <div class="card-body p-4">
-        <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
-            <i class="bi bi-exclamation-octagon-fill fs-4 me-3"></i>
-            <div>
-                <strong>Warning:</strong> Are you sure you want to delete this company record?
-            </div>
+    <div class="card-body p-4 text-center">
+        <div class="alert alert-warning d-inline-block text-start p-3 shadow-sm" style="max-width: 600px;">
+            <h6 class="fw-bold mb-2"><i class="bi bi-exclamation-triangle-fill me-2"></i>Company Deletion is Disabled</h6>
+            <p class="mb-0">Companies cannot be deleted through the user interface. Companies are persistent across multi-company workspace modules.</p>
         </div>
 
-        <div class="row g-3">
-            <div class="col-md-6">
-                <div class="p-3 bg-light rounded-3 h-100 border">
-                    <small class="text-muted text-uppercase fw-semibold d-block mb-1">Sequence Number</small>
-                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-1.5 fs-6 rounded-pill fw-bold">
-                        #@Model.SequenceNo
-                    </span>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="p-3 bg-light rounded-3 h-100 border">
-                    <small class="text-muted text-uppercase fw-semibold d-block mb-1">Status</small>
-                    @if (Model.IsActive == 1)
-                    {
-                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-1.5 fs-6 rounded-pill">
-                            <i class="bi bi-check-circle-fill me-1 text-success"></i> Active
-                        </span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 px-3 py-1.5 fs-6 rounded-pill">
-                            <i class="bi bi-dash-circle me-1"></i> Inactive
-                        </span>
-                    }
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="p-3 bg-light rounded-3 h-100 border">
-                    <small class="text-muted text-uppercase fw-semibold d-block mb-1">Full Company Name</small>
-                    <h6 class="mb-0 fw-bold text-dark">@Model.FullName</h6>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="p-3 bg-light rounded-3 h-100 border">
-                    <small class="text-muted text-uppercase fw-semibold d-block mb-1">Short Name / Code</small>
-                    <span class="badge bg-dark bg-opacity-10 text-dark border px-3 py-1.5 fs-6 rounded-pill fw-bold">
-                        @Model.ShortName
-                    </span>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="p-3 bg-light rounded-3 h-100 border">
-                    <small class="text-muted text-uppercase fw-semibold d-block mb-1">Created Date & Time</small>
-                    <span class="text-dark fw-medium">
-                        <i class="bi bi-calendar3 me-1 text-muted"></i>
-                        @(Model.CreatedDateTime.HasValue ? Model.CreatedDateTime.Value.ToString("dd/MM/yyyy HH:mm:ss") : "N/A")
-                    </span>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="p-3 bg-light rounded-3 h-100 border">
-                    <small class="text-muted text-uppercase fw-semibold d-block mb-1">Created By</small>
-                    <span class="text-dark fw-medium">
-                        <i class="bi bi-person-circle me-1 text-muted"></i>
-                        @(string.IsNullOrWhiteSpace(Model.CreatedUserName) ? "System" : Model.CreatedUserName)
-                    </span>
-                </div>
-            </div>
+        <div class="mt-4">
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                <i class="bi bi-arrow-left me-1"></i> Back to Companies List
+            </a>
         </div>
-
-        <form asp-action="Delete" class="mt-4 pt-3 border-top">
-            <input type="hidden" asp-for="Id" />
-            <div class="d-flex justify-content-between align-items-center">
-                <a asp-action="Index" class="btn btn-outline-secondary px-4">
-                    <i class="bi bi-arrow-left me-1"></i> Back to List
-                </a>
-                <button type="submit" class="btn btn-danger px-4 shadow-sm fw-semibold">
-                    <i class="bi bi-trash-fill me-1"></i> Delete Company
-                </button>
-            </div>
-        </form>
     </div>
 </div>
